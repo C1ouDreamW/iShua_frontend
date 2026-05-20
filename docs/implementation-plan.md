@@ -4,6 +4,8 @@
 > **API**：`api-docs-v3.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
+**当前进度（2026-05-20）**：**P0、P1 已落地**（M1 可演示）；下一步 **P2 鉴权**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+
 ---
 
 ## 1. 总览
@@ -13,7 +15,7 @@
 
 | 里程碑    | 用户可感知能力               |
 | ------ | --------------------- |
-| **M1** | 访客在大厅选题库、刷公开题（本地判分）   |
+| **M1** | 访客在大厅选题库、刷公开题（本地判分） ✅ |
 | **M2** | 注册登录；登录后刷公开题、错题本、错题重刷 |
 | **M3** | PREMIUM 建库、管题、手工录题    |
 | **M4** | AI 导入全流程              |
@@ -87,14 +89,26 @@ flowchart LR
 | P0-5 | `api/client.ts`：`Result<T>` 解析、`code!==200` 拒绝                    | 统一错误形态                    |
 | P0-6 | 请求拦截器：白名单不加 Bearer；`ishua_token` → Header                         | 鉴权骨架                      |
 | P0-7 | `router.tsx` 注册终稿 §5.1 全部路由（页面可先占位 `PageStub`）                    | 路由表完整                     |
-| P0-8 | `lib/parseOptionsJson.ts`、`lib/gradeAnswer.ts` 空实现或单测占位           | 供 P1/P3 使用                |
+| P0-8 | `lib/parseOptionsJson.ts`、`lib/gradeAnswer.ts` 空实现或单测占位           | 供 P1/P3 使用（**已超前实现判分**） |
 
 
 **本阶段 API**：无业务调用，仅 client 健康检查（可选 `GET` 公开接口试连）。
 
+**已落地文件（摘要）**
+
+| 路径 | 说明 |
+|------|------|
+| `src/api/client.ts` | `Result<T>`、`ApiError`、白名单 Bearer |
+| `src/types/api.d.ts` | `openapi-typescript` 生成 |
+| `src/styles/tokens.css`、`src/index.css` | §4 token + Noto 字体 |
+| `src/router.tsx` | §5.1 全路由；未完成页为 `PageStub` |
+| `src/layouts/AppShell.tsx` | 极简顶栏占位（完整壳层见 P5） |
+| `src/lib/parseOptionsJson.ts`、`src/lib/gradeAnswer.ts` | 选项解析 + SINGLE/MULTI/JUDGE 判分 |
+| `.env.development` | `VITE_API_BASE_URL` |
+
 **验收**
 
-- `pnpm dev` 无报错；路由跳转正常  
+- `npm run dev` 无报错；路由跳转正常  
 - 米白底 + 墨绿主按钮可见  
 - 手动设 `localStorage.ishua_token` 后，非白名单请求带 Bearer
 
@@ -102,24 +116,35 @@ flowchart LR
 
 ---
 
-### P1 — 公开大厅 + 访客刷题（里程碑 M1）
+### P1 — 公开大厅 + 访客刷题（里程碑 M1） ✅
 
 **目标**：未登录完整路径：大厅 → 访客刷题 → 完成页；**不调用 submit**。
 
 **依赖**：P0。
 
+| 工作包  | 任务                                                    | 组件/页面 / 实际产出 |
+| ---- | ----------------------------------------------------- | ------------------ |
+| P1-1 | `api/banks.ts`：`pagePublicBanks`                      | `src/api/banks.ts` |
+| P1-2 | `api/banks.ts`：`getHotPracticeDetail`                 | 同上 |
+| P1-3 | 简易顶栏布局（Logo、Slogan、登录/注册）                             | `src/pages/HomePage.tsx`（Logo 暂用「刷」字块，见遗留项） |
+| P1-4 | 页面 `/`：`BankCard` 网格 + `Pagination`（pageSize 按断点）     | `BankCard`、`PaginationBar`、`useResponsivePageSize`（8/10/12） |
+| P1-5 | 大厅空态：文案 + Logo 淡色                                     | `EmptyState` |
+| P1-6 | `GuestPracticePlayer` + `PracticeComplete`            | 刷题 UI 合并在 **`GuestPracticePage`**；完成页 `PracticeComplete` |
+| P1-7 | 页面 `/practice/guest/:bankId`；顶栏「登录以同步错题」              | `GuestPracticePage` + `router.tsx` |
+| P1-8 | `gradeAnswer` 实现：SINGLE/MULTI/JUDGE 与 `answerJson` 比对 | `src/lib/gradeAnswer.ts`（P0 已实现，P1 接入） |
 
-| 工作包  | 任务                                                    | 组件/页面             |
-| ---- | ----------------------------------------------------- | ----------------- |
-| P1-1 | `api/banks.ts`：`pagePublicBanks`                      | —                 |
-| P1-2 | `api/banks.ts`：`getHotPracticeDetail`                 | —                 |
-| P1-3 | 简易顶栏布局（Logo、Slogan、登录/注册）                             | 大厅壳层              |
-| P1-4 | 页面 `/`：`BankCard` 网格 + `Pagination`（pageSize 按断点）     | `BankCard`        |
-| P1-5 | 大厅空态：文案 + Logo 淡色                                     | —                 |
-| P1-6 | `GuestPracticePlayer` + `PracticeComplete`            | 刷题核心              |
-| P1-7 | 页面 `/practice/guest/:bankId`；顶栏「登录以同步错题」              | —                 |
-| P1-8 | `gradeAnswer` 实现：SINGLE/MULTI/JUDGE 与 `answerJson` 比对 | `lib/gradeAnswer` |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/api/banks.ts` | 公开题库分页、热点详情 bundle |
+| `src/pages/HomePage.tsx` | 大厅列表、骨架屏、错误/空态、分页 |
+| `src/pages/GuestPracticePage.tsx` | 访客刷题（本地判分、可跳过未答） |
+| `src/components/BankCard.tsx` | 标题+描述+「开始刷题」 |
+| `src/components/PracticeComplete.tsx` | 统计、返回大厅、再刷一遍 |
+| `src/components/ErrorState.tsx` | 加载失败重试（P9 可继续统一文案） |
+| `src/components/PaginationBar.tsx` | `records`/`total` 分页 |
+| `src/hooks/useResponsivePageSize.ts` | 断点 pageSize |
 
 **API 覆盖**
 
@@ -130,16 +155,24 @@ flowchart LR
 | GET | `/api/v1/question-banks/{bankId}/hot-practice-detail` | 无   |
 
 
-**验收**（对齐 `ishua-ui-spec.md` §10.2 访客部分）
+**验收**（对齐 `ishua-ui-spec.md` §10.2 访客、§10.6 列表）
 
-- 卡片仅标题+描述；Slogan「一页一题，沉浸刷完」  
-- 选题库刷题；提交后本地对错+解析  
-- 完成页：统计 + 返回大厅 / 再刷一遍  
-- 无随机顺序 UI
+- [x] 卡片主体为标题+描述；Slogan「一页一题，沉浸刷完」（卡片另有「公开题库」标签，可 P9 收敛）  
+- [x] 选题库刷题；底部「提交」后本地对错+解析（批注式左边框）  
+- [x] 完成页：正确率 + 对/错/未答；返回大厅 / 再刷一遍  
+- [x] 无随机顺序 UI；**未调用** `submit` 接口  
+
+**遗留 / P9 可收敛**
+
+- `assets/logo/logo.png` 未接入大厅与 `EmptyState`（仍为淡色「刷」占位）  
+- 未拆独立 `GuestPracticePlayer` 文件（与 P3「登录 Player 独立文件」策略一致即可）  
+- `PracticeComplete` 副标题仍为英文 `Practice Complete`  
+- 窗口 resize 改变 `pageSize` 时，大厅 `current` 页码未自动校正（边界空页）  
+- 判断题：自定义 `optionsJson` 顺序需与后端 T/F 编码联调确认  
 
 **建议 PR**：`feat: public lobby and guest practice`
 
-**联调注意**：确认 `hot-practice-detail` 返回的 `QuestionVO` 含 `answerJson`、`analysis`。
+**联调注意**：确认 `hot-practice-detail` 返回的 `QuestionVO` 含 `answerJson`、`analysis`（OpenAPI 已注明 bundle 含答案，仅供访客本地判分）。
 
 ---
 
@@ -191,7 +224,7 @@ flowchart LR
 | ---- | ---------------------------------------------------- | ------- |
 | P3-1 | `api/practice.ts`：listPracticeQuestions、submitAnswer | —       |
 | P3-2 | `hooks/usePracticeSession.ts`：题序、作答态、未答统计            | —       |
-| P3-3 | `PracticePlayer`（与 Guest **独立文件**）                   | §7.11   |
+| P3-3 | `PracticePlayer`（与 Guest **独立文件**；访客现为 `GuestPracticePage`） | §7.11   |
 | P3-4 | 刷题页 `immersive` 布局：无侧栏无底栏                            | 路由 meta |
 | P3-5 | 答错 Toast 3s；主观题占位                                    | —       |
 | P3-6 | 复用 `PracticeComplete`（文案「本次练习完成」）                    | —       |
@@ -396,7 +429,7 @@ flowchart LR
 
 | 工作包  | 任务                                  |
 | ---- | ----------------------------------- |
-| P9-1 | 全局 `ErrorState`、Toast 文案统一          |
+| P9-1 | 全局 `ErrorState`、Toast 文案统一（`ErrorState` 已在 P1 引入） |
 | P9-2 | `prefers-reduced-motion` 与键盘刷题走查    |
 | P9-3 | 403 页 vs Upgrade 边界复查               |
 | P9-4 | README：本地启动、环境变量、测试账号说明             |
@@ -440,7 +473,7 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 
 | 节点     | 完成后可演示                |
 | ------ | --------------------- |
-| 第 1 周末 | P0+P1：访客刷题            |
+| 第 1 周末 | P0+P1：访客刷题 ✅（已达成）   |
 | 第 2 周末 | P2+P3+P4+P5：登录刷题 + 错题 |
 | 第 3 周末 | P6+P7：建库管题            |
 | 第 4 周末 | P8+P9：AI 导入 + 收尾      |
@@ -500,8 +533,8 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 
 | 阶段           | 完成  |
 | ------------ | --- |
-| P0 基建        | ☐   |
-| P1 大厅 + 访客刷题 | ☐   |
+| P0 基建        | ☑   |
+| P1 大厅 + 访客刷题 | ☑   |
 | P2 鉴权        | ☐   |
 | P3 登录刷题      | ☐   |
 | P4 错题本       | ☐   |
@@ -514,4 +547,4 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 
 ---
 
-*方案版本：1.0 · 2026-05-19 · 对应 ishua-ui-spec v1.0*
+*方案版本：1.1 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0/P1 已勾选并补充实施记录*

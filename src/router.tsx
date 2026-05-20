@@ -2,7 +2,10 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { PageStub } from "@/components/PageStub";
 import { AppShell } from "@/layouts/AppShell";
+import { GuestPracticePage } from "@/pages/GuestPracticePage";
 import { HomePage } from "@/pages/HomePage";
+import { LoginPage } from "@/pages/LoginPage";
+import { RegisterPage } from "@/pages/RegisterPage";
 
 export const router = createBrowserRouter([
   {
@@ -11,30 +14,15 @@ export const router = createBrowserRouter([
   },
   {
     path: "/practice/guest/:bankId",
-    element: (
-      <PageStub
-        description="P1 将接入公开题库热点详情，并在本地完成判分。"
-        title="访客刷题"
-      />
-    ),
+    element: <GuestPracticePage />,
   },
   {
     path: "/login",
-    element: (
-      <PageStub
-        description="P2 将接入登录表单、token 持久化与登录后跳转。"
-        title="今天，也刷一点"
-      />
-    ),
+    element: <LoginPage />,
   },
   {
     path: "/register",
-    element: (
-      <PageStub
-        description="P2 将接入注册表单，服务端固定注册为 USER。"
-        title="注册 iShua"
-      />
-    ),
+    element: <RegisterPage />,
   },
   {
     path: "/app",

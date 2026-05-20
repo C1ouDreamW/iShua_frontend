@@ -2,6 +2,7 @@ export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 export const AUTH_TOKEN_KEY = "ishua_token";
+const AUTH_USER_KEY = "ishua_user";
 
 export type Result<T> = {
   code: number;
@@ -48,6 +49,26 @@ export function isPublicEndpoint(pathname: string, method = "GET") {
     (endpoint) =>
       endpoint.method === normalizedMethod && endpoint.pattern.test(pathname),
   );
+}
+
+function clearAuthStorage() {
+  try {
+    window.localStorage.removeItem(AUTH_TOKEN_KEY);
+    window.localStorage.removeItem(AUTH_USER_KEY);
+  } catch {
+    // Ignore storage errors.
+  }
+}
+
+function redirectToLogin() {
+  const { pathname, search } = window.location;
+
+  if (pathname === "/login") {
+    return;
+  }
+
+  const redirect = encodeURIComponent(`${pathname}${search}`);
+  window.location.assign(`/login?redirect=${redirect}`);
 }
 
 function readToken() {
@@ -112,6 +133,11 @@ export async function request<T>(
   });
 
   const result = (await response.json()) as Result<T | null>;
+
+  if (result.code === 401 && !isPublicEndpoint(url.pathname, normalizedMethod)) {
+    clearAuthStorage();
+    redirectToLogin();
+  }
 
   if (result.code !== 200) {
     throw new ApiError(result, response);

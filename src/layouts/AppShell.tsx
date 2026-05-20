@@ -1,8 +1,11 @@
 import { Link, Outlet } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 export function AppShell() {
+  const { logout, user } = useAuth();
+
   return (
     <div className="min-h-screen bg-bg-canvas text-text-primary">
       <header className="border-b bg-bg-surface">
@@ -21,6 +24,12 @@ export function AppShell() {
               <Link to="/app/banks">我的题库</Link>
             </Button>
           </nav>
+          <div className="hidden items-center gap-3 text-sm text-text-secondary lg:flex">
+            <span>{user?.nickname || user?.username || "未登录"}</span>
+            <Button onClick={logout} size="sm" variant="outline">
+              退出
+            </Button>
+          </div>
         </div>
       </header>
       <Outlet />
