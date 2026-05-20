@@ -29,6 +29,12 @@ npm run dev
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
+## Logo 资源
+
+- **源图**：`assets/logo/logo.png`（换图时只改这个文件）
+- **页面引用**：`assets/logo/logo.webp`（256px，由脚本生成，勿手改）
+- 每次 `npm run build` 会先跑 `prebuild`，自动执行 `optimize:logo`；也可单独运行 `npm run optimize:logo`
+
 ## 常用脚本
 
 | 命令 | 说明 |
@@ -38,6 +44,7 @@ VITE_API_BASE_URL=http://localhost:8080
 | `npm run preview` | 预览生产构建 |
 | `npm run lint` | ESLint 检查 |
 | `npm run generate:api` | 从 `api-docs-v3.json` 生成 `src/types/api.d.ts` |
+| `npm run optimize:logo` | 从 `assets/logo/logo.png` 生成 256px `logo.webp`（`npm run build` 前会通过 `prebuild` 自动执行） |
 
 ## API 与错误约定
 

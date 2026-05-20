@@ -1,4 +1,4 @@
-import logoUrl from "../../assets/logo/logo.png";
+import logoUrl from "../../assets/logo/logo.webp";
 import { cn } from "@/lib/utils";
 
 type LogoMarkProps = {
