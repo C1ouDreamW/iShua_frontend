@@ -3,25 +3,46 @@ import { Link } from "react-router-dom";
 import type { QuestionBank } from "@/api/banks";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 
 type BankCardProps = {
   bank: QuestionBank;
+  variant?: "lobby" | "owned";
+  onEdit?: () => void;
+  onDelete?: () => void;
 };
 
-export function BankCard({ bank }: BankCardProps) {
+export function BankCard({
+  bank,
+  variant = "lobby",
+  onEdit,
+  onDelete,
+}: BankCardProps) {
   const { isAuthenticated } = useAuth();
   const bankId = bank.id;
   const title = bank.title ?? "未命名题库";
+  const isOwned = variant === "owned";
+  const isPublic = bank.isPublic === 1;
   const practicePath = isAuthenticated
     ? `/app/practice/${bankId}`
     : `/practice/guest/${bankId}`;
+  const detailPath = bankId ? `/app/banks/${bankId}` : "#";
 
   return (
     <article className="group flex min-h-52 flex-col justify-between rounded-xl border bg-bg-surface p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand/20 hover:shadow-md">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
-          <span className="rounded-full bg-brand-muted px-2 py-0.5 text-xs font-medium text-brand">
-            公开题库
+          <span
+            className={cn(
+              "rounded-full px-2 py-0.5 text-xs font-medium",
+              isOwned
+                ? isPublic
+                  ? "bg-brand-muted text-brand"
+                  : "border text-text-secondary"
+                : "bg-brand-muted text-brand",
+            )}
+          >
+            {isOwned ? (isPublic ? "公开" : "私有") : "公开题库"}
           </span>
           <span className="font-serif text-sm text-text-muted">iShua</span>
         </div>
@@ -33,9 +54,35 @@ export function BankCard({ bank }: BankCardProps) {
         </p>
       </div>
 
-      <Button asChild className="mt-6 w-full" disabled={!bankId}>
-        <Link to={bankId ? practicePath : "#"}>开始刷题</Link>
-      </Button>
+      <div className="mt-6 flex flex-col gap-2">
+        {isOwned ? (
+          <>
+            <Button asChild className="w-full" disabled={!bankId}>
+              <Link to={detailPath}>管理题库</Link>
+            </Button>
+            <div className="grid grid-cols-3 gap-2">
+              <Button asChild disabled={!bankId} size="sm" variant="outline">
+                <Link to={bankId ? practicePath : "#"}>刷题</Link>
+              </Button>
+              <Button disabled={!onEdit} onClick={onEdit} size="sm" variant="outline">
+                编辑
+              </Button>
+              <Button
+                disabled={!onDelete}
+                onClick={onDelete}
+                size="sm"
+                variant="ghost"
+              >
+                删除
+              </Button>
+            </div>
+          </>
+        ) : (
+          <Button asChild className="w-full" disabled={!bankId}>
+            <Link to={bankId ? practicePath : "#"}>开始刷题</Link>
+          </Button>
+        )}
+      </div>
     </article>
   );
 }

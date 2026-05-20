@@ -4,7 +4,7 @@
 > **API**：`api-docs-v3.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
-**当前进度（2026-05-20）**：**P0–P5 已落地**（App 壳层 + RBAC）；下一步 **P6 我的题库**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+**当前进度（2026-05-20）**：**P0–P7 已落地**（题库详情 + 试题 CRUD）；下一步 **P8 AI 导入**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
 
 ---
 
@@ -381,20 +381,28 @@ flowchart LR
 
 ---
 
-### P6 — 我的题库（里程碑 M3 前半）
+### P6 — 我的题库（里程碑 M3 前半） ✅
 
 **目标**：PREMIUM 题库列表、新建/编辑（Drawer）、删库（输入名称确认）。
 
 **依赖**：P5。
 
+| 工作包  | 任务                                              | 组件/页面 / 实际产出 |
+| ---- | ----------------------------------------------- | ------------------ |
+| P6-1 | `api/banks.ts`：pageMyBanks、create、update、delete | `src/api/banks.ts` 扩展 |
+| P6-2 | 页面 `/app/banks`：列表 + 公开/私有标签                    | `src/pages/MyBanksPage.tsx`；`BankCard` `variant="owned"` |
+| P6-3 | `BankForm` Drawer 新建/编辑                         | `src/components/bank/BankFormDrawer.tsx` |
+| P6-4 | `DeleteBankDialog` 名称匹配                         | `src/components/bank/DeleteBankDialog.tsx` |
 
-| 工作包  | 任务                                              | 组件/页面         |
-| ---- | ----------------------------------------------- | ------------- |
-| P6-1 | `api/banks.ts`：pageMyBanks、create、update、delete | —             |
-| P6-2 | 页面 `/app/banks`：列表 + 公开/私有标签                    | `BankCard` 复用 |
-| P6-3 | `BankForm` Drawer 新建/编辑                         | §7.6          |
-| P6-4 | `DeleteBankDialog` 名称匹配                         | §7.7          |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/api/banks.ts` | `pageMyBanks`、`createBank`、`updateBank`、`deleteBank` |
+| `src/pages/MyBanksPage.tsx` | 列表、分页、新建/编辑/删除编排 |
+| `src/components/bank/BankFormDrawer.tsx` | 右侧 Drawer：名称、描述、公开 Switch |
+| `src/components/bank/DeleteBankDialog.tsx` | 输入题库名完全匹配才可删除 |
+| `src/components/BankCard.tsx` | 大厅/我的题库双模式；公开/私有角标 |
 
 **API 覆盖**
 
@@ -407,29 +415,45 @@ flowchart LR
 
 **验收**
 
-- USER 无法进入或仅见 Upgrade  
-- 删库必须输入正确题库名
+- [x] USER 无法进入（P5 `RoleGate` + Upgrade）  
+- [x] 删库必须输入正确题库名  
+- [x] 新建成功跳转 `/app/banks/:id`；编辑/删除后刷新列表
+
+**遗留 / 后续阶段**
+
+- 题库详情与试题管理已属 **P7** ✅  
+- 403/404 Drawer 内 Toast 与列表刷新已做，全局 Toast 体系待 **P9** 统一  
 
 **建议 PR**：`feat: my question banks crud`
 
 ---
 
-### P7 — 题库详情与试题管理（里程碑 M3）
+### P7 — 题库详情与试题管理（里程碑 M3） ✅
 
 **目标**：题库里试题分页搜索、整页新建/编辑（PUT 全量）、删题确认。
 
 **依赖**：P6。
 
+| 工作包  | 任务                                                     | 组件/页面 / 实际产出 |
+| ---- | ------------------------------------------------------ | ------------------ |
+| P7-1 | `api/questions.ts`：pageInBank、create、get、update、delete | `src/api/questions.ts` |
+| P7-2 | 页面 `/app/banks/:bankId`：详情 + `QuestionList` + 搜索       | `src/pages/BankDetailPage.tsx` |
+| P7-3 | 入口：开始刷题、AI 导入、编辑题库 Drawer                              | 详情顶栏操作区 |
+| P7-4 | `QuestionForm` 整页 new/edit                             | `src/pages/QuestionFormPage.tsx` |
+| P7-5 | `ConfirmDialog` 删题 + 不再提示                              | `src/components/question/DeleteQuestionDialog.tsx` |
+| P7-6 | `TagQuestionType`                                      | `src/components/question/TagQuestionType.tsx` |
 
-| 工作包  | 任务                                                     | 组件/页面 |
-| ---- | ------------------------------------------------------ | ----- |
-| P7-1 | `api/questions.ts`：pageInBank、create、get、update、delete | —     |
-| P7-2 | 页面 `/app/banks/:bankId`：详情 + `QuestionList` + 搜索       | §7.8  |
-| P7-3 | 入口：开始刷题、AI 导入、编辑题库 Drawer                              | —     |
-| P7-4 | `QuestionForm` 整页 new/edit                             | §7.9  |
-| P7-5 | `ConfirmDialog` 删题 + 不再提示                              | §7.16 |
-| P7-6 | `TagQuestionType`                                      | §7.10 |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/api/questions.ts` | 试题分页、CRUD |
+| `src/api/banks.ts` | `findMyBank` 加载题库元信息 |
+| `src/lib/questionForm.ts` | 表单状态、校验、`optionsJson`/`answerJson` 序列化 |
+| `src/pages/BankDetailPage.tsx` | 题库详情、搜索 debounce、分页、删库/编辑 |
+| `src/pages/QuestionFormPage.tsx` | 整页新建/编辑，固定底栏保存 |
+| `src/components/question/QuestionList.tsx` | 题干摘要 + 编辑/删除 |
+| `src/hooks/useDebouncedValue.ts` | 搜索 300ms debounce |
 
 **API 覆盖**
 
@@ -442,9 +466,15 @@ flowchart LR
 
 **验收**
 
-- 编辑走 PUT 全量 `QuestionUpdateDTO`  
-- optionsJson/answerJson 字符串序列化正确  
-- 从详情可进入 `/app/practice/:bankId` 刷私有库
+- [x] 编辑走 PUT 全量 `QuestionUpdateDTO`  
+- [x] optionsJson/answerJson 字符串序列化正确  
+- [x] 从详情可进入 `/app/practice/:bankId` 刷私有库  
+- [x] 删题支持「不再提示」`ishua_skip_delete_question_confirm`
+
+**遗留 / 后续阶段**
+
+- 题库元信息通过 `findMyBank`（分页 100）查找，题库极多时可优化（**P9** 或后端 GET）  
+- AI 导入仍为 Stub（**P8**）  
 
 **建议 PR**：`feat: question list and form`
 
@@ -606,12 +636,12 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | P3 登录刷题      | ☑   |
 | P4 错题本       | ☑   |
 | P5 壳层 RBAC   | ☑   |
-| P6 我的题库      | ☐   |
-| P7 试题管理      | ☐   |
+| P6 我的题库      | ☑   |
+| P7 试题管理      | ☑   |
 | P8 AI 导入     | ☐   |
 | P9 收尾        | ☐   |
 
 
 ---
 
-*方案版本：1.5 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P5 已勾选并补充实施记录*
+*方案版本：1.7 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P7 已勾选并补充实施记录*

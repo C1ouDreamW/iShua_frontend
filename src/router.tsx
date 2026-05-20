@@ -7,7 +7,10 @@ import { AdminPlaceholderPage } from "@/pages/AdminPlaceholderPage";
 import { GuestPracticePage } from "@/pages/GuestPracticePage";
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
+import { BankDetailPage } from "@/pages/BankDetailPage";
+import { MyBanksPage } from "@/pages/MyBanksPage";
 import { PracticePage } from "@/pages/PracticePage";
+import { QuestionFormPage } from "@/pages/QuestionFormPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { WrongPracticePage } from "@/pages/WrongPracticePage";
 import { WrongQuestionsPage } from "@/pages/WrongQuestionsPage";
@@ -47,39 +50,19 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <PageStub
-                description="P6 将接入 PREMIUM 题库列表、新建、编辑和删除。"
-                title="我的题库"
-              />
-            ),
+            element: <MyBanksPage />,
           },
           {
             path: ":bankId",
-            element: (
-              <PageStub
-                description="P7 将接入题库详情、试题分页搜索和管理入口。"
-                title="题库详情"
-              />
-            ),
+            element: <BankDetailPage />,
           },
           {
             path: ":bankId/questions/new",
-            element: (
-              <PageStub
-                description="P7 将接入整页新建试题表单。"
-                title="新建试题"
-              />
-            ),
+            element: <QuestionFormPage />,
           },
           {
             path: ":bankId/questions/:id/edit",
-            element: (
-              <PageStub
-                description="P7 将接入整页编辑试题表单，并走 PUT 全量更新。"
-                title="编辑试题"
-              />
-            ),
+            element: <QuestionFormPage />,
           },
           {
             path: ":bankId/import",
