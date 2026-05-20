@@ -4,7 +4,7 @@
 > **API**：`api-docs-v3.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
-**当前进度（2026-05-20）**：**P0、P1 已落地**（M1 可演示）；下一步 **P2 鉴权**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+**当前进度（2026-05-20）**：**P0–P3 已落地**（M1 + M2 登录刷题可演示）；下一步 **P4 错题本**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
 
 ---
 
@@ -16,7 +16,7 @@
 | 里程碑    | 用户可感知能力               |
 | ------ | --------------------- |
 | **M1** | 访客在大厅选题库、刷公开题（本地判分） ✅ |
-| **M2** | 注册登录；登录后刷公开题、错题本、错题重刷 |
+| **M2** | 注册登录；登录后刷公开题、错题本、错题重刷（**鉴权已完成**，刷题/错题见 P3–P4） |
 | **M3** | PREMIUM 建库、管题、手工录题    |
 | **M4** | AI 导入全流程              |
 | **M5** | 权限与体验收尾；ADMIN 占位      |
@@ -176,22 +176,33 @@ flowchart LR
 
 ---
 
-### P2 — 登录注册 + Auth 状态（里程碑 M2 前半）
+### P2 — 登录注册 + Auth 状态（里程碑 M2 前半） ✅
 
 **目标**：注册、登录、token 持久化、按 `role` 跳转、`useAuth` 全局可用。
 
 **依赖**：P0。
 
+| 工作包  | 任务                                                                 | 组件/页面 / 实际产出 |
+| ---- | ------------------------------------------------------------------ | ------------------ |
+| P2-1 | `api/auth.ts`：login、register、me                                    | `src/api/auth.ts` |
+| P2-2 | `hooks/useAuth.ts`：token、user、login/logout、bootstrap 调 `me`        | `src/hooks/useAuth.tsx` + `src/lib/authStorage.ts` + `src/types/auth.ts` |
+| P2-3 | 401 拦截：清 token、`/login?redirect=`                                  | `src/api/client.ts`（同步清 `ishua_user`） |
+| P2-4 | 页面 `/login`、`/register` + `AuthForm`                               | `LoginPage`、`RegisterPage`、`AuthForm` |
+| P2-5 | 登录成功跳转：PREMIUM+ → `/app/banks`；USER → `/` 或 `/app/wrong-questions` | `LoginPage`：`PREMIUM`/`ADMIN` → `/app/banks`，`USER` → `/`；支持 `?redirect=` |
+| P2-6 | 大厅已登录态：顶栏昵称 + 退出；刷题链到 `/app/practice/:id`                          | `HomePage`、`BankCard`；`AppShell` 顶栏展示用户与退出 |
 
-| 工作包  | 任务                                                                 | 组件/页面      |
-| ---- | ------------------------------------------------------------------ | ---------- |
-| P2-1 | `api/auth.ts`：login、register、me                                    | —          |
-| P2-2 | `hooks/useAuth.ts`：token、user、login/logout、bootstrap 调 `me`        | —          |
-| P2-3 | 401 拦截：清 token、`/login?redirect=`                                  | client 增强  |
-| P2-4 | 页面 `/login`、`/register` + `AuthForm`                               | `AuthForm` |
-| P2-5 | 登录成功跳转：PREMIUM+ → `/app/banks`；USER → `/` 或 `/app/wrong-questions` | —          |
-| P2-6 | 大厅已登录态：顶栏昵称 + 退出；刷题链到 `/app/practice/:id`                          | —          |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/api/auth.ts` | login / register / me |
+| `src/hooks/useAuth.tsx` | `AuthProvider`、`useAuth`；启动 bootstrap `me()` |
+| `src/lib/authStorage.ts` | `ishua_token`、`ishua_user` 读写 |
+| `src/types/auth.ts` | 基于 OpenAPI 的 Auth 类型 |
+| `src/pages/LoginPage.tsx` | 登录、401 文案、`redirect` 与角色默认落地 |
+| `src/pages/RegisterPage.tsx` | 注册、409 文案、成功后跳转登录 |
+| `src/components/AuthForm.tsx` | 登录/注册共用表单 |
+| `src/main.tsx` | 根节点包裹 `AuthProvider` |
 
 **API 覆盖**
 
@@ -203,32 +214,53 @@ flowchart LR
 | GET  | `/api/v1/users/me`       |
 
 
-**验收**
+**验收**（对齐 `ishua-ui-spec.md` §10.2 鉴权）
 
-- 注册固定 USER；409/401 文案友好  
-- 刷新页面仍保持登录（me 成功）  
-- 过期 token 跳转登录并带 redirect
+- [x] 注册说明服务端固定 USER；409 →「用户名已被使用。」；登录 401 →「用户名或密码错误。」  
+- [x] `localStorage` + Bearer；刷新后 bootstrap `me()` 保持会话  
+- [x] 非白名单接口 `code===401`：清 token/user 并跳转 `/login?redirect=...`  
+- [x] `PREMIUM`/`ADMIN` 登录 → `/app/banks`；`USER` → `/`（计划亦允许错题本，当前取大厅）  
+- [x] 大厅已登录：昵称/用户名 + 退出；`BankCard` 链到 `/app/practice/:bankId`  
+
+**遗留 / 后续阶段**
+
+- `/app/*` 尚无路由守卫与 RBAC（**P5**）；未登录可进 AppShell 占位页  
+- 大厅未使用 `auth.loading`，刷新瞬间可能闪一下「登录/注册」  
+- 已登录用户访问 `/login` 无自动重定向  
+- `?redirect=` 未校验站内路径，开放重定向风险（**P9** 收敛）  
+- 规格 6.1「昵称 ▾」下拉未做，现为文案 + 退出按钮  
+- `/app/practice/:bankId` 登录刷题闭环已属 **P3** ✅  
 
 **建议 PR**：`feat: auth login register and session`
 
 ---
 
-### P3 — 登录刷题（题库练习）（里程碑 M2 核心）
+### P3 — 登录刷题（题库练习）（里程碑 M2 核心） ✅
 
 **目标**：`/app/practice/:bankId` 完整闭环：拉题（无答案）→ submit → 解析 → 错题 Toast → 完成页。
 
 **依赖**：P2。
 
+| 工作包  | 任务                                                   | 组件/页面 / 实际产出 |
+| ---- | ---------------------------------------------------- | ------------------ |
+| P3-1 | `api/practice.ts`：listPracticeQuestions、submitAnswer | `src/api/practice.ts` |
+| P3-2 | `hooks/usePracticeSession.ts`：题序、作答态、未答统计            | `src/hooks/usePracticeSession.ts` |
+| P3-3 | `PracticePlayer`（与 Guest **独立文件**；访客现为 `GuestPracticePage`） | `src/components/PracticePlayer.tsx` + `src/pages/PracticePage.tsx` |
+| P3-4 | 刷题页 `immersive` 布局：无侧栏无底栏                            | `router.tsx` `handle.immersive`；`AppShell` 检测后仅渲染 `Outlet` |
+| P3-5 | 答错 Toast 3s；主观题占位                                    | `PracticeToast`；非客观题型占位文案 |
+| P3-6 | 复用 `PracticeComplete`（文案「本次练习完成」）                    | `PracticePage` 完成态 |
 
-| 工作包  | 任务                                                   | 组件/页面   |
-| ---- | ---------------------------------------------------- | ------- |
-| P3-1 | `api/practice.ts`：listPracticeQuestions、submitAnswer | —       |
-| P3-2 | `hooks/usePracticeSession.ts`：题序、作答态、未答统计            | —       |
-| P3-3 | `PracticePlayer`（与 Guest **独立文件**；访客现为 `GuestPracticePage`） | §7.11   |
-| P3-4 | 刷题页 `immersive` 布局：无侧栏无底栏                            | 路由 meta |
-| P3-5 | 答错 Toast 3s；主观题占位                                    | —       |
-| P3-6 | 复用 `PracticeComplete`（文案「本次练习完成」）                    | —       |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/api/practice.ts` | 刷题列表、提交判分 |
+| `src/hooks/usePracticeSession.ts` | 加载、作答、提交、统计、错题 Toast |
+| `src/components/PracticePlayer.tsx` | 登录刷题 UI（↑↓/Enter 键盘） |
+| `src/components/PracticeToast.tsx` | 答错 3s 提示 |
+| `src/pages/PracticePage.tsx` | 鉴权、加载/空/错/完成态编排 |
+| `src/lib/practiceQuestion.ts` | 选项解析、答案格式化（可复用） |
+| `src/layouts/AppShell.tsx` | `immersive` 时隐藏顶栏 |
 
 **API 覆盖**
 
@@ -241,10 +273,16 @@ flowchart LR
 
 **验收**
 
-- 提交前界面无标准答案  
-- 单选/多选/判断均经底部「提交」  
-- 可跳过未答；完成页含未答数  
-- 移动端刷题无底栏
+- [x] 提交前界面无标准答案  
+- [x] 单选/多选/判断均经底部「提交」  
+- [x] 可跳过未答；完成页含未答数  
+- [x] 移动端刷题无底栏（`immersive` 无 AppShell 顶栏）
+
+**遗留 / 后续阶段**
+
+- 题库标题依赖 `hot-practice-detail` 可选加载，私有库可能仅显示「题库练习」  
+- `/app/*` 路由守卫仍待 **P5**（当前 `PracticePage` 页内跳转登录）  
+- 提交失败仅页内文案，未统一 Toast 体系（**P9**）  
 
 **建议 PR**：`feat: practice player with submit`
 
@@ -474,7 +512,7 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | 节点     | 完成后可演示                |
 | ------ | --------------------- |
 | 第 1 周末 | P0+P1：访客刷题 ✅（已达成）   |
-| 第 2 周末 | P2+P3+P4+P5：登录刷题 + 错题 |
+| 第 2 周末 | P2+P3+P4+P5：登录刷题 + 错题（**P2 鉴权已达成**） |
 | 第 3 周末 | P6+P7：建库管题            |
 | 第 4 周末 | P8+P9：AI 导入 + 收尾      |
 
@@ -535,8 +573,8 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | ------------ | --- |
 | P0 基建        | ☑   |
 | P1 大厅 + 访客刷题 | ☑   |
-| P2 鉴权        | ☐   |
-| P3 登录刷题      | ☐   |
+| P2 鉴权        | ☑   |
+| P3 登录刷题      | ☑   |
 | P4 错题本       | ☐   |
 | P5 壳层 RBAC   | ☐   |
 | P6 我的题库      | ☐   |
@@ -547,4 +585,4 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 
 ---
 
-*方案版本：1.1 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0/P1 已勾选并补充实施记录*
+*方案版本：1.3 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P3 已勾选并补充实施记录*

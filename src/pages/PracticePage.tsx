@@ -1,0 +1,111 @@
+import { useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
+import { EmptyState } from "@/components/EmptyState";
+import { ErrorState } from "@/components/ErrorState";
+import { PracticeComplete } from "@/components/PracticeComplete";
+import { PracticePlayer } from "@/components/PracticePlayer";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { usePracticeSession } from "@/hooks/usePracticeSession";
+
+export function PracticePage() {
+  const { bankId } = useParams();
+  const navigate = useNavigate();
+  const numericBankId = Number(bankId);
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const session = usePracticeSession(numericBankId);
+
+  useEffect(() => {
+    if (authLoading || isAuthenticated) {
+      return;
+    }
+
+    const redirect = encodeURIComponent(`/app/practice/${bankId ?? ""}`);
+    navigate(`/login?redirect=${redirect}`, { replace: true });
+  }, [authLoading, bankId, isAuthenticated, navigate]);
+
+  if (authLoading || !isAuthenticated) {
+    return (
+      <main className="min-h-screen bg-bg-canvas px-6 py-8">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4">
+          <div className="h-16 animate-pulse rounded-xl border bg-bg-surface" />
+          <div className="h-[520px] animate-pulse rounded-2xl border bg-bg-surface" />
+        </div>
+      </main>
+    );
+  }
+
+  if (session.status === "complete") {
+    return (
+      <PracticeComplete
+        correctCount={session.stats.correctCount}
+        onPrimary={() => navigate("/")}
+        onRetry={session.restart}
+        title="本次练习完成"
+        unansweredCount={session.stats.unansweredCount}
+        wrongCount={session.stats.wrongCount}
+      />
+    );
+  }
+
+  if (session.status === "loading") {
+    return (
+      <main className="min-h-screen bg-bg-canvas px-6 py-8">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4">
+          <div className="h-16 animate-pulse rounded-xl border bg-bg-surface" />
+          <div className="h-[520px] animate-pulse rounded-2xl border bg-bg-surface" />
+        </div>
+      </main>
+    );
+  }
+
+  if (session.status === "error" && session.error) {
+    return (
+      <main className="min-h-screen bg-bg-canvas px-6 py-12">
+        <div className="mx-auto max-w-3xl space-y-4">
+          <ErrorState message={session.error} onRetry={() => void session.reload()} />
+          <div className="flex justify-center">
+            <Button asChild variant="outline">
+              <Link to="/">返回大厅</Link>
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (session.questions.length === 0) {
+    return (
+      <main className="min-h-screen bg-bg-canvas px-6 py-12">
+        <div className="mx-auto max-w-3xl space-y-4">
+          <EmptyState
+            description="这个题库暂时没有可练习的题目。"
+            title="暂无题目"
+          />
+          <div className="flex justify-center">
+            <Button asChild variant="outline">
+              <Link to="/">返回大厅</Link>
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <PracticePlayer
+      bankTitle={session.bankTitle}
+      currentIndex={session.currentIndex}
+      onAnswerChange={session.updateAnswer}
+      onComplete={session.complete}
+      onDismissWrongToast={session.dismissWrongToast}
+      onIndexChange={session.setCurrentIndex}
+      onSubmit={() => void session.submitCurrent()}
+      questions={session.questions}
+      record={session.records[session.currentIndex]}
+      showWrongToast={session.showWrongToast}
+      submitError={session.submitError}
+    />
+  );
+}

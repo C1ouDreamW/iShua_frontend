@@ -1,10 +1,21 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useMatches } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
+type RouteHandle = {
+  immersive?: boolean;
+};
+
 export function AppShell() {
   const { logout, user } = useAuth();
+  const isImmersive = useMatches().some(
+    (match) => (match.handle as RouteHandle | undefined)?.immersive,
+  );
+
+  if (isImmersive) {
+    return <Outlet />;
+  }
 
   return (
     <div className="min-h-screen bg-bg-canvas text-text-primary">

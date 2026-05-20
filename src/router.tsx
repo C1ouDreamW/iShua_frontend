@@ -5,6 +5,7 @@ import { AppShell } from "@/layouts/AppShell";
 import { GuestPracticePage } from "@/pages/GuestPracticePage";
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
+import { PracticePage } from "@/pages/PracticePage";
 import { RegisterPage } from "@/pages/RegisterPage";
 
 export const router = createBrowserRouter([
@@ -80,12 +81,7 @@ export const router = createBrowserRouter([
       {
         path: "practice/:bankId",
         handle: { immersive: true },
-        element: (
-          <PageStub
-            description="P3 将接入登录刷题闭环。"
-            title="题库练习"
-          />
-        ),
+        element: <PracticePage />,
       },
       {
         path: "wrong-questions",
