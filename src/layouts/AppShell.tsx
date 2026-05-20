@@ -1,49 +1,230 @@
-import { Link, Outlet, useMatches } from "react-router-dom";
+import { useState } from "react";
+import {
+  Link,
+  Navigate,
+  Outlet,
+  useLocation,
+  useMatches,
+  useNavigate,
+} from "react-router-dom";
+import { User } from "lucide-react";
 
+import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
+import {
+  MobileNavBar,
+  ProfileSheet,
+  type MobileNavItem,
+} from "@/components/auth/ProfileSheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  APP_SIDEBAR_NAV,
+  canAccessNavItem,
+  getVisibleSidebarNav,
+  isNavItemActive,
+  type AppNavItem,
+} from "@/lib/appNavigation";
+import { ROLE_LABEL } from "@/lib/rbac";
+import { cn } from "@/lib/utils";
 
 type RouteHandle = {
   immersive?: boolean;
 };
 
 export function AppShell() {
-  const { logout, user } = useAuth();
-  const isImmersive = useMatches().some(
+  const location = useLocation();
+  const navigate = useNavigate();
+  const matches = useMatches();
+  const { isAuthenticated, loading, logout, user } = useAuth();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  const isImmersive = matches.some(
     (match) => (match.handle as RouteHandle | undefined)?.immersive,
   );
+
+  if (!loading && !isAuthenticated) {
+    const redirect = encodeURIComponent(
+      `${location.pathname}${location.search}`,
+    );
+    return <Navigate replace to={`/login?redirect=${redirect}`} />;
+  }
 
   if (isImmersive) {
     return <Outlet />;
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-bg-canvas px-6 py-10">
+        <div className="mx-auto h-64 max-w-3xl animate-pulse rounded-xl border bg-bg-surface" />
+      </div>
+    );
+  }
+
+  const sidebarNav = getVisibleSidebarNav(user?.role);
+  const displayName = user?.nickname || user?.username || "未登录";
+  const roleLabel =
+    user?.role && user.role in ROLE_LABEL
+      ? ROLE_LABEL[user.role as keyof typeof ROLE_LABEL]
+      : "用户";
+
+  const mobileNavItems: MobileNavItem[] = [
+    {
+      active: location.pathname === "/",
+      icon: APP_SIDEBAR_NAV[0].icon,
+      id: "discover",
+      label: "发现",
+      to: "/",
+    },
+    {
+      active: isNavItemActive(location.pathname, APP_SIDEBAR_NAV[1]),
+      icon: APP_SIDEBAR_NAV[1].icon,
+      id: "wrong",
+      label: "错题",
+      to: "/app/wrong-questions",
+    },
+    {
+      action: canAccessNavItem(user?.role, APP_SIDEBAR_NAV[2])
+        ? undefined
+        : "upgrade",
+      active: isNavItemActive(location.pathname, APP_SIDEBAR_NAV[2]),
+      icon: APP_SIDEBAR_NAV[2].icon,
+      id: "banks",
+      label: "题库",
+      to: "/app/banks",
+    },
+    {
+      action: "profile",
+      icon: User,
+      id: "profile",
+      label: "我的",
+    },
+  ];
+
+  function handleMobileNavClick(item: MobileNavItem) {
+    if (item.action === "profile") {
+      setProfileOpen(true);
+      return;
+    }
+
+    if (item.action === "upgrade") {
+      setUpgradeOpen(true);
+      return;
+    }
+
+    if (item.to) {
+      navigate(item.to);
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-bg-canvas text-text-primary">
-      <header className="border-b bg-bg-surface">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
-          <Link className="font-serif text-xl font-semibold text-brand" to="/">
+    <div className="min-h-screen bg-bg-canvas text-text-primary lg:flex">
+      <UpgradePrompt onOpenChange={setUpgradeOpen} open={upgradeOpen} />
+
+      <aside className="hidden w-60 shrink-0 flex-col border-r bg-bg-surface lg:flex">
+        <div className="border-b px-5 py-6">
+          <Link
+            className="font-serif text-xl font-semibold text-brand"
+            to="/"
+          >
             iShua
           </Link>
-          <nav aria-label="主导航" className="flex items-center gap-2">
-            <Button asChild variant="ghost">
-              <Link to="/">发现</Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link to="/app/wrong-questions">错题本</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/app/banks">我的题库</Link>
-            </Button>
-          </nav>
-          <div className="hidden items-center gap-3 text-sm text-text-secondary lg:flex">
-            <span>{user?.nickname || user?.username || "未登录"}</span>
-            <Button onClick={logout} size="sm" variant="outline">
-              退出
-            </Button>
-          </div>
+          <p className="mt-1 text-xs text-text-muted">一页一题，沉浸刷完</p>
         </div>
-      </header>
-      <Outlet />
+
+        <nav aria-label="应用导航" className="flex flex-1 flex-col gap-1 p-3">
+          {sidebarNav.map((item) => {
+            const Icon = item.icon;
+            const active = isNavItemActive(location.pathname, item);
+            const needsUpgrade =
+              item.premiumFeature && !canAccessNavItem(user?.role, item);
+
+            if (needsUpgrade) {
+              return (
+                <button
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                    "text-text-secondary hover:bg-brand-muted/60 hover:text-text-primary",
+                  )}
+                  key={item.id}
+                  onClick={() => setUpgradeOpen(true)}
+                  type="button"
+                >
+                  <Icon aria-hidden="true" className="size-5 shrink-0" />
+                  {item.label}
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                  active
+                    ? "bg-brand-muted font-medium text-brand"
+                    : "text-text-secondary hover:bg-brand-muted/60 hover:text-text-primary",
+                )}
+                key={item.id}
+                to={item.to}
+              >
+                <Icon aria-hidden="true" className="size-5 shrink-0" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="mt-auto border-t p-4">
+          <div className="flex items-center gap-3">
+            <div
+              aria-hidden="true"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-muted font-medium text-brand"
+            >
+              {displayName.slice(0, 1)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-text-primary">
+                {displayName}
+              </p>
+              <p className="text-xs text-text-muted">{roleLabel}</p>
+            </div>
+          </div>
+          <Button
+            className="mt-3 w-full"
+            onClick={logout}
+            size="sm"
+            variant="outline"
+          >
+            退出
+          </Button>
+        </div>
+      </aside>
+
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        <a
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-bg-surface focus:px-3 focus:py-2 focus:shadow"
+          href="#main-content"
+        >
+          跳到主内容
+        </a>
+
+        <main className="flex-1 pb-20 lg:pb-0" id="main-content">
+          <Outlet />
+        </main>
+
+        <MobileNavBar items={mobileNavItems} onItemClick={handleMobileNavClick} />
+      </div>
+
+      <ProfileSheet
+        onOpenChange={setProfileOpen}
+        onRequestUpgrade={() => {
+          setProfileOpen(false);
+          setUpgradeOpen(true);
+        }}
+        open={profileOpen}
+      />
     </div>
   );
 }

@@ -1,7 +1,9 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 
+import { RoleGate } from "@/components/auth/RoleGate";
 import { PageStub } from "@/components/PageStub";
 import { AppShell } from "@/layouts/AppShell";
+import { AdminPlaceholderPage } from "@/pages/AdminPlaceholderPage";
 import { GuestPracticePage } from "@/pages/GuestPracticePage";
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
@@ -38,47 +40,57 @@ export const router = createBrowserRouter([
       {
         path: "banks",
         element: (
-          <PageStub
-            description="P6 将接入 PREMIUM 题库列表、新建、编辑和删除。"
-            title="我的题库"
-          />
+          <RoleGate minRole="PREMIUM" premiumFeature>
+            <Outlet />
+          </RoleGate>
         ),
-      },
-      {
-        path: "banks/:bankId",
-        element: (
-          <PageStub
-            description="P7 将接入题库详情、试题分页搜索和管理入口。"
-            title="题库详情"
-          />
-        ),
-      },
-      {
-        path: "banks/:bankId/questions/new",
-        element: (
-          <PageStub
-            description="P7 将接入整页新建试题表单。"
-            title="新建试题"
-          />
-        ),
-      },
-      {
-        path: "banks/:bankId/questions/:id/edit",
-        element: (
-          <PageStub
-            description="P7 将接入整页编辑试题表单，并走 PUT 全量更新。"
-            title="编辑试题"
-          />
-        ),
-      },
-      {
-        path: "banks/:bankId/import",
-        element: (
-          <PageStub
-            description="P8 将接入 AI 导入四步向导。"
-            title="AI 智能导入"
-          />
-        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <PageStub
+                description="P6 将接入 PREMIUM 题库列表、新建、编辑和删除。"
+                title="我的题库"
+              />
+            ),
+          },
+          {
+            path: ":bankId",
+            element: (
+              <PageStub
+                description="P7 将接入题库详情、试题分页搜索和管理入口。"
+                title="题库详情"
+              />
+            ),
+          },
+          {
+            path: ":bankId/questions/new",
+            element: (
+              <PageStub
+                description="P7 将接入整页新建试题表单。"
+                title="新建试题"
+              />
+            ),
+          },
+          {
+            path: ":bankId/questions/:id/edit",
+            element: (
+              <PageStub
+                description="P7 将接入整页编辑试题表单，并走 PUT 全量更新。"
+                title="编辑试题"
+              />
+            ),
+          },
+          {
+            path: ":bankId/import",
+            element: (
+              <PageStub
+                description="P8 将接入 AI 导入四步向导。"
+                title="AI 智能导入"
+              />
+            ),
+          },
+        ],
       },
       {
         path: "practice/:bankId",
@@ -97,10 +109,9 @@ export const router = createBrowserRouter([
       {
         path: "admin/users",
         element: (
-          <PageStub
-            description="P5 将接入 ADMIN 占位页。"
-            title="管理占位"
-          />
+          <RoleGate minRole="ADMIN">
+            <AdminPlaceholderPage />
+          </RoleGate>
         ),
       },
     ],

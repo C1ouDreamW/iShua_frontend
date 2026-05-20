@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { EmptyState } from "@/components/EmptyState";
@@ -6,35 +5,13 @@ import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { PracticePlayer } from "@/components/PracticePlayer";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 
 export function PracticePage() {
   const { bankId } = useParams();
   const navigate = useNavigate();
   const numericBankId = Number(bankId);
-  const { isAuthenticated, loading: authLoading } = useAuth();
   const session = usePracticeSession(numericBankId);
-
-  useEffect(() => {
-    if (authLoading || isAuthenticated) {
-      return;
-    }
-
-    const redirect = encodeURIComponent(`/app/practice/${bankId ?? ""}`);
-    navigate(`/login?redirect=${redirect}`, { replace: true });
-  }, [authLoading, bankId, isAuthenticated, navigate]);
-
-  if (authLoading || !isAuthenticated) {
-    return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-8">
-        <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          <div className="h-16 animate-pulse rounded-xl border bg-bg-surface" />
-          <div className="h-[520px] animate-pulse rounded-2xl border bg-bg-surface" />
-        </div>
-      </main>
-    );
-  }
 
   if (session.status === "complete") {
     return (

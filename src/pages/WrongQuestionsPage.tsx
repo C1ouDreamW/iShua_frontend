@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { pagePublicBanks } from "@/api/banks";
 import {
@@ -14,13 +13,9 @@ import {
   WrongQuestionList,
   type BankFilterOption,
 } from "@/components/WrongQuestionList";
-import { useAuth } from "@/hooks/useAuth";
-
 const PAGE_SIZE = 10;
 
 export function WrongQuestionsPage() {
-  const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading } = useAuth();
   const [bankFilter, setBankFilter] = useState<number | undefined>();
   const [current, setCurrent] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
@@ -31,14 +26,6 @@ export function WrongQuestionsPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (authLoading || isAuthenticated) {
-      return;
-    }
-
-    navigate("/login?redirect=%2Fapp%2Fwrong-questions", { replace: true });
-  }, [authLoading, isAuthenticated, navigate]);
 
   useEffect(() => {
     let ignore = false;
@@ -70,10 +57,6 @@ export function WrongQuestionsPage() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
-
     let ignore = false;
 
     async function loadWrongQuestions() {
@@ -111,7 +94,7 @@ export function WrongQuestionsPage() {
     return () => {
       ignore = true;
     };
-  }, [bankFilter, current, isAuthenticated, reloadKey]);
+  }, [bankFilter, current, reloadKey]);
 
   const bankOptions = useMemo(() => {
     const map = new Map<number, string>();
@@ -137,14 +120,6 @@ export function WrongQuestionsPage() {
   async function handleRemove(id: number) {
     await removeWrongQuestion(id);
     setReloadKey((key) => key + 1);
-  }
-
-  if (authLoading || !isAuthenticated) {
-    return (
-      <section className="mx-auto max-w-3xl px-6 py-10">
-        <div className="h-64 animate-pulse rounded-xl border bg-bg-surface" />
-      </section>
-    );
   }
 
   return (

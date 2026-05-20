@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { EmptyState } from "@/components/EmptyState";
@@ -6,7 +6,6 @@ import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { WrongPracticePlayer } from "@/components/WrongPracticePlayer";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
 import { useWrongPracticeSession } from "@/hooks/useWrongPracticeSession";
 
 export function WrongPracticePage() {
@@ -22,30 +21,7 @@ export function WrongPracticePage() {
     return Number.isFinite(parsed) ? parsed : undefined;
   }, [bankIdParam]);
 
-  const { isAuthenticated, loading: authLoading } = useAuth();
   const session = useWrongPracticeSession(filterBankId);
-
-  useEffect(() => {
-    if (authLoading || isAuthenticated) {
-      return;
-    }
-
-    const redirect = encodeURIComponent(
-      `/app/wrong-questions/practice${bankIdParam ? `?bankId=${bankIdParam}` : ""}`,
-    );
-    navigate(`/login?redirect=${redirect}`, { replace: true });
-  }, [authLoading, bankIdParam, isAuthenticated, navigate]);
-
-  if (authLoading || !isAuthenticated) {
-    return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-8">
-        <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          <div className="h-16 animate-pulse rounded-xl border bg-bg-surface" />
-          <div className="h-[520px] animate-pulse rounded-2xl border bg-bg-surface" />
-        </div>
-      </main>
-    );
-  }
 
   if (session.status === "complete") {
     return (

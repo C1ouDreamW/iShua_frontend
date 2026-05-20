@@ -4,7 +4,7 @@
 > **API**：`api-docs-v3.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
-**当前进度（2026-05-20）**：**P0–P4 已落地**（M2 错题本闭环可演示）；下一步 **P5 壳层 RBAC**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+**当前进度（2026-05-20）**：**P0–P5 已落地**（App 壳层 + RBAC）；下一步 **P6 我的题库**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
 
 ---
 
@@ -224,7 +224,7 @@ flowchart LR
 
 **遗留 / 后续阶段**
 
-- `/app/*` 尚无路由守卫与 RBAC（**P5**）；未登录可进 AppShell 占位页  
+- `/app/*` 路由守卫与 RBAC 已属 **P5** ✅  
 - 大厅未使用 `auth.loading`，刷新瞬间可能闪一下「登录/注册」  
 - 已登录用户访问 `/login` 无自动重定向  
 - `?redirect=` 未校验站内路径，开放重定向风险（**P9** 收敛）  
@@ -339,29 +339,43 @@ flowchart LR
 
 ---
 
-### P5 — AppShell、导航与 RBAC（贯穿 M2，可与 P4 并行）
+### P5 — AppShell、导航与 RBAC（贯穿 M2，可与 P4 并行） ✅
 
 **目标**：`/app/`* 统一壳层；菜单按角色；USER 触达 PREMIUM 功能弹升级。
 
 **依赖**：P2（建议与 P3/P4 并行，但需 P2 完成）。
 
+| 工作包  | 任务                                         | 组件/页面 / 实际产出 |
+| ---- | ------------------------------------------ | ------------------ |
+| P5-1 | `AppShell`：桌面侧栏 + 移动底栏                     | `src/layouts/AppShell.tsx` + `src/lib/appNavigation.ts` |
+| P5-2 | 刷题路由标记 `immersive`，隐藏底栏/侧栏                 | P3/P4 已有；壳层统一鉴权后渲染 `Outlet` |
+| P5-3 | `RoleGate`：保护 `/app/banks` 等               | `src/components/auth/RoleGate.tsx` + `router.tsx` 嵌套 |
+| P5-4 | `UpgradePrompt` + 邮箱复制                     | `src/components/auth/UpgradePrompt.tsx` |
+| P5-5 | 移动「我的」Sheet：昵称、升级说明、退出                     | `src/components/auth/ProfileSheet.tsx` |
+| P5-6 | 页面 `/app/admin/users` → `AdminPlaceholder` | `src/pages/AdminPlaceholderPage.tsx` |
 
-| 工作包  | 任务                                         | 组件/页面 |
-| ---- | ------------------------------------------ | ----- |
-| P5-1 | `AppShell`：桌面侧栏 + 移动底栏                     | §7.1  |
-| P5-2 | 刷题路由标记 `immersive`，隐藏底栏/侧栏                 | —     |
-| P5-3 | `RoleGate`：保护 `/app/banks` 等               | §7.2  |
-| P5-4 | `UpgradePrompt` + 邮箱复制                     | §7.3  |
-| P5-5 | 移动「我的」Sheet：昵称、升级说明、退出                     | —     |
-| P5-6 | 页面 `/app/admin/users` → `AdminPlaceholder` | §7.19 |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/lib/rbac.ts` | 角色等级、`hasMinRole`、升级邮箱常量 |
+| `src/layouts/AppShell.tsx` | 240px 侧栏、`lg+`；移动底栏 + Profile Sheet |
+| `src/components/auth/RoleGate.tsx` | 登录守卫；PREMIUM/ADMIN 拒绝态 |
+| `src/components/auth/UpgradePrompt.tsx` | 升级说明 + 复制 `cloud_aaa@163.com` |
+| `src/pages/AdminPlaceholderPage.tsx` | 管理占位 |
 
 **验收**
 
-- USER 侧栏无「我的题库」或点击弹 Upgrade  
-- PREMIUM 可见题库入口  
-- ADMIN 可见管理占位  
-- 发现 `/` 从 app 内可回大厅
+- [x] USER 侧栏「我的题库」点击弹 Upgrade（非 PREMIUM 不进入 `/app/banks` 内容）  
+- [x] PREMIUM 可见题库入口并进入 banks 路由  
+- [x] ADMIN 可见「管理」与占位页  
+- [x] 发现 `/` 从 app 侧栏/底栏可回大厅  
+- [x] `/app` 未登录统一跳转 `login?redirect=`（含 immersive 刷题）
+
+**遗留 / 后续阶段**
+
+- `?redirect=` 仍未校验站内路径（**P9**）  
+- 大厅顶栏「昵称 ▾」下拉未做（仍为文案 + 退出）  
 
 **建议 PR**：`feat: app shell navigation and rbac`
 
@@ -591,7 +605,7 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | P2 鉴权        | ☑   |
 | P3 登录刷题      | ☑   |
 | P4 错题本       | ☑   |
-| P5 壳层 RBAC   | ☐   |
+| P5 壳层 RBAC   | ☑   |
 | P6 我的题库      | ☐   |
 | P7 试题管理      | ☐   |
 | P8 AI 导入     | ☐   |
@@ -600,4 +614,4 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 
 ---
 
-*方案版本：1.4 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P4 已勾选并补充实施记录*
+*方案版本：1.5 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P5 已勾选并补充实施记录*
