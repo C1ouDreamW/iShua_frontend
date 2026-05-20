@@ -64,6 +64,7 @@ PREMIUM 可通过管理员改角色或使用种子数据；普通用户注册默
 |------|------|
 | `docs/design/ishua-ui-spec.md` | UI / 组件 / 验收规格 |
 | `docs/implementation-plan.md` | 分阶段实施与进度 |
+| `docs/known-gaps.md` | 各阶段验收遗留缺陷与二期 backlog |
 | `api-docs-v3.json` | OpenAPI 真源 |
 
 ## 里程碑（当前）

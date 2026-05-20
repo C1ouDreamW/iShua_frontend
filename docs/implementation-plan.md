@@ -643,6 +643,7 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | `docs/design/atlas-ui-design-draft.md` | 决策背景与粗稿（不随代码改） |
 | `api-docs-v3.json`                     | 接口与 Schema 真源  |
 | **本文** `docs/implementation-plan.md`   | 分步执行与 PR 拆分    |
+| `docs/known-gaps.md`                   | 各阶段验收遗留缺陷与二期 backlog |
 
 
 ---
