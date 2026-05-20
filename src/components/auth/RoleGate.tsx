@@ -4,6 +4,7 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { buildLoginRedirect } from "@/lib/navigation";
 import { hasMinRole } from "@/lib/rbac";
 import type { UserRole } from "@/types/auth";
 
@@ -32,10 +33,12 @@ export function RoleGate({
   }
 
   if (!isAuthenticated) {
-    const redirect = encodeURIComponent(
-      `${location.pathname}${location.search}`,
+    return (
+      <Navigate
+        replace
+        to={buildLoginRedirect(location.pathname, location.search)}
+      />
     );
-    return <Navigate replace to={`/login?redirect=${redirect}`} />;
   }
 
   if (hasMinRole(user?.role, minRole)) {

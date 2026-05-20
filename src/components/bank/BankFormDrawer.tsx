@@ -8,8 +8,9 @@ import {
   type QuestionBankCreatePayload,
 } from "@/api/banks";
 import { ApiError } from "@/api/client";
-import { PracticeToast } from "@/components/PracticeToast";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/useAppToast";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -52,7 +53,7 @@ export function BankFormDrawer({
   const [form, setForm] = useState<FormState>(() => toFormState(bank));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { error: showError } = useAppToast();
 
   useEffect(() => {
     if (open) {
@@ -91,37 +92,25 @@ export function BankFormDrawer({
         }
 
         if (caught.code === 404) {
-          setToastMessage(caught.message || "题库不存在或已删除。");
+          showError(caught.message || "题库不存在或已删除。");
           onOpenChange(false);
           onSaved();
           return;
         }
       }
 
-      setError(caught instanceof Error ? caught.message : "保存失败，请重试。");
+      setError(resolveApiErrorMessage(caught, "保存失败，请重试。"));
     } finally {
       setSaving(false);
     }
   }
 
   if (!open) {
-    return (
-      <PracticeToast
-        message={toastMessage ?? ""}
-        onDismiss={() => setToastMessage(null)}
-        visible={Boolean(toastMessage)}
-      />
-    );
+    return null;
   }
 
   return (
-    <>
-      <PracticeToast
-        message={toastMessage ?? ""}
-        onDismiss={() => setToastMessage(null)}
-        visible={Boolean(toastMessage)}
-      />
-      <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="fixed inset-0 z-50 flex justify-end">
         <button
           aria-label="关闭表单"
           className="absolute inset-0 bg-black/40"
@@ -251,6 +240,5 @@ export function BankFormDrawer({
           </footer>
         </section>
       </div>
-    </>
   );
 }

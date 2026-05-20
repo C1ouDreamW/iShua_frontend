@@ -6,8 +6,9 @@ import {
   getQuestion,
   updateQuestion,
 } from "@/api/questions";
-import { PracticeToast } from "@/components/PracticeToast";
 import { Button } from "@/components/ui/button";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import { setPageFlash } from "@/lib/pageFlash";
 import { Input } from "@/components/ui/input";
 import {
   createEmptyFormState,
@@ -36,7 +37,6 @@ export function QuestionFormPage() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const optionLetters = useMemo(
     () =>
@@ -65,9 +65,7 @@ export function QuestionFormPage() {
         }
       } catch (caught) {
         if (!ignore) {
-          setError(
-            caught instanceof Error ? caught.message : "试题加载失败。",
-          );
+          setError(resolveApiErrorMessage(caught, "试题加载失败。"));
         }
       } finally {
         if (!ignore) {
@@ -166,10 +164,10 @@ export function QuestionFormPage() {
         await createQuestionInBank(numericBankId, payload);
       }
 
-      setToastMessage("保存成功");
+      setPageFlash("保存成功");
       navigate(detailPath);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "保存失败，请重试。");
+      setError(resolveApiErrorMessage(caught, "保存失败，请重试。"));
     } finally {
       setSaving(false);
     }
@@ -188,12 +186,6 @@ export function QuestionFormPage() {
 
   return (
     <main className="min-h-screen bg-bg-canvas pb-28">
-      <PracticeToast
-        message={toastMessage ?? ""}
-        onDismiss={() => setToastMessage(null)}
-        visible={Boolean(toastMessage)}
-      />
-
       <div className="mx-auto max-w-3xl px-6 py-10">
         <Button asChild className="mb-6" size="sm" variant="ghost">
           <Link to={detailPath}>← 返回题库详情</Link>

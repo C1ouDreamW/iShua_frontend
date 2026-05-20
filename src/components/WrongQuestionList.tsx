@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 
 import type { WrongQuestion } from "@/api/wrong";
 import { RemoveWrongQuestionDialog } from "@/components/RemoveWrongQuestionDialog";
-import { PracticeToast } from "@/components/PracticeToast";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/useAppToast";
 import { formatRelativeTime } from "@/lib/formatRelativeTime";
 import { useState } from "react";
 
@@ -35,7 +35,7 @@ export function WrongQuestionList({
 }: WrongQuestionListProps) {
   const [pendingRemove, setPendingRemove] = useState<WrongQuestion | null>(null);
   const [removing, setRemoving] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { error, success } = useAppToast();
 
   function buildPracticePath(bankId?: number) {
     if (bankId) {
@@ -54,10 +54,10 @@ export function WrongQuestionList({
 
     try {
       await onRemove(pendingRemove.id);
-      setToastMessage("已移出错题本");
+      success("已移出错题本");
       setPendingRemove(null);
     } catch {
-      setToastMessage("移出失败，请重试");
+      error("移出失败，请重试");
     } finally {
       setRemoving(false);
     }
@@ -65,12 +65,6 @@ export function WrongQuestionList({
 
   return (
     <>
-      <PracticeToast
-        message={toastMessage ?? ""}
-        onDismiss={() => setToastMessage(null)}
-        visible={Boolean(toastMessage)}
-      />
-
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <label className="flex flex-col gap-2 text-sm text-text-secondary">
           <span>按题库筛选</span>

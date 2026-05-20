@@ -23,7 +23,6 @@ type PracticePlayerProps = {
   onComplete: () => void;
   showWrongToast: boolean;
   onDismissWrongToast: () => void;
-  submitError?: string | null;
 };
 
 export function PracticePlayer({
@@ -37,7 +36,6 @@ export function PracticePlayer({
   onComplete,
   showWrongToast,
   onDismissWrongToast,
-  submitError,
 }: PracticePlayerProps) {
   const question = questions[currentIndex];
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -230,11 +228,6 @@ export function PracticePlayer({
 
       <footer className="fixed inset-x-0 bottom-0 border-t bg-bg-surface/95 backdrop-blur">
         <div className="mx-auto max-w-3xl px-6 py-4">
-          {submitError ? (
-            <p className="mb-3 text-center text-sm text-error" role="alert">
-              {submitError}
-            </p>
-          ) : null}
           <div className="grid grid-cols-3 gap-3">
           <Button
             disabled={currentIndex === 0}

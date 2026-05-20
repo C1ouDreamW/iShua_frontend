@@ -7,6 +7,7 @@ import {
   submitAnswer,
   type PracticeQuestion,
 } from "@/api/practice";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { isObjectiveQuestionType } from "@/lib/practiceQuestion";
 
 export type PracticeAnswerRecord = {
@@ -179,9 +180,7 @@ export function usePracticeSession(bankId: number) {
         ),
       );
 
-      setSubmitError(
-        error instanceof Error ? error.message : "提交失败，请重试。",
-      );
+      setSubmitError(resolveApiErrorMessage(error, "提交失败，请重试。"));
     }
   }, [bankId, currentIndex, questions, records]);
 

@@ -5,10 +5,12 @@ import { pagePublicBanks, type QuestionBank } from "@/api/banks";
 import { BankCard } from "@/components/BankCard";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
+import { LogoMark } from "@/components/LogoMark";
 import { PaginationBar } from "@/components/PaginationBar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useResponsivePageSize } from "@/hooks/useResponsivePageSize";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 
 type LobbyState = {
   banks: QuestionBank[];
@@ -18,7 +20,7 @@ type LobbyState = {
 };
 
 export function HomePage() {
-  const { isAuthenticated, logout, user } = useAuth();
+  const { isAuthenticated, loading: authLoading, logout, user } = useAuth();
   const pageSize = useResponsivePageSize();
   const [current, setCurrent] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
@@ -50,10 +52,10 @@ export function HomePage() {
         if (!ignore) {
           setState({
             banks: [],
-            error:
-              error instanceof Error
-                ? error.message
-                : "公开题库加载失败，请稍后再试。",
+            error: resolveApiErrorMessage(
+              error,
+              "公开题库加载失败，请稍后再试。",
+            ),
             loading: false,
             total: 0,
           });
@@ -68,6 +70,15 @@ export function HomePage() {
     };
   }, [current, pageSize, reloadKey]);
 
+  useEffect(() => {
+    if (state.total === 0) {
+      return;
+    }
+
+    const maxPage = Math.max(1, Math.ceil(state.total / pageSize));
+    setCurrent((page) => (page > maxPage ? maxPage : page));
+  }, [pageSize, state.total]);
+
   return (
     <main className="min-h-screen bg-bg-canvas">
       <section className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
@@ -76,9 +87,7 @@ export function HomePage() {
           <div className="relative flex flex-col gap-8">
             <div className="flex items-start justify-between gap-6">
               <div className="flex flex-col gap-3">
-                <div className="flex size-16 items-center justify-center rounded-2xl bg-brand text-2xl font-semibold text-white shadow-sm">
-                  刷
-                </div>
+                <LogoMark size="lg" />
                 <div>
                   <h1 className="font-serif text-4xl font-semibold text-text-primary">
                     iShua
@@ -88,7 +97,12 @@ export function HomePage() {
                   </p>
                 </div>
               </div>
-              {isAuthenticated ? (
+              {authLoading ? (
+                <div
+                  aria-hidden
+                  className="h-10 w-28 animate-pulse rounded-lg border bg-bg-surface"
+                />
+              ) : isAuthenticated ? (
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="hidden text-sm text-text-secondary sm:inline">
                     {user?.nickname || user?.username}
@@ -150,6 +164,7 @@ export function HomePage() {
             </div>
           ) : state.error ? (
             <ErrorState
+              backHref="/"
               message={state.error}
               onRetry={() => setReloadKey((key) => key + 1)}
             />

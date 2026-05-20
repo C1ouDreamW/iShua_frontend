@@ -13,10 +13,12 @@ import { QuestionList } from "@/components/question/QuestionList";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PaginationBar } from "@/components/PaginationBar";
-import { PracticeToast } from "@/components/PracticeToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useAppToast } from "@/hooks/useAppToast";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import { consumePageFlash } from "@/lib/pageFlash";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 10;
@@ -42,7 +44,14 @@ export function BankDetailPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [deleteBankOpen, setDeleteBankOpen] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState<Question | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { error: showError, success } = useAppToast();
+
+  useEffect(() => {
+    const flash = consumePageFlash();
+    if (flash) {
+      success(flash);
+    }
+  }, [success]);
 
   useEffect(() => {
     setCurrent(1);
@@ -75,7 +84,7 @@ export function BankDetailPage() {
       } catch (error) {
         if (!ignore) {
           setBankError(
-            error instanceof Error ? error.message : "题库信息加载失败。",
+            resolveApiErrorMessage(error, "题库信息加载失败。"),
           );
         }
       } finally {
@@ -119,7 +128,7 @@ export function BankDetailPage() {
           setQuestions([]);
           setTotal(0);
           setListError(
-            error instanceof Error ? error.message : "试题列表加载失败。",
+            resolveApiErrorMessage(error, "试题列表加载失败。"),
           );
         }
       } finally {
@@ -146,14 +155,12 @@ export function BankDetailPage() {
         question,
         () => {
           refreshAll();
-          setToastMessage("已删除");
+          success("已删除");
         },
         setDeletingQuestion,
       );
     } catch (error) {
-      setToastMessage(
-        error instanceof Error ? error.message : "删除失败，请重试。",
-      );
+      showError(resolveApiErrorMessage(error, "删除失败，请重试。"));
     }
   }
 
@@ -182,12 +189,6 @@ export function BankDetailPage() {
 
   return (
     <section className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-10">
-      <PracticeToast
-        message={toastMessage ?? ""}
-        onDismiss={() => setToastMessage(null)}
-        visible={Boolean(toastMessage)}
-      />
-
       <header className="space-y-4">
         <Button asChild size="sm" variant="ghost">
           <Link to="/app/banks">← 返回我的题库</Link>
@@ -322,7 +323,7 @@ export function BankDetailPage() {
         onOpenChange={setFormOpen}
         onSaved={() => {
           refreshAll();
-          setToastMessage("题库已更新");
+          success("题库已更新");
         }}
         open={formOpen}
       />
@@ -330,7 +331,7 @@ export function BankDetailPage() {
       <DeleteBankDialog
         bank={bank}
         onDeleted={() => {
-          setToastMessage("已删除题库");
+          success("已删除题库");
           navigate("/app/banks");
         }}
         onOpenChange={setDeleteBankOpen}
@@ -340,7 +341,7 @@ export function BankDetailPage() {
       <DeleteQuestionDialog
         onDeleted={() => {
           refreshAll();
-          setToastMessage("已删除");
+          success("已删除");
         }}
         onOpenChange={(open) => {
           if (!open) {

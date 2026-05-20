@@ -1,7 +1,5 @@
-import { useState } from "react";
-
-import { PracticeToast } from "@/components/PracticeToast";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/useAppToast";
 import {
   Dialog,
   DialogContent,
@@ -18,26 +16,19 @@ type UpgradePromptProps = {
 };
 
 export function UpgradePrompt({ open, onOpenChange }: UpgradePromptProps) {
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { error, success } = useAppToast();
 
   async function copyEmail() {
     try {
       await navigator.clipboard.writeText(UPGRADE_CONTACT_EMAIL);
-      setToastMessage("已复制");
+      success("已复制");
     } catch {
-      setToastMessage("复制失败，请手动复制邮箱");
+      error("复制失败，请手动复制邮箱");
     }
   }
 
   return (
-    <>
-      <PracticeToast
-        durationMs={2000}
-        message={toastMessage ?? ""}
-        onDismiss={() => setToastMessage(null)}
-        visible={Boolean(toastMessage)}
-      />
-      <Dialog onOpenChange={onOpenChange} open={open}>
+    <Dialog onOpenChange={onOpenChange} open={open}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>需要高级权限</DialogTitle>
@@ -65,6 +56,5 @@ export function UpgradePrompt({ open, onOpenChange }: UpgradePromptProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
   );
 }

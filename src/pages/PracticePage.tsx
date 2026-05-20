@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { EmptyState } from "@/components/EmptyState";
@@ -5,6 +6,7 @@ import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { PracticePlayer } from "@/components/PracticePlayer";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/useAppToast";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 
 export function PracticePage() {
@@ -12,6 +14,13 @@ export function PracticePage() {
   const navigate = useNavigate();
   const numericBankId = Number(bankId);
   const session = usePracticeSession(numericBankId);
+  const { error: showError } = useAppToast();
+
+  useEffect(() => {
+    if (session.submitError) {
+      showError(session.submitError);
+    }
+  }, [session.submitError, showError]);
 
   if (session.status === "complete") {
     return (
@@ -41,7 +50,11 @@ export function PracticePage() {
     return (
       <main className="min-h-screen bg-bg-canvas px-6 py-12">
         <div className="mx-auto max-w-3xl space-y-4">
-          <ErrorState message={session.error} onRetry={() => void session.reload()} />
+          <ErrorState
+            backHref="/"
+            message={session.error}
+            onRetry={() => void session.reload()}
+          />
           <div className="flex justify-center">
             <Button asChild variant="outline">
               <Link to="/">返回大厅</Link>
@@ -82,7 +95,6 @@ export function PracticePage() {
       questions={session.questions}
       record={session.records[session.currentIndex]}
       showWrongToast={session.showWrongToast}
-      submitError={session.submitError}
     />
   );
 }

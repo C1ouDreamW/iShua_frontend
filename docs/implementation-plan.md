@@ -4,7 +4,7 @@
 > **API**：`api-docs-v3.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
-**当前进度（2026-05-20）**：**P0–P8 已落地**（AI 导入四步向导）；下一步 **P9 收尾**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+**当前进度（2026-05-20）**：**P0–P9 已落地**（收尾与质量：全局 Toast、错误文案、redirect 校验、Logo、README）。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
 
 ---
 
@@ -531,27 +531,37 @@ flowchart LR
 
 ---
 
-### P9 — 收尾与质量（里程碑 M5）
+### P9 — 收尾与质量（里程碑 M5） ✅
 
 **目标**：全局体验、无障碍、验收清单扫尾；文档与脚本就绪。
 
 **依赖**：P1–P8 主功能已完成。
 
+| 工作包  | 任务                                  | 产出 |
+| ---- | ----------------------------------- | ---- |
+| P9-1 | 全局 `ErrorState`、Toast 文案统一 | `AppToastProvider`、`apiErrors.ts`、`ErrorState` 返回按钮 |
+| P9-2 | `prefers-reduced-motion` 与键盘刷题走查 | `tokens.css` 已有；`motion-safe:` 类；PracticePlayer 键盘保留 |
+| P9-3 | 403 页 vs Upgrade 边界复查 | `RoleGate`：PREMIUM 功能 → Upgrade；ADMIN → 无权限页 |
+| P9-4 | README：本地启动、环境变量、测试账号说明 | 根目录 `README.md` |
+| P9-5 | 按 `ishua-ui-spec.md` §10 全量勾选验收 | 见下方已落地摘要 |
+| P9-6 | 可选：关键路径 E2E | 未纳入首版（可二期 Playwright） |
 
-| 工作包  | 任务                                  |
-| ---- | ----------------------------------- |
-| P9-1 | 全局 `ErrorState`、Toast 文案统一（`ErrorState` 已在 P1 引入） |
-| P9-2 | `prefers-reduced-motion` 与键盘刷题走查    |
-| P9-3 | 403 页 vs Upgrade 边界复查               |
-| P9-4 | README：本地启动、环境变量、测试账号说明             |
-| P9-5 | 按 `ishua-ui-spec.md` §10 全量勾选验收     |
-| P9-6 | 可选：关键路径 E2E（大厅 → 访客刷题；登录 → 刷题 → 错题） |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/hooks/useAppToast.tsx` | 全局 Toast 上下文 |
+| `src/components/AppToastViewport.tsx` | 统一 Toast 视口 |
+| `src/lib/apiErrors.ts` | 网络/业务错误文案 |
+| `src/lib/navigation.ts` | `redirect` 站内路径校验 |
+| `src/lib/authFlash.ts` | 401 过期登录提示 |
+| `src/components/LogoMark.tsx` | Logo 接入大厅/空态 |
+| `README.md` | 启动、环境变量、测试账号 |
 
 **验收**
 
-- §10 + §11 终检项全部通过  
-- 无控制台泄露访客答案
+- [x] §10 + §11 终检项（首版范围）已通过代码走查与构建  
+- [x] 无 `console.log` 泄露题目/答案  
 
 **建议 PR**：`chore: polish a11y readme and qa`
 
@@ -653,7 +663,7 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | P6 我的题库      | ☑   |
 | P7 试题管理      | ☑   |
 | P8 AI 导入     | ☑   |
-| P9 收尾        | ☐   |
+| P9 收尾        | ☑   |
 
 
 ---

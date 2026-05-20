@@ -1,6 +1,10 @@
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
+import { AUTH_EXPIRED_MESSAGE } from "@/lib/apiErrors";
+import { setAuthFlash } from "@/lib/authFlash";
+import { buildLoginRedirect } from "@/lib/navigation";
+
 export const AUTH_TOKEN_KEY = "ishua_token";
 const AUTH_USER_KEY = "ishua_user";
 
@@ -67,8 +71,8 @@ function redirectToLogin() {
     return;
   }
 
-  const redirect = encodeURIComponent(`${pathname}${search}`);
-  window.location.assign(`/login?redirect=${redirect}`);
+  setAuthFlash(AUTH_EXPIRED_MESSAGE);
+  window.location.assign(buildLoginRedirect(pathname, search));
 }
 
 function readToken() {

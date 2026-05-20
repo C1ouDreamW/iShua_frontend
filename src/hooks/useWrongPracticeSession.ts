@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { submitAnswer, type PracticeQuestion } from "@/api/practice";
 import { listWrongPractice } from "@/api/wrong";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { isObjectiveQuestionType } from "@/lib/practiceQuestion";
 import type { PracticeAnswerRecord } from "@/hooks/usePracticeSession";
 
@@ -145,9 +146,7 @@ export function useWrongPracticeSession(filterBankId?: number) {
         ),
       );
 
-      setSubmitError(
-        error instanceof Error ? error.message : "提交失败，请重试。",
-      );
+      setSubmitError(resolveApiErrorMessage(error, "提交失败，请重试。"));
     }
   }, [currentIndex, questions, records]);
 

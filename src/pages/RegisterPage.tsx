@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import { ApiError } from "@/api/client";
 import { AuthForm } from "@/components/AuthForm";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 
 export function RegisterPage() {
-  const { register } = useAuth();
+  const { isAuthenticated, loading: authLoading, register } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  if (!authLoading && isAuthenticated) {
+    return <Navigate replace to="/" />;
+  }
 
   async function handleRegister(values: {
     username: string;
@@ -31,7 +36,7 @@ export function RegisterPage() {
       if (caught instanceof ApiError && caught.code === 409) {
         setError("用户名已被使用。");
       } else {
-        setError(caught instanceof Error ? caught.message : "注册失败。");
+        setError(resolveApiErrorMessage(caught, "注册失败。"));
       }
     } finally {
       setLoading(false);

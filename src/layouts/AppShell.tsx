@@ -24,6 +24,7 @@ import {
   isNavItemActive,
   type AppNavItem,
 } from "@/lib/appNavigation";
+import { buildLoginRedirect } from "@/lib/navigation";
 import { ROLE_LABEL } from "@/lib/rbac";
 import { cn } from "@/lib/utils";
 
@@ -44,10 +45,12 @@ export function AppShell() {
   );
 
   if (!loading && !isAuthenticated) {
-    const redirect = encodeURIComponent(
-      `${location.pathname}${location.search}`,
+    return (
+      <Navigate
+        replace
+        to={buildLoginRedirect(location.pathname, location.search)}
+      />
     );
-    return <Navigate replace to={`/login?redirect=${redirect}`} />;
   }
 
   if (isImmersive) {

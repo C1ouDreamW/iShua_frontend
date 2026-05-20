@@ -1,21 +1,43 @@
-import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 
 import { ApiError } from "@/api/client";
 import { AuthForm } from "@/components/AuthForm";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/useAppToast";
 import { useAuth } from "@/hooks/useAuth";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import { consumeAuthFlash } from "@/lib/authFlash";
+import { sanitizeRedirect } from "@/lib/navigation";
 
 function getDefaultLanding(role: string | undefined) {
   return role === "PREMIUM" || role === "ADMIN" ? "/app/banks" : "/";
 }
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { isAuthenticated, loading: authLoading, login, user } = useAuth();
+  const { error: showToastError } = useAppToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const flash = consumeAuthFlash();
+    if (flash) {
+      showToastError(flash, 4000);
+    }
+  }, [showToastError]);
+
+  if (!authLoading && isAuthenticated) {
+    const redirect = sanitizeRedirect(searchParams.get("redirect"));
+    return (
+      <Navigate
+        replace
+        to={redirect || getDefaultLanding(user?.role)}
+      />
+    );
+  }
 
   async function handleLogin(values: {
     username: string;
@@ -30,13 +52,13 @@ export function LoginPage() {
         password: values.password,
         username: values.username,
       });
-      const redirect = searchParams.get("redirect");
+      const redirect = sanitizeRedirect(searchParams.get("redirect"));
       navigate(redirect || getDefaultLanding(result.role), { replace: true });
     } catch (caught) {
       if (caught instanceof ApiError && caught.code === 401) {
         setError("用户名或密码错误。");
       } else {
-        setError(caught instanceof Error ? caught.message : "登录失败。");
+        setError(resolveApiErrorMessage(caught, "登录失败。"));
       }
     } finally {
       setLoading(false);

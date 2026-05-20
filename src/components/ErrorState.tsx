@@ -1,15 +1,21 @@
+import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 
 type ErrorStateProps = {
   title?: string;
   message: string;
   onRetry?: () => void;
+  backHref?: string;
+  backLabel?: string;
 };
 
 export function ErrorState({
   title = "加载失败",
   message,
   onRetry,
+  backHref,
+  backLabel = "返回大厅",
 }: ErrorStateProps) {
   return (
     <div className="flex min-h-64 flex-col items-center justify-center gap-4 rounded-xl border bg-error-bg px-6 py-12 text-center">
@@ -21,11 +27,18 @@ export function ErrorState({
           {message}
         </p>
       </div>
-      {onRetry ? (
-        <Button onClick={onRetry} variant="outline">
-          重试
-        </Button>
-      ) : null}
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        {onRetry ? (
+          <Button onClick={onRetry} variant="outline">
+            重试
+          </Button>
+        ) : null}
+        {backHref ? (
+          <Button asChild variant={onRetry ? "ghost" : "outline"}>
+            <Link to={backHref}>{backLabel}</Link>
+          </Button>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { Button } from "@/components/ui/button";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import { buildLoginRedirect } from "@/lib/navigation";
 import { gradeAnswer } from "@/lib/gradeAnswer";
 import { parseOptionsJson } from "@/lib/parseOptionsJson";
 import { cn } from "@/lib/utils";
@@ -114,10 +116,10 @@ export function GuestPracticePage() {
         if (!ignore) {
           setState({
             bank: null,
-            error:
-              error instanceof Error
-                ? error.message
-                : "访客刷题数据加载失败。",
+            error: resolveApiErrorMessage(
+              error,
+              "访客刷题数据加载失败。",
+            ),
             loading: false,
             questions: [],
           });
@@ -224,7 +226,7 @@ export function GuestPracticePage() {
     return (
       <main className="min-h-screen bg-bg-canvas px-6 py-12">
         <div className="mx-auto max-w-3xl">
-          <ErrorState message={state.error} />
+          <ErrorState backHref="/" message={state.error} />
         </div>
       </main>
     );
@@ -266,9 +268,7 @@ export function GuestPracticePage() {
             </p>
             <Link
               className="text-xs text-brand underline-offset-4 hover:underline"
-              to={`/login?redirect=${encodeURIComponent(
-                `/practice/guest/${numericBankId}`,
-              )}`}
+              to={buildLoginRedirect(`/practice/guest/${numericBankId}`)}
             >
               登录以同步错题
             </Link>

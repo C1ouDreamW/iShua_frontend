@@ -8,9 +8,10 @@ import { BankCard } from "@/components/BankCard";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PaginationBar } from "@/components/PaginationBar";
-import { PracticeToast } from "@/components/PracticeToast";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/useAppToast";
 import { useResponsivePageSize } from "@/hooks/useResponsivePageSize";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 
 type MyBanksState = {
   banks: QuestionBank[];
@@ -33,7 +34,7 @@ export function MyBanksPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingBank, setEditingBank] = useState<QuestionBank | null>(null);
   const [deletingBank, setDeletingBank] = useState<QuestionBank | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { success } = useAppToast();
 
   useEffect(() => {
     let ignore = false;
@@ -56,10 +57,10 @@ export function MyBanksPage() {
         if (!ignore) {
           setState({
             banks: [],
-            error:
-              error instanceof Error
-                ? error.message
-                : "我的题库加载失败，请稍后再试。",
+            error: resolveApiErrorMessage(
+              error,
+              "我的题库加载失败，请稍后再试。",
+            ),
             loading: false,
             total: 0,
           });
@@ -90,7 +91,7 @@ export function MyBanksPage() {
 
   function handleSaved(bankId?: number) {
     refreshList();
-    setToastMessage("保存成功");
+    success("保存成功");
 
     if (bankId) {
       navigate(`/app/banks/${bankId}`);
@@ -99,12 +100,6 @@ export function MyBanksPage() {
 
   return (
     <section className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10">
-      <PracticeToast
-        message={toastMessage ?? ""}
-        onDismiss={() => setToastMessage(null)}
-        visible={Boolean(toastMessage)}
-      />
-
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-semibold text-text-primary">
@@ -174,7 +169,7 @@ export function MyBanksPage() {
         bank={deletingBank}
         onDeleted={() => {
           refreshList();
-          setToastMessage("已删除题库");
+          success("已删除题库");
         }}
         onOpenChange={(open) => {
           if (!open) {

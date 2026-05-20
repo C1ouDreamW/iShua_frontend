@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { EmptyState } from "@/components/EmptyState";
@@ -6,6 +6,7 @@ import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { WrongPracticePlayer } from "@/components/WrongPracticePlayer";
 import { Button } from "@/components/ui/button";
+import { useAppToast } from "@/hooks/useAppToast";
 import { useWrongPracticeSession } from "@/hooks/useWrongPracticeSession";
 
 export function WrongPracticePage() {
@@ -22,6 +23,13 @@ export function WrongPracticePage() {
   }, [bankIdParam]);
 
   const session = useWrongPracticeSession(filterBankId);
+  const { error: showError } = useAppToast();
+
+  useEffect(() => {
+    if (session.submitError) {
+      showError(session.submitError);
+    }
+  }, [session.submitError, showError]);
 
   if (session.status === "complete") {
     return (
@@ -90,7 +98,6 @@ export function WrongPracticePage() {
       onSubmit={() => void session.submitCurrent()}
       questions={session.questions}
       record={session.records[session.currentIndex]}
-      submitError={session.submitError}
     />
   );
 }
