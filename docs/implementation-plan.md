@@ -4,7 +4,7 @@
 > **API**：`api-docs-v3.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
-**当前进度（2026-05-20）**：**P0–P3 已落地**（M1 + M2 登录刷题可演示）；下一步 **P4 错题本**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+**当前进度（2026-05-20）**：**P0–P4 已落地**（M2 错题本闭环可演示）；下一步 **P5 壳层 RBAC**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
 
 ---
 
@@ -288,21 +288,31 @@ flowchart LR
 
 ---
 
-### P4 — 错题本 + 错题重刷（里程碑 M2 闭环）
+### P4 — 错题本 + 错题重刷（里程碑 M2 闭环） ✅
 
 **目标**：错题列表、筛选、移出；**独立页** `/app/wrong-questions/practice`。
 
 **依赖**：P3（submit 会产生错题）。
 
+| 工作包  | 任务                                      | 组件/页面 / 实际产出 |
+| ---- | --------------------------------------- | ------------------ |
+| P4-1 | `api/wrong.ts`：page、listPractice、remove | `src/api/wrong.ts` |
+| P4-2 | `WrongQuestionList` + 分页 + bankId 筛选    | `src/components/WrongQuestionList.tsx` |
+| P4-3 | 页面 `/app/wrong-questions`               | `src/pages/WrongQuestionsPage.tsx` |
+| P4-4 | `WrongPracticePlayer` **独立组件/页面**       | `src/components/WrongPracticePlayer.tsx` + `src/pages/WrongPracticePage.tsx` + `src/hooks/useWrongPracticeSession.ts` |
+| P4-5 | `PracticeComplete` 错题文案 + 返回错题本         | 完成页「错题重刷完成」+ `primaryLabel` 返回错题本 |
 
-| 工作包  | 任务                                      | 组件/页面 |
-| ---- | --------------------------------------- | ----- |
-| P4-1 | `api/wrong.ts`：page、listPractice、remove | —     |
-| P4-2 | `WrongQuestionList` + 分页 + bankId 筛选    | §7.15 |
-| P4-3 | 页面 `/app/wrong-questions`               | —     |
-| P4-4 | `WrongPracticePlayer` **独立组件/页面**       | §7.13 |
-| P4-5 | `PracticeComplete` 错题文案 + 返回错题本         | —     |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/api/wrong.ts` | 错题分页、重刷列表、移出 |
+| `src/pages/WrongQuestionsPage.tsx` | 列表、筛选、分页、移出确认 |
+| `src/pages/WrongPracticePage.tsx` | `?bankId=` 筛选重刷 |
+| `src/components/WrongQuestionList.tsx` | 行展示、重刷/移出、开始重刷 |
+| `src/components/WrongPracticePlayer.tsx` | 独立重刷 UI（不走 PracticePlayer） |
+| `src/components/RemoveWrongQuestionDialog.tsx` | 移出确认 |
+| `src/lib/formatRelativeTime.ts` | 最近做错相对时间 |
 
 **API 覆盖**
 
@@ -316,9 +326,14 @@ flowchart LR
 
 **验收**
 
-- 答错后列表可见；移出后消失  
-- 重刷 URL 为 `/app/wrong-questions/practice`，非 `/app/practice`  
-- 重刷仍走 submit 接口
+- [x] 答错后列表可见；移出后消失  
+- [x] 重刷 URL 为 `/app/wrong-questions/practice`，非 `/app/practice`  
+- [x] 重刷仍走 submit 接口（`question.questionBankId` + `question.id`）
+
+**遗留 / 后续阶段**
+
+- 题库筛选项主要来自公开题库列表 + 当前页记录，私有库 ID 可能仅显示「题库 {id}」  
+- 移出确认未做「不再提示」localStorage（§7.16 为删题场景，P9 可统一）  
 
 **建议 PR**：`feat: wrong questions list and practice`
 
@@ -512,7 +527,7 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | 节点     | 完成后可演示                |
 | ------ | --------------------- |
 | 第 1 周末 | P0+P1：访客刷题 ✅（已达成）   |
-| 第 2 周末 | P2+P3+P4+P5：登录刷题 + 错题（**P2 鉴权已达成**） |
+| 第 2 周末 | P2+P3+P4+P5：登录刷题 + 错题（**P2–P4 已达成**） |
 | 第 3 周末 | P6+P7：建库管题            |
 | 第 4 周末 | P8+P9：AI 导入 + 收尾      |
 
@@ -575,7 +590,7 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | P1 大厅 + 访客刷题 | ☑   |
 | P2 鉴权        | ☑   |
 | P3 登录刷题      | ☑   |
-| P4 错题本       | ☐   |
+| P4 错题本       | ☑   |
 | P5 壳层 RBAC   | ☐   |
 | P6 我的题库      | ☐   |
 | P7 试题管理      | ☐   |
@@ -585,4 +600,4 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 
 ---
 
-*方案版本：1.3 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P3 已勾选并补充实施记录*
+*方案版本：1.4 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P4 已勾选并补充实施记录*

@@ -7,6 +7,8 @@ import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { PracticePage } from "@/pages/PracticePage";
 import { RegisterPage } from "@/pages/RegisterPage";
+import { WrongPracticePage } from "@/pages/WrongPracticePage";
+import { WrongQuestionsPage } from "@/pages/WrongQuestionsPage";
 
 export const router = createBrowserRouter([
   {
@@ -85,22 +87,12 @@ export const router = createBrowserRouter([
       },
       {
         path: "wrong-questions",
-        element: (
-          <PageStub
-            description="P4 将接入错题列表、筛选、移出和重刷入口。"
-            title="错题本"
-          />
-        ),
+        element: <WrongQuestionsPage />,
       },
       {
         path: "wrong-questions/practice",
         handle: { immersive: true },
-        element: (
-          <PageStub
-            description="P4 将接入独立错题重刷页面。"
-            title="错题重刷"
-          />
-        ),
+        element: <WrongPracticePage />,
       },
       {
         path: "admin/users",
