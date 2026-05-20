@@ -9,6 +9,7 @@ export type QuestionBankCreatePayload =
   components["schemas"]["QuestionBankCreateDTO"];
 export type QuestionBankUpdatePayload =
   components["schemas"]["QuestionBankUpdateDTO"];
+export type BatchImportPayload = components["schemas"]["BatchImportRequestDTO"];
 
 export type PageResult<T> = {
   total?: number;
@@ -59,4 +60,11 @@ export function deleteBank(bankId: number) {
 export async function findMyBank(bankId: number) {
   const data = await pageMyBanks({ current: 1, pageSize: 100 });
   return data?.records?.find((bank) => bank.id === bankId) ?? null;
+}
+
+export function batchImportQuestions(bankId: number, payload: BatchImportPayload) {
+  return request<null>(`/api/v1/question-banks/${bankId}/questions/batch`, {
+    body: payload,
+    method: "POST",
+  });
 }

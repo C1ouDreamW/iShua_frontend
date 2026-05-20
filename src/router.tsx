@@ -8,6 +8,7 @@ import { GuestPracticePage } from "@/pages/GuestPracticePage";
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { BankDetailPage } from "@/pages/BankDetailPage";
+import { ImportPage } from "@/pages/ImportPage";
 import { MyBanksPage } from "@/pages/MyBanksPage";
 import { PracticePage } from "@/pages/PracticePage";
 import { QuestionFormPage } from "@/pages/QuestionFormPage";
@@ -66,12 +67,7 @@ export const router = createBrowserRouter([
           },
           {
             path: ":bankId/import",
-            element: (
-              <PageStub
-                description="P8 将接入 AI 导入四步向导。"
-                title="AI 智能导入"
-              />
-            ),
+            element: <ImportPage />,
           },
         ],
       },

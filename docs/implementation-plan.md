@@ -4,7 +4,7 @@
 > **API**：`api-docs-v3.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
-**当前进度（2026-05-20）**：**P0–P7 已落地**（题库详情 + 试题 CRUD）；下一步 **P8 AI 导入**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+**当前进度（2026-05-20）**：**P0–P8 已落地**（AI 导入四步向导）；下一步 **P9 收尾**。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
 
 ---
 
@@ -474,28 +474,36 @@ flowchart LR
 **遗留 / 后续阶段**
 
 - 题库元信息通过 `findMyBank`（分页 100）查找，题库极多时可优化（**P9** 或后端 GET）  
-- AI 导入仍为 Stub（**P8**）  
+- AI 智能导入已属 **P8** ✅  
 
 **建议 PR**：`feat: question list and form`
 
 ---
 
-### P8 — AI 智能导入（里程碑 M4）
+### P8 — AI 智能导入（里程碑 M4） ✅
 
 **目标**：四步向导：上传 → 轮询 → 表格预览编辑 → 批量确认入库。
 
 **依赖**：P6（需已有题库 bankId）。
 
+| 工作包  | 任务                                     | 组件/页面 / 实际产出 |
+| ---- | -------------------------------------- | ------------------ |
+| P8-1 | `api/aiImport.ts`：submit、getTaskStatus | `src/api/aiImport.ts` |
+| P8-2 | `api/banks.ts`：batchImportQuestions    | `batchImportQuestions` |
+| P8-3 | `ImportWizard` 四步状态机                   | `src/components/import/ImportWizard.tsx` |
+| P8-4 | `PreviewQuestionTable` 展开编辑            | `src/components/import/PreviewQuestionTable.tsx` |
+| P8-5 | 页面 `/app/banks/:bankId/import`         | `src/pages/ImportPage.tsx` |
+| P8-6 | 429/409/FAILED 文案                      | `src/lib/aiImport.ts` `resolveImportError` |
 
-| 工作包  | 任务                                     | 组件/页面 |
-| ---- | -------------------------------------- | ----- |
-| P8-1 | `api/aiImport.ts`：submit、getTaskStatus | —     |
-| P8-2 | `api/banks.ts`：batchImportQuestions    | —     |
-| P8-3 | `ImportWizard` 四步状态机                   | §7.17 |
-| P8-4 | `PreviewQuestionTable` 展开编辑            | §7.18 |
-| P8-5 | 页面 `/app/banks/:bankId/import`         | —     |
-| P8-6 | 429/409/FAILED 文案                      | —     |
+**已落地文件（摘要）**
 
+| 路径 | 说明 |
+|------|------|
+| `src/api/aiImport.ts` | multipart 提交、任务状态轮询 |
+| `src/lib/aiImport.ts` | 文件校验、预览编辑转换、错误文案 |
+| `src/components/import/ImportWizard.tsx` | 上传/解析/预览/完成四步 |
+| `src/components/import/PreviewQuestionTable.tsx` | 表格预览 + 展开编辑 |
+| `src/pages/ImportPage.tsx` | 导入页壳层 |
 
 **API 覆盖**
 
@@ -509,9 +517,15 @@ flowchart LR
 
 **验收**
 
-- 轮询 2–5s，PARSED 后展示预览  
-- 确认导入后详情页可见新题  
-- USER 访问走 Upgrade
+- [x] 轮询 3s，PARSED 后展示预览  
+- [x] 确认导入后跳转完成页，可回题库详情  
+- [x] USER 访问走 P5 `RoleGate`（banks 路由 PREMIUM）  
+- [x] 429/409/FAILED 专用文案
+
+**遗留 / 后续阶段**
+
+- 轮询不可取消（离开页面自动 cleanup）；可选优化取消按钮  
+- 依赖后端 AI Worker 联调；本地无 Worker 时仅能测上传失败态  
 
 **建议 PR**：`feat: ai import wizard`
 
@@ -638,10 +652,10 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | P5 壳层 RBAC   | ☑   |
 | P6 我的题库      | ☑   |
 | P7 试题管理      | ☑   |
-| P8 AI 导入     | ☐   |
+| P8 AI 导入     | ☑   |
 | P9 收尾        | ☐   |
 
 
 ---
 
-*方案版本：1.7 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P7 已勾选并补充实施记录*
+*方案版本：1.8 · 2026-05-20 · 对应 ishua-ui-spec v1.0 · P0–P8 已勾选并补充实施记录*
