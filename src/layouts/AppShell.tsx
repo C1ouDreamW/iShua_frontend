@@ -18,11 +18,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  APP_SIDEBAR_NAV,
+  APP_MOBILE_NAV_IDS,
   canAccessNavItem,
+  getNavItemById,
   getVisibleSidebarNav,
   isNavItemActive,
-  type AppNavItem,
 } from "@/lib/appNavigation";
 import { buildLoginRedirect } from "@/lib/navigation";
 import { ROLE_LABEL } from "@/lib/rbac";
@@ -73,30 +73,19 @@ export function AppShell() {
       : "用户";
 
   const mobileNavItems: MobileNavItem[] = [
-    {
-      active: location.pathname === "/",
-      icon: APP_SIDEBAR_NAV[0].icon,
-      id: "discover",
-      label: "发现",
-      to: "/",
-    },
-    {
-      active: isNavItemActive(location.pathname, APP_SIDEBAR_NAV[1]),
-      icon: APP_SIDEBAR_NAV[1].icon,
-      id: "wrong",
-      label: "错题",
-      to: "/app/wrong-questions",
-    },
-    {
-      action: canAccessNavItem(user?.role, APP_SIDEBAR_NAV[2])
-        ? undefined
-        : "upgrade",
-      active: isNavItemActive(location.pathname, APP_SIDEBAR_NAV[2]),
-      icon: APP_SIDEBAR_NAV[2].icon,
-      id: "banks",
-      label: "题库",
-      to: "/app/banks",
-    },
+    ...APP_MOBILE_NAV_IDS.map((navId) => {
+      const item = getNavItemById(navId)!;
+      const shortLabel =
+        navId === "wrong" ? "错题" : navId === "banks" ? "题库" : item.label;
+
+      return {
+        active: isNavItemActive(location.pathname, item),
+        icon: item.icon,
+        id: navId,
+        label: shortLabel,
+        to: item.to,
+      };
+    }),
     {
       action: "profile",
       icon: User,

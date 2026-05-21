@@ -29,7 +29,7 @@ export function QuestionFormPage() {
   const numericBankId = Number(bankId);
   const numericQuestionId = id ? Number(id) : null;
   const isEdit = Boolean(numericQuestionId);
-  const detailPath = `/app/banks/${bankId}`;
+  const detailPath = `/app/manage/banks/${bankId}`;
 
   const [form, setForm] = useState<QuestionFormState>(() =>
     createEmptyFormState(),

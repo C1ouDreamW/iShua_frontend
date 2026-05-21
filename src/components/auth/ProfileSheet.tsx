@@ -1,4 +1,5 @@
-import { LogOut, X, type LucideIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { FolderCog, LogOut, X, type LucideIcon } from "lucide-react";
 
 import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,14 @@ export function ProfileSheet({
         ) : null}
 
         <div className="flex flex-col gap-2">
+          {isPremiumOrAbove(role) ? (
+            <Button asChild className="w-full justify-start gap-2" variant="outline">
+              <Link onClick={() => onOpenChange(false)} to="/app/manage/banks">
+                <FolderCog aria-hidden="true" className="size-4" />
+                管理题库
+              </Link>
+            </Button>
+          ) : null}
           <Button
             className="w-full justify-start gap-2"
             onClick={() => {

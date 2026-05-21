@@ -25,3 +25,6 @@ vscode/
 node_modules/
 .env
 .agents
+
+# Temp
+docs/temp/

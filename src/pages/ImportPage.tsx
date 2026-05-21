@@ -70,7 +70,7 @@ export function ImportPage() {
         <ErrorState message={error} />
         <div className="flex justify-center">
           <Button asChild variant="outline">
-            <Link to="/app/banks">返回我的题库</Link>
+            <Link to="/app/manage/banks">返回管理题库</Link>
           </Button>
         </div>
       </section>
@@ -81,7 +81,7 @@ export function ImportPage() {
     <section className="mx-auto max-w-4xl px-6 py-10">
       <header className="mb-8 space-y-2">
         <Button asChild size="sm" variant="ghost">
-          <Link to={`/app/banks/${numericBankId}`}>← 返回题库详情</Link>
+          <Link to={`/app/manage/banks/${numericBankId}`}>← 返回题库详情</Link>
         </Button>
         <h1 className="font-serif text-3xl font-semibold text-text-primary">
           AI 智能导入

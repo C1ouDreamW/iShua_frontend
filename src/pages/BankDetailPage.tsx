@@ -178,7 +178,7 @@ export function BankDetailPage() {
         <ErrorState message={bankError ?? "题库不存在。"} onRetry={refreshAll} />
         <div className="flex justify-center">
           <Button asChild variant="outline">
-            <Link to="/app/banks">返回我的题库</Link>
+            <Link to="/app/manage/banks">返回管理题库</Link>
           </Button>
         </div>
       </section>
@@ -191,7 +191,7 @@ export function BankDetailPage() {
     <section className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-10">
       <header className="space-y-4">
         <Button asChild size="sm" variant="ghost">
-          <Link to="/app/banks">← 返回我的题库</Link>
+          <Link to="/app/manage/banks">← 返回管理题库</Link>
         </Button>
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -221,7 +221,7 @@ export function BankDetailPage() {
               <Link to={`/app/practice/${numericBankId}`}>开始刷题</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to={`/app/banks/${numericBankId}/import`}>AI 导入</Link>
+              <Link to={`/app/manage/banks/${numericBankId}/import`}>AI 导入</Link>
             </Button>
             <Button onClick={() => setFormOpen(true)} variant="outline">
               编辑题库
@@ -248,7 +248,7 @@ export function BankDetailPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild>
-              <Link to={`/app/banks/${numericBankId}/questions/new`}>
+              <Link to={`/app/manage/banks/${numericBankId}/questions/new`}>
                 添加题目
               </Link>
             </Button>
@@ -288,12 +288,12 @@ export function BankDetailPage() {
             />
             <div className="flex flex-wrap justify-center gap-2">
               <Button asChild>
-                <Link to={`/app/banks/${numericBankId}/questions/new`}>
+                <Link to={`/app/manage/banks/${numericBankId}/questions/new`}>
                   添加题目
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to={`/app/banks/${numericBankId}/import`}>AI 导入</Link>
+                <Link to={`/app/manage/banks/${numericBankId}/import`}>AI 导入</Link>
               </Button>
             </div>
           </div>
@@ -332,7 +332,7 @@ export function BankDetailPage() {
         bank={bank}
         onDeleted={() => {
           success("已删除题库");
-          navigate("/app/banks");
+          navigate("/app/manage/banks");
         }}
         onOpenChange={setDeleteBankOpen}
         open={deleteBankOpen}

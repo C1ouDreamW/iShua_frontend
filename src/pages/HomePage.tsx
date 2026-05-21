@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { pagePublicBanks, type QuestionBank } from "@/api/banks";
 import { BankCard } from "@/components/BankCard";
+import { LobbyAuthenticatedActions } from "@/components/LobbyAccountMenu";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { LogoMark } from "@/components/LogoMark";
@@ -103,14 +104,10 @@ export function HomePage() {
                   className="h-10 w-28 animate-pulse rounded-lg border bg-bg-surface"
                 />
               ) : isAuthenticated ? (
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="hidden text-sm text-text-secondary sm:inline">
-                    {user?.nickname || user?.username}
-                  </span>
-                  <Button onClick={logout} variant="outline">
-                    退出
-                  </Button>
-                </div>
+                <LobbyAuthenticatedActions
+                  displayName={user?.nickname || user?.username || "用户"}
+                  onLogout={logout}
+                />
               ) : (
                 <nav
                   aria-label="访客导航"
@@ -129,7 +126,7 @@ export function HomePage() {
               <p className="text-sm font-medium text-brand">公开题库大厅</p>
               <p className="max-w-2xl text-sm leading-6 text-text-secondary">
                 {isAuthenticated
-                  ? "选择公开题库后会进入登录练习路由，后续阶段将同步错题与记录。"
+                  ? "访客大厅仍可浏览公开题库；日常刷题与错题请通过「进入学习」进入应用内题库。"
                   : "选择一个公开题库即可开始访客刷题。本阶段只做本地判分，不同步错题与记录。"}
               </p>
             </div>

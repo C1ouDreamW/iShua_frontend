@@ -26,7 +26,7 @@ export function BankCard({
   const practicePath = isAuthenticated
     ? `/app/practice/${bankId}`
     : `/practice/guest/${bankId}`;
-  const detailPath = bankId ? `/app/banks/${bankId}` : "#";
+  const detailPath = bankId ? `/app/manage/banks/${bankId}` : "#";
 
   return (
     <article className="group flex min-h-52 flex-col justify-between rounded-xl border bg-bg-surface p-5 shadow-sm motion-safe:transition-all motion-safe:hover:-translate-y-0.5 hover:border-brand/20 hover:shadow-md">

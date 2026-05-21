@@ -39,7 +39,7 @@ export function QuestionList({
             <div className="flex shrink-0 gap-2">
               <Button asChild size="sm" variant="outline">
                 <Link
-                  to={`/app/banks/${bankId}/questions/${question.id}/edit`}
+                  to={`/app/manage/banks/${bankId}/questions/${question.id}/edit`}
                 >
                   编辑
                 </Link>

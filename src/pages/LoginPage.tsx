@@ -10,8 +10,8 @@ import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { consumeAuthFlash } from "@/lib/authFlash";
 import { sanitizeRedirect } from "@/lib/navigation";
 
-function getDefaultLanding(role: string | undefined) {
-  return role === "PREMIUM" || role === "ADMIN" ? "/app/banks" : "/";
+function getDefaultLanding() {
+  return "/app/banks";
 }
 
 export function LoginPage() {
@@ -34,7 +34,7 @@ export function LoginPage() {
     return (
       <Navigate
         replace
-        to={redirect || getDefaultLanding(user?.role)}
+        to={redirect || getDefaultLanding()}
       />
     );
   }
@@ -53,7 +53,7 @@ export function LoginPage() {
         username: values.username,
       });
       const redirect = sanitizeRedirect(searchParams.get("redirect"));
-      navigate(redirect || getDefaultLanding(result.role), { replace: true });
+      navigate(redirect || getDefaultLanding(), { replace: true });
     } catch (caught) {
       if (caught instanceof ApiError && caught.code === 401) {
         setError("用户名或密码错误。");

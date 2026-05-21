@@ -270,7 +270,7 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
               {uploading ? "提交中…" : "开始解析"}
             </Button>
             <Button asChild variant="outline">
-              <Link to={`/app/banks/${bankId}`}>返回题库详情</Link>
+              <Link to={`/app/manage/banks/${bankId}`}>返回题库详情</Link>
             </Button>
           </div>
         </section>
@@ -335,7 +335,7 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
               「{bankTitle}」已更新，可在题库详情中查看新题目。
             </p>
           </div>
-          <Button onClick={() => navigate(`/app/banks/${bankId}`)}>
+          <Button onClick={() => navigate(`/app/manage/banks/${bankId}`)}>
             返回题库详情
           </Button>
         </section>

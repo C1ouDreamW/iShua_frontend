@@ -94,7 +94,7 @@ export function MyBanksPage() {
     success("保存成功");
 
     if (bankId) {
-      navigate(`/app/banks/${bankId}`);
+      navigate(`/app/manage/banks/${bankId}`);
     }
   }
 
@@ -103,7 +103,7 @@ export function MyBanksPage() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-serif text-3xl font-semibold text-text-primary">
-            我的题库
+            管理题库
           </h1>
           <p className="mt-2 text-sm leading-6 text-text-secondary">
             创建、编辑公开或私有题库，并在详情中管理试题与 AI 导入。
@@ -148,7 +148,7 @@ export function MyBanksPage() {
             ))}
           </div>
           <PaginationBar
-            ariaLabel="我的题库分页"
+            ariaLabel="管理题库分页"
             current={current}
             itemLabel="个题库"
             onPageChange={setCurrent}

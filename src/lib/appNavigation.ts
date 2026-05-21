@@ -1,6 +1,7 @@
 import {
   BookmarkX,
   Compass,
+  FolderCog,
   Library,
   Shield,
   type LucideIcon,
@@ -23,7 +24,7 @@ export const APP_SIDEBAR_NAV: AppNavItem[] = [
   {
     id: "discover",
     label: "发现",
-    to: "/",
+    to: "/app/discover",
     icon: Compass,
   },
   {
@@ -35,20 +36,29 @@ export const APP_SIDEBAR_NAV: AppNavItem[] = [
   },
   {
     id: "banks",
-    label: "我的题库",
+    label: "题库",
     to: "/app/banks",
     icon: Library,
+    minRole: "USER",
+  },
+  {
+    id: "manage",
+    label: "管理题库",
+    to: "/app/manage/banks",
+    icon: FolderCog,
     minRole: "PREMIUM",
     premiumFeature: true,
   },
   {
     id: "admin",
-    label: "管理",
+    label: "用户管理",
     to: "/app/admin/users",
     icon: Shield,
     adminOnly: true,
   },
 ];
+
+export const APP_MOBILE_NAV_IDS = ["discover", "wrong", "banks"] as const;
 
 export function getVisibleSidebarNav(role: string | undefined) {
   return APP_SIDEBAR_NAV.filter((item) => {
@@ -68,6 +78,10 @@ export function getVisibleSidebarNav(role: string | undefined) {
   });
 }
 
+export function getNavItemById(id: string) {
+  return APP_SIDEBAR_NAV.find((item) => item.id === id);
+}
+
 export function canAccessNavItem(role: string | undefined, item: AppNavItem) {
   if (item.adminOnly) {
     return isAdmin(role);
@@ -85,9 +99,5 @@ export function canAccessNavItem(role: string | undefined, item: AppNavItem) {
 }
 
 export function isNavItemActive(pathname: string, item: AppNavItem) {
-  if (item.to === "/") {
-    return pathname === "/";
-  }
-
   return pathname === item.to || pathname.startsWith(`${item.to}/`);
 }

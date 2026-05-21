@@ -4,12 +4,14 @@ import { RoleGate } from "@/components/auth/RoleGate";
 import { PageStub } from "@/components/PageStub";
 import { AppShell } from "@/layouts/AppShell";
 import { AdminPlaceholderPage } from "@/pages/AdminPlaceholderPage";
+import { DiscoverPage } from "@/pages/DiscoverPage";
 import { GuestPracticePage } from "@/pages/GuestPracticePage";
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { BankDetailPage } from "@/pages/BankDetailPage";
 import { ImportPage } from "@/pages/ImportPage";
 import { MyBanksPage } from "@/pages/MyBanksPage";
+import { PracticeBanksPage } from "@/pages/PracticeBanksPage";
 import { PracticePage } from "@/pages/PracticePage";
 import { QuestionFormPage } from "@/pages/QuestionFormPage";
 import { RegisterPage } from "@/pages/RegisterPage";
@@ -39,10 +41,18 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate replace to="/app/wrong-questions" />,
+        element: <Navigate replace to="/app/banks" />,
+      },
+      {
+        path: "discover",
+        element: <DiscoverPage />,
       },
       {
         path: "banks",
+        element: <PracticeBanksPage />,
+      },
+      {
+        path: "manage/banks",
         element: (
           <RoleGate minRole="PREMIUM" premiumFeature>
             <Outlet />
