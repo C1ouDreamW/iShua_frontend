@@ -148,9 +148,23 @@ export function PracticeBanksPage() {
             >
               {label}
               {isPrivateLocked ? (
-                <span className="ml-1 text-xs text-text-muted">（PREMIUM）</span>
+                <span className="ml-1 text-xs text-text-muted inline-flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="mr-0.5 inline-block h-3 w-3"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M4.5 7V5a3.5 3.5 0 117 0v2h.75A1.75 1.75 0 0114 8.75v4.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-4.5A1.75 1.75 0 013.75 7H4.5zm1 0h5V5a2.5 2.5 0 10-5 0v2zM3.75 8a.75.75 0 00-.75.75v4.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4.5a.75.75 0 00-.75-.75h-8.5z"
+                    />
+                  </svg>
+                  （PREMIUM）
+                </span>
               ) : null}
             </button>
+      
           );
         })}
       </div>

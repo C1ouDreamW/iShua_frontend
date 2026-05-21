@@ -26,7 +26,15 @@ export function PracticePage() {
     return (
       <PracticeComplete
         correctCount={session.stats.correctCount}
-        onPrimary={() => navigate("/")}
+        onPrimary={() => {
+          // 判断是否为登录用户（通过 localStorage 判断）
+          if (localStorage.getItem("ishua_user") === null || localStorage.getItem("ishua_user") === undefined) {
+            navigate("/");
+          } else {
+            navigate("/app/banks");
+          }
+        }}
+
         onRetry={session.restart}
         title="本次练习完成"
         unansweredCount={session.stats.unansweredCount}
