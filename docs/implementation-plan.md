@@ -4,7 +4,18 @@
 > **API**：`api-docs-v3.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
-**当前进度（2026-05-20）**：**P0–P9 已落地**（收尾与质量：全局 Toast、错误文案、redirect 校验、Logo、README）。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+**当前进度（2026-05-21）**：**P0–P9 已落地**；**导航 IA 重构**已实施（`5152e20`：发现占位、题库刷题选题、管理路由 `/app/manage/banks`）。详见 `docs/plans/navigation-and-banks-ia.md`。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
+
+### 导航 IA 重构（2026-05-21，叠加于 P5–P7）
+
+| 路径 | 页面 | 说明 |
+|------|------|------|
+| `/app/discover` | `DiscoverPage` | 占位，二期扩展 |
+| `/app/banks` | `PracticeBanksPage` | 刷题选题（公共 \| 私有 Tab） |
+| `/app/manage/banks` | `MyBanksPage` 及子路由 | 原 `/app/banks` 管理流；`RoleGate` PREMIUM+ |
+| `/app` index | → `/app/banks` | 全角色默认落地 |
+
+旧路径 `/app/banks/:bankId` **不保留**。下表 P5–P8 历史描述中的 `/app/banks` 管理含义以本表为准。
 
 ---
 
@@ -188,8 +199,8 @@ flowchart LR
 | P2-2 | `hooks/useAuth.ts`：token、user、login/logout、bootstrap 调 `me`        | `src/hooks/useAuth.tsx` + `src/lib/authStorage.ts` + `src/types/auth.ts` |
 | P2-3 | 401 拦截：清 token、`/login?redirect=`                                  | `src/api/client.ts`（同步清 `ishua_user`） |
 | P2-4 | 页面 `/login`、`/register` + `AuthForm`                               | `LoginPage`、`RegisterPage`、`AuthForm` |
-| P2-5 | 登录成功跳转：PREMIUM+ → `/app/banks`；USER → `/` 或 `/app/wrong-questions` | `LoginPage`：`PREMIUM`/`ADMIN` → `/app/banks`，`USER` → `/`；支持 `?redirect=` |
-| P2-6 | 大厅已登录态：顶栏昵称 + 退出；刷题链到 `/app/practice/:id`                          | `HomePage`、`BankCard`；`AppShell` 顶栏展示用户与退出 |
+| P2-5 | 登录成功跳转 → `/app/banks`（全角色） | `LoginPage.getDefaultLanding`；支持 `?redirect=`（**IA 重构 2026-05-21**） |
+| P2-6 | 大厅已登录：「进入学习」+ 昵称下拉；刷题链到 `/app/practice/:id` | `LobbyAccountMenu`、`HomePage`、`BankCard` |
 
 **已落地文件（摘要）**
 
@@ -219,7 +230,7 @@ flowchart LR
 - [x] 注册说明服务端固定 USER；409 →「用户名已被使用。」；登录 401 →「用户名或密码错误。」  
 - [x] `localStorage` + Bearer；刷新后 bootstrap `me()` 保持会话  
 - [x] 非白名单接口 `code===401`：清 token/user 并跳转 `/login?redirect=...`  
-- [x] `PREMIUM`/`ADMIN` 登录 → `/app/banks`；`USER` → `/`（计划亦允许错题本，当前取大厅）  
+- [x] 登录默认 → `/app/banks`（USER / PREMIUM+ / ADMIN，IA 重构后）  
 - [x] 大厅已登录：昵称/用户名 + 退出；`BankCard` 链到 `/app/practice/:bankId`  
 
 **遗留 / 后续阶段**
@@ -349,7 +360,7 @@ flowchart LR
 | ---- | ------------------------------------------ | ------------------ |
 | P5-1 | `AppShell`：桌面侧栏 + 移动底栏                     | `src/layouts/AppShell.tsx` + `src/lib/appNavigation.ts` |
 | P5-2 | 刷题路由标记 `immersive`，隐藏底栏/侧栏                 | P3/P4 已有；壳层统一鉴权后渲染 `Outlet` |
-| P5-3 | `RoleGate`：保护 `/app/banks` 等               | `src/components/auth/RoleGate.tsx` + `router.tsx` 嵌套 |
+| P5-3 | `RoleGate`：保护 `/app/manage/banks` 等（IA 后） | `src/components/auth/RoleGate.tsx` + `router.tsx` 嵌套 |
 | P5-4 | `UpgradePrompt` + 邮箱复制                     | `src/components/auth/UpgradePrompt.tsx` |
 | P5-5 | 移动「我的」Sheet：昵称、升级说明、退出                     | `src/components/auth/ProfileSheet.tsx` |
 | P5-6 | 页面 `/app/admin/users` → `AdminPlaceholder` | `src/pages/AdminPlaceholderPage.tsx` |
@@ -366,18 +377,18 @@ flowchart LR
 
 **验收**
 
-- [x] USER 侧栏「我的题库」点击弹 Upgrade（非 PREMIUM 不进入 `/app/banks` 内容）  
-- [x] PREMIUM 可见题库入口并进入 banks 路由  
-- [x] ADMIN 可见「管理」与占位页  
-- [x] 发现 `/` 从 app 侧栏/底栏可回大厅  
+- [x] USER 可进「题库」页；私有 Tab /「管理题库」点击弹 Upgrade（IA 重构后）  
+- [x] PREMIUM 可见「管理题库」并进入 `/app/manage/banks`  
+- [x] ADMIN 可见「用户管理」占位页  
+- [x] 「发现」→ `/app/discover`（占位），不再跳转壳外 `/`  
 - [x] `/app` 未登录统一跳转 `login?redirect=`（含 immersive 刷题）
 
 **遗留 / 后续阶段**
 
 - `?redirect=` 仍未校验站内路径（**P9**）  
-- 大厅顶栏「昵称 ▾」下拉未做（仍为文案 + 退出）  
+- ~~大厅顶栏「昵称 ▾」~~ → **IA 重构** `LobbyAccountMenu` 已做  
 
-**建议 PR**：`feat: app shell navigation and rbac`
+**建议 PR**：`feat: app shell navigation and rbac`（导航 IA：`feat: 更新题库管理功能与新增发现页面`）
 
 ---
 
@@ -390,7 +401,7 @@ flowchart LR
 | 工作包  | 任务                                              | 组件/页面 / 实际产出 |
 | ---- | ----------------------------------------------- | ------------------ |
 | P6-1 | `api/banks.ts`：pageMyBanks、create、update、delete | `src/api/banks.ts` 扩展 |
-| P6-2 | 页面 `/app/banks`：列表 + 公开/私有标签                    | `src/pages/MyBanksPage.tsx`；`BankCard` `variant="owned"` |
+| P6-2 | 管理列表 `/app/manage/banks`；刷题选题 `/app/banks`（IA 后） | `MyBanksPage`；`PracticeBanksPage` + `BankCard` |
 | P6-3 | `BankForm` Drawer 新建/编辑                         | `src/components/bank/BankFormDrawer.tsx` |
 | P6-4 | `DeleteBankDialog` 名称匹配                         | `src/components/bank/DeleteBankDialog.tsx` |
 
@@ -417,7 +428,7 @@ flowchart LR
 
 - [x] USER 无法进入（P5 `RoleGate` + Upgrade）  
 - [x] 删库必须输入正确题库名  
-- [x] 新建成功跳转 `/app/banks/:id`；编辑/删除后刷新列表
+- [x] 新建成功跳转 `/app/manage/banks/:id`；编辑/删除后刷新列表
 
 **遗留 / 后续阶段**
 
@@ -437,7 +448,7 @@ flowchart LR
 | 工作包  | 任务                                                     | 组件/页面 / 实际产出 |
 | ---- | ------------------------------------------------------ | ------------------ |
 | P7-1 | `api/questions.ts`：pageInBank、create、get、update、delete | `src/api/questions.ts` |
-| P7-2 | 页面 `/app/banks/:bankId`：详情 + `QuestionList` + 搜索       | `src/pages/BankDetailPage.tsx` |
+| P7-2 | 页面 `/app/manage/banks/:bankId`：详情 + `QuestionList` + 搜索 | `src/pages/BankDetailPage.tsx` |
 | P7-3 | 入口：开始刷题、AI 导入、编辑题库 Drawer                              | 详情顶栏操作区 |
 | P7-4 | `QuestionForm` 整页 new/edit                             | `src/pages/QuestionFormPage.tsx` |
 | P7-5 | `ConfirmDialog` 删题 + 不再提示                              | `src/components/question/DeleteQuestionDialog.tsx` |
@@ -492,7 +503,7 @@ flowchart LR
 | P8-2 | `api/banks.ts`：batchImportQuestions    | `batchImportQuestions` |
 | P8-3 | `ImportWizard` 四步状态机                   | `src/components/import/ImportWizard.tsx` |
 | P8-4 | `PreviewQuestionTable` 展开编辑            | `src/components/import/PreviewQuestionTable.tsx` |
-| P8-5 | 页面 `/app/banks/:bankId/import`         | `src/pages/ImportPage.tsx` |
+| P8-5 | 页面 `/app/manage/banks/:bankId/import` | `src/pages/ImportPage.tsx` |
 | P8-6 | 429/409/FAILED 文案                      | `src/lib/aiImport.ts` `resolveImportError` |
 
 **已落地文件（摘要）**

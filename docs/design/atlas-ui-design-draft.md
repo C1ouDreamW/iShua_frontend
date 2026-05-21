@@ -32,8 +32,8 @@
 | 角色 | 能力摘要 | 前端可见 |
 |------|----------|----------|
 | **访客**（无 JWT） | 公开大厅、`hot-practice-detail` 访客刷题（见 §0.2） | `/`、公开刷题；无错题本/我的题库 |
-| **USER** | 刷公开库、错题本、`GET /users/me` | + 登录后刷题/错题；**无**我的题库、试题管理、AI 导入 |
-| **PREMIUM** | USER + 自建题库、试题 CRUD、AI 导入 | + `/app/banks` 等管理入口 |
+| **USER** | 刷公开库、错题本、`GET /users/me` | + `/app/banks` 公共 Tab；**无**私有 Tab 刷题、管理题库、试题、AI 导入 |
+| **PREMIUM** | USER + 自建题库、试题 CRUD、AI 导入 | + `/app/manage/banks` 等管理入口 |
 | **ADMIN** | PREMIUM + `/admin/users/**` | + 侧栏「管理」入口 → **占位页**（二期实现用户列表与改角色） |
 
 - `403`：角色不足 → 升级提示或隐藏入口（非仅 Toast）。
@@ -78,22 +78,23 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 
 | 顺序 | 文案 | 路径 | 可见 |
 |------|------|------|------|
-| 1 | 发现 | `/` | 全员 |
+| 1 | 发现 | `/app/discover` | 登录 USER+（首版占位） |
 | 2 | 错题本 | `/app/wrong-questions` | 登录 USER+ |
-| 3 | 我的题库 | `/app/banks` | PREMIUM+（USER 点击 → UpgradePrompt） |
-| 4 | 管理 | `/app/admin/users` | ADMIN（首版占位） |
+| 3 | 题库 | `/app/banks` | 登录 USER+（私有 Tab：USER 置灰 + Upgrade） |
+| 4 | 管理题库 | `/app/manage/banks` | PREMIUM+（USER 点击 → UpgradePrompt） |
+| 5 | 用户管理 | `/app/admin/users` | ADMIN（首版占位） |
 | 底 | 账户区 | 昵称、`/users/me` 信息、退出 | 登录 |
 
 **移动（&lt;1024px）底栏** — 刷题相关全屏页（`/app/practice/*`、`/practice/guest/*`、`/app/wrong-questions/practice`）**不展示底栏**。
 
 | Tab | 路径 | 说明 |
 |-----|------|------|
-| 发现 | `/` | 公开大厅 |
+| 发现 | `/app/discover` | 首版占位 |
 | 错题 | `/app/wrong-questions` | |
-| 题库 | `/app/banks` | PREMIUM+；USER 点入升级提示 |
-| 我的 | 底部 Sheet | 昵称、升级说明+邮箱（USER）、退出 |
+| 题库 | `/app/banks` | USER+ 刷题选题 |
+| 我的 | 底部 Sheet | 昵称、升级说明+邮箱（USER）、管理题库链（PREMIUM+）、退出 |
 
-登录用户仍可从「发现」进大厅；与 §0 主路径一致。
+壳外大厅 `/`：访客入口；侧栏 Logo 可回大厅。登录默认 **`/app/banks`**。
 
 ---
 
@@ -117,7 +118,8 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 |--------|----------|-------------------|
 | 公开刷题大厅 | 未登录快速发现热门题库 | 卡片仅**标题+描述**；顶区 Slogan「一页一题…」；突出「开始刷题」 |
 | 登录/注册 | 低摩擦进入个人空间 | 单栏表单 + Slogan「今天，也刷一点」；错误 inline（401/409） |
-| 我的题库 | 管理私有/公开题库 | 列表区分「公开/私有」标签；创建入口固定可见 |
+| 题库（刷题选题） | 选公开/私有库开刷 | Tab 公共 \| 私有；`BankCard` 主 CTA「开始刷题」 |
+| 管理题库 | 建库、试题、AI 导入 | 列表区分「公开/私有」；「新建题库」入口 |
 | 题库内试题管理 | 增删改查、搜索题干 | 表格/列表 + 关键词筛选；题型标签色编码（单选/多选/判断） |
 | AI 智能导入 | 上传文件 → 等待 → 预览确认入库 | 步骤条（提交→解析→预览→入库）；轮询态用进度/骨架，非全屏阻塞 |
 | 在线刷题 | 连续答题、即时反馈 | 单题沉浸；底部「上一题/提交/下一题」；随机顺序**二期** |
@@ -132,13 +134,15 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 /                          → 公开刷题大厅（访客/登录均可；GET public banks）
 /practice/guest/:bankId    → 访客刷题（hot-practice-detail，本地判分，无 submit）
 /login, /register          → 鉴权
-/app                       → 登录后主壳（桌面左栏 / 移动底栏；刷题页无底栏）
+/app                       → index 重定向 /app/banks；主壳（桌面左栏 / 移动底栏；刷题页无底栏）
 
-/app/banks                 → 我的题库（PREMIUM+；USER 不可见或展示升级说明）
-/app/banks/:bankId         → 题库详情：试题列表、Drawer 编辑题库、AI 导入、开始刷题
-/app/banks/:bankId/questions/new
-/app/banks/:bankId/questions/:id/edit  → 试题整页表单（全量 PUT 更新）
-/app/banks/:bankId/import  → AI 导入向导
+/app/discover              → 发现（首版占位，二期扩展）
+/app/banks                 → 题库：刷题选题（公共 | 私有 Tab）[USER+]
+/app/manage/banks          → 管理题库列表 [PREMIUM+]
+/app/manage/banks/:bankId  → 题库详情：试题列表、Drawer、AI 导入、开始刷题
+/app/manage/banks/:bankId/questions/new
+/app/manage/banks/:bankId/questions/:id/edit
+/app/manage/banks/:bankId/import  → AI 导入向导
 /app/practice/:bankId      → 题库练习（practice questions + submit）
 /app/wrong-questions       → 错题本列表（可选 bankId 筛选）
 /app/wrong-questions/practice → 错题重刷（**独立页**，`listWrongPractice` + submit）
@@ -149,15 +153,17 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 
 | 分组 | 项 | 访客 | USER | PREMIUM | ADMIN |
 |------|-----|------|------|---------|-------|
-| 发现 | 大厅 `/` | ✓ | ✓ | ✓ | ✓ |
-| 学习 | 刷题 | 仅公开/访客模式 | 公开库 | 公开+自有私有库 | 同 PREMIUM |
+| 壳外 | 公开大厅 `/` | ✓ | ✓（可选） | ✓ | ✓ |
+| 发现 | App `/app/discover` | — | 占位 | 占位 | 占位 |
+| 学习 | 题库选题 `/app/banks`、刷题 | — | 公共 Tab | 公共+私有 | 同 PREMIUM |
 | 复习 | 错题本 | — | ✓ | ✓ | ✓ |
-| 管理 | 我的题库、试题、AI 导入 | — | — | ✓ | ✓ |
-| 系统 | 管理（占位） | — | — | — | ✓ |
-| 账户 | 登录/注册/退出 | 入口在大厅 | ✓ | ✓ | ✓ |
+| 管理 | 管理题库、试题、AI 导入 | — | — | ✓ | ✓ |
+| 系统 | 用户管理（占位） | — | — | — | ✓ |
+| 账户 | 登录/注册/退出 | 大厅 | App 壳 + 大厅下拉 | 同左 | 同左 |
 
-- 登录后**默认落地**：`/app/banks`（PREMIUM+）或 `/` + 错题入口（USER）；**不做** Dashboard。
-- 登录用户可从顶栏/侧栏**回到大厅** `/`。
+- 登录后**默认落地**：**`/app/banks`**（全角色，无 `redirect` 时）；**不做** Dashboard。
+- 旧路径 `/app/banks/:bankId` **不保留**；管理详情统一 `/app/manage/banks/:bankId`。
+- 登录用户可从侧栏 Logo 或手动访问**回到大厅** `/`。
 
 ---
 
@@ -221,7 +227,7 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 
 ```
 +--------------------------------------------------+
-| [Logo]  一页一题，沉浸刷完     [登录] [注册]      |
+| [Logo]  一页一题…  [进入学习] [昵称▾] 或 [登录][注册] |
 +--------------------------------------------------+
 |  发现公开题库                                     |
 |  +----------+ +----------+ +----------+          |
@@ -248,24 +254,43 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 
 - 单列表单：用户名、密码；注册增加可选昵称。
 - 页内品牌区展示 Slogan：「**今天，也刷一点**」。
-- 成功：`token` 存 **`localStorage`**（键名实现时统一，如 `ishua_token`）；请求拦截器附加 `Authorization: Bearer`；按 `role` 跳转：`PREMIUM+` → `/app/banks`，`USER` → `/` 或 `/app/wrong-questions`；支持 `redirect`。
+- 成功：`token` 存 **`localStorage`**（键名实现时统一，如 `ishua_token`）；请求拦截器附加 `Authorization: Bearer`；默认跳转 **`/app/banks`**（全角色）；支持 `redirect`。
 - 失败：`code=401` 账号密码错误；`code=409` 用户名已存在 — 字段下或顶部文案，不用技术术语。
 
 ---
 
-### 5.3 我的题库 `/app/banks`
+### 5.3 App 发现（占位）`/app/discover`
 
-**API**：`GET/POST /question-banks`；`PUT/DELETE .../{bankId}`。
+- 文案说明二期开放；按钮「前往题库」→ `/app/banks`。
+- 无列表、无刷题、无建库。
+
+---
+
+### 5.4 App 题库（刷题选题）`/app/banks`
+
+**API**：公共 Tab `pagePublicBanks`；私有 Tab `pageMyBanks`（前端过滤 `isPublic !== 1`）。
+
+| 区块 | 内容 |
+|------|------|
+| Tab | 公共 \| 私有（USER：私有置灰，点击 UpgradePrompt） |
+| 列表 | `BankCard` `lobby`；「开始刷题」→ `/app/practice/:id` |
+| 说明 | 引导 PREMIUM 使用「管理题库」建库 |
+
+---
+
+### 5.5 管理题库 `/app/manage/banks`
+
+**API**：`GET/POST /question-banks`；`PUT/DELETE .../{bankId}`。`RoleGate` PREMIUM+。
 
 | 区块 | 内容 |
 |------|------|
 | 顶栏操作 | 「新建题库」 |
-| 列表项 | 标题、公开/私有标签、更新时间、进入详情、删除（二次确认） |
+| 列表项 | 标题、公开/私有标签、`BankCard` `owned`、删除（二次确认） |
 | 新建/编辑 **抽屉** | title、description、isPublic（开关） |
 
 ---
 
-### 5.4 题库详情（所有者）`/app/banks/:bankId`
+### 5.6 题库详情（所有者）`/app/manage/banks/:bankId`
 
 **API**：`GET .../questions`（分页+keyword）、试题 CRUD、`DELETE` 题库。
 
@@ -280,7 +305,7 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 
 - 「开始刷题」→ `/app/practice/:bankId`（`GET practice/.../questions`；**不传** `random`，首版固定 `sortNo` 顺序）。
 - 编辑题库：详情页 **Drawer**，无独立 `/edit` 路由。
-- 「AI 导入」→ §5.7 流程。
+- 「AI 导入」→ §5.9 流程。
 
 **试题新建/编辑（整页）**
 
@@ -290,17 +315,17 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 
 ---
 
-### 5.5 访客刷题 `/practice/guest/:bankId`
+### 5.7 访客刷题 `/practice/guest/:bankId`
 
 **API**：`GET .../hot-practice-detail` → `QuestionBankDetailBundleVO`。
 
-- 布局与 §5.6 登录刷题一致，组件为 **`GuestPracticePlayer`**（本地判分，无 submit）。
+- 布局与 §5.8 登录刷题一致，组件为 **`GuestPracticePlayer`**（本地判分，无 submit）。
 - 题目顺序：接口返回的 `sortNo` 顺序（**首版不做**前端 shuffle）。
 - 完成页规则同 §0.3（无错题 Toast）。
 
 ---
 
-### 5.6 登录刷题会话 `/app/practice/:bankId`（核心）
+### 5.8 登录刷题会话 `/app/practice/:bankId`（核心）
 
 **API**：
 - `GET /practice/banks/{bankId}/questions`（`random` 首版不使用，默认 `false`）
@@ -347,7 +372,7 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 
 ---
 
-### 5.7 AI 智能导入 `/app/banks/:bankId/import`
+### 5.9 AI 智能导入 `/app/manage/banks/:bankId/import`
 
 **API 链**：
 1. `POST /ai-import/submit`（multipart: file + bankId）
@@ -417,7 +442,7 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 |------|------|----------|
 | `AppShell` | 顶栏、侧栏/底栏、Outlet | 所有 `/app/*` |
 | `AuthForm` | 登录/注册字段与校验展示 | login, register |
-| `BankCard` | 题库卡片 | 大厅、我的题库 |
+| `BankCard` | 题库卡片 | 大厅、题库选题（`lobby`）、管理列表（`owned`） |
 | `BankForm` | 创建/编辑题库 | **Drawer** |
 | `PracticeComplete` | 正确率、再刷一遍、回大厅 | 刷题结束 |
 | `QuestionList` | 分页列表+搜索 | 题库详情 |
@@ -433,7 +458,7 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 | `Pagination` | current/pageSize/total | 所有分页 API |
 | `Toast` / `Alert` | 全局反馈 | 拦截器、操作结果 |
 | `ConfirmDialog` | 删题（可「不再提示」） | 题库详情 |
-| `DeleteBankDialog` | 删库须输入题库名称匹配 | 我的题库 |
+| `DeleteBankDialog` | 删库须输入题库名称匹配 | 管理题库 |
 | `RoleGate` | 路由/菜单守卫 | 全局 |
 | `TagQuestionType` | SINGLE/MULTI/JUDGE 标签 | 列表、刷题页 |
 
@@ -461,7 +486,7 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 2. localStorage + Bearer 鉴权 + `RoleGate` + API 封装  
 3. 大厅 `/` + **访客刷题**（guest player）  
 4. 登录刷题 + submit + 错题本（USER）  
-5. 我的题库 / 试题 / AI 导入（PREMIUM+）  
+5. 管理题库 / 试题 / AI 导入（PREMIUM+）  
 6. 管理端占位页（ADMIN，二期再接 API）  
 
 **建议目录（命名参考，由开发创建）**
@@ -497,7 +522,9 @@ src/
 - [ ] 答错 Toast 3s；主观题占位；空态无插画；AI 表格展开编辑；题库 Drawer。
 - [ ] 刷题页移动端无底栏遮挡题干。
 - [ ] 删库须输入名称；删题支持「不再提示」。
-- [ ] 我的题库 CRUD（PREMIUM+）与公开/私有标签正确。
+- [ ] 题库页公共/私有 Tab 与 USER 私有 Tab Upgrade 正确。
+- [ ] 管理题库 CRUD（PREMIUM+）与公开/私有标签正确。
+- [ ] 发现占位在 App 壳内，不跳转 `/`。
 - [ ] 题库内试题分页、搜索、手工增删改可用。
 - [ ] 刷题：单选/多选/判断交互与 `userAnswer` 格式正确；提交后展示解析与对错。
 - [ ] 答错后可在错题本看到记录；**错题重刷为独立页** `/app/wrong-questions/practice`。

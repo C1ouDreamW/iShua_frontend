@@ -137,38 +137,44 @@
 | `/practice/guest/:bankId` | 访客刷题 | 极简顶栏 | 无 |
 | `/login`, `/register` | 鉴权 | 无壳 | 无 |
 | `/app/*` | 登录后业务 | `AppShell` | USER+（按路由再限） |
-| `/app/banks` | 我的题库 | AppShell | PREMIUM |
-| `/app/banks/:bankId` | 题库详情 | AppShell | PREMIUM |
-| `/app/banks/:bankId/questions/new` | 新建试题 | AppShell | PREMIUM |
-| `/app/banks/:bankId/questions/:id/edit` | 编辑试题 | AppShell | PREMIUM |
-| `/app/banks/:bankId/import` | AI 导入 | AppShell | PREMIUM |
+| `/app`（index） | 重定向 | — | → `/app/banks` |
+| `/app/discover` | 发现（占位） | AppShell | USER |
+| `/app/banks` | 题库（刷题选题：公共 \| 私有 Tab） | AppShell | USER |
+| `/app/manage/banks` | 管理题库列表 | AppShell | PREMIUM |
+| `/app/manage/banks/:bankId` | 题库详情 | AppShell | PREMIUM |
+| `/app/manage/banks/:bankId/questions/new` | 新建试题 | AppShell | PREMIUM |
+| `/app/manage/banks/:bankId/questions/:id/edit` | 编辑试题 | AppShell | PREMIUM |
+| `/app/manage/banks/:bankId/import` | AI 导入 | AppShell | PREMIUM |
 | `/app/practice/:bankId` | 题库练习 | **无底栏/无侧栏** | USER |
 | `/app/wrong-questions` | 错题列表 | AppShell | USER |
 | `/app/wrong-questions/practice` | 错题重刷 | **无底栏/无侧栏** | USER |
 | `/app/admin/users` | 管理占位 | AppShell | ADMIN |
 
-**登录默认落地**：`PREMIUM+` → `/app/banks`；`USER` → `/` 或 `/app/wrong-questions`（实现可选上次路径）。
+**登录默认落地**（无 `?redirect=`）：`USER` / `PREMIUM+` / `ADMIN` → **`/app/banks`**。旧路径 `/app/banks/:bankId` 等**不保留**（见 `docs/plans/navigation-and-banks-ia.md`）。
 
 ### 5.2 导航（AppShell）
 
 **桌面 `lg+` 左侧栏宽 240px**
 
-1. 发现 → `/`  
+1. 发现 → `/app/discover`（首版占位，二期扩展）  
 2. 错题本 → `/app/wrong-questions`（USER+）  
-3. 我的题库 → `/app/banks`（PREMIUM+；USER 点击 → UpgradePrompt）  
-4. 管理 → `/app/admin/users`（ADMIN）  
-5. 底栏：头像/昵称、`role` 小标签、退出  
+3. 题库 → `/app/banks`（USER+；私有 Tab 对 USER 置灰，点击 UpgradePrompt）  
+4. 管理题库 → `/app/manage/banks`（PREMIUM+；USER 侧栏项点击 → UpgradePrompt）  
+5. 用户管理 → `/app/admin/users`（ADMIN）  
+6. 底栏：头像/昵称、`role` 小标签、退出  
 
 **移动 `<lg` 底栏高 56px**（下列路由**不显示**底栏：`/app/practice/*`、`/practice/guest/*`、`/app/wrong-questions/practice`）
 
 | Tab | 图标意图 | 路径 |
 |-----|----------|------|
-| 发现 | compass/home | `/` |
+| 发现 | compass | `/app/discover` |
 | 错题 | bookmark-x | `/app/wrong-questions` |
 | 题库 | library | `/app/banks` |
 | 我的 | user | 打开 Sheet |
 
-**我的 Sheet 内容**：昵称、用户名；USER 显示升级说明 + 邮箱按钮；退出。
+**我的 Sheet 内容**：昵称、用户名；USER 显示升级说明 + 邮箱按钮；PREMIUM+ 可选链「管理题库」；退出。
+
+**壳外大厅 `/`**：不作为 App Tab；侧栏 Logo 可链回 `/`。
 
 ---
 
@@ -179,7 +185,7 @@
 ```
 ┌────────────────────────────────────────────────────────┐
 │ [Logo 64px]                                            │
-│ 一页一题，沉浸刷完          [登录]  [注册]              │
+│ 一页一题，沉浸刷完   [进入学习]  [昵称 ▾]               │
 ├────────────────────────────────────────────────────────┤
 │ 发现公开题库                                            │
 │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │
@@ -191,7 +197,20 @@
 └────────────────────────────────────────────────────────┘
 ```
 
-- 已登录：顶栏右侧改为「昵称 ▾」+ 退出；「开始刷题」→ `/app/practice/:bankId`（公开库）。
+- 访客：顶栏「登录」「注册」。
+- 已登录：主按钮 **「进入学习」** → `/app/banks`；**昵称 ▾** 下拉：用户资料（占位，disabled）、退出。大厅卡片「开始刷题」仍可 → `/app/practice/:bankId`（公开库）。已登录访问 `/` **不强制**跳转 App。
+
+### 6.1.1 App 发现（占位）`/app/discover`
+
+- 标题「发现功能开发中」；说明探索能力二期开放。
+- 主操作：**前往题库** → `/app/banks`。
+- **无**题库列表、刷题 CTA、新建题库。
+
+### 6.1.2 App 题库（刷题选题）`/app/banks`
+
+- Tab：**公共** | **私有**（`USER` 可见私有 Tab 但置灰，点击 UpgradePrompt）。
+- 列表：`BankCard` `lobby`；主操作「开始刷题」。
+- **无**「新建题库」；文案引导 PREMIUM 使用侧栏「管理题库」。
 
 ### 6.2 刷题页（三种 Player 布局一致）
 
@@ -261,7 +280,7 @@
 
 | 项 | 规格 |
 |----|------|
-| **触发** | USER 点击「我的题库」、AI 导入、创建题库等 |
+| **触发** | USER 点击侧栏「管理题库」、题库页私有 Tab、AI 导入、创建题库等 |
 | **标题** | 需要高级权限 |
 | **正文** | 创建和管理题库、AI 导入题目等功能需要 **PREMIUM** 权限。请联系管理员开通。 |
 | **邮箱** | `cloud_aaa@163.com`；按钮「复制邮箱」复制到剪贴板 → Toast「已复制」 |
@@ -287,12 +306,12 @@
 
 | 项 | 规格 |
 |----|------|
-| **用途** | 大厅、我的题库列表 |
+| **用途** | 大厅、题库页（`lobby`）、管理题库列表（`owned`） |
 | **内容** | **仅** `title`（H2）、`description`（最多 2 行 `line-clamp-2`） |
-| **不展示** | 题量、更新时间（大厅）；我的题库列表可展示 `updateTime` Caption |
-| **操作** | 主按钮「开始刷题」或整卡 clickable |
+| **不展示** | 题量、更新时间（大厅与题库选题列表） |
+| **操作** | `lobby`：主按钮「开始刷题」→ `/app/practice/:id`；`owned`：主按钮「管理题库」→ `/app/manage/banks/:id`，次按钮「刷题」 |
 | **hover** | `shadow-md`；边框 `brand/20` |
-| **我的题库** | 角标「公开」`brand-muted` / 「私有」`border` 描边 |
+| **owned 角标** | 「公开」`brand-muted` / 「私有」`border` 描边 |
 
 ---
 
@@ -306,7 +325,7 @@
 | **footer** | 取消（次） + 保存（主） |
 | **loading** | 保存中禁用 |
 | **error** | `403` USER；`404` 关闭 Drawer 并 Toast |
-| **success** | 关闭 Drawer；列表刷新；新建跳转 `/app/banks/:id`（可选） |
+| **success** | 关闭 Drawer；列表刷新；新建跳转 `/app/manage/banks/:id`（可选） |
 
 ---
 
@@ -314,7 +333,7 @@
 
 | 项 | 规格 |
 |----|------|
-| **触发** | 我的题库或详情「删除题库」 |
+| **触发** | 管理题库列表或详情「删除题库」 |
 | **标题** | 确认删除题库 |
 | **正文** | 此操作不可恢复。请输入题库名称「**{title}**」以确认。 |
 | **输入** | 单行；主按钮「删除」仅当输入 **完全匹配** title 时可点 |
@@ -519,7 +538,8 @@
 |------|------|---------|-------|
 | 公开刷题 + submit | ✓ | ✓ | ✓ |
 | 错题本 | ✓ | ✓ | ✓ |
-| 我的题库 / 试题 / AI | ✗ | ✓ | ✓ |
+| 题库页（公共 Tab）/ 发现占位 | ✓ | ✓ | ✓ |
+| 题库私有 Tab 刷题 / 管理题库 / 试题 / AI | ✗ | ✓ | ✓ |
 | 管理用户 | ✗ | ✗ | 占位 |
 
 ---

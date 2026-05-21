@@ -59,8 +59,8 @@ VITE_API_BASE_URL=http://localhost:8080
 
 | 角色 | 用途 |
 |------|------|
-| `USER` | 公开刷题、错题本 |
-| `PREMIUM` | 我的题库、试题管理、AI 导入 |
+| `USER` | 公开刷题、错题本；App 内「题库」公共 Tab |
+| `PREMIUM` | + 私有 Tab 刷题、「管理题库」、试题管理、AI 导入 |
 | `ADMIN` | 管理占位页 |
 
 PREMIUM 可通过管理员改角色或使用种子数据；普通用户注册默认为 `USER`。
@@ -72,6 +72,7 @@ PREMIUM 可通过管理员改角色或使用种子数据；普通用户注册默
 | `docs/design/ishua-ui-spec.md` | UI / 组件 / 验收规格 |
 | `docs/implementation-plan.md` | 分阶段实施与进度 |
 | `docs/known-gaps.md` | 各阶段验收遗留缺陷与二期 backlog |
+| `docs/plans/navigation-and-banks-ia.md` | 入口与题库信息架构（已实施） |
 | `api-docs-v3.json` | OpenAPI 真源 |
 
 ## 里程碑（当前）

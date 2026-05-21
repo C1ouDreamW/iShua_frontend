@@ -19,6 +19,7 @@
 
 | 优先级 | 状态 | 缺陷 | 建议 |
 |--------|------|------|------|
+| ✅ | 已修复 | **导航 IA 重构**（发现/题库/管理拆分、路由迁移） | 见 `docs/plans/navigation-and-banks-ia.md`；提交 `5152e20` |
 | 🟡 | 未完善 | **双 Toast 体系**：全局 `AppToastViewport`（z-index 100）与刷题专用 `PracticeToast`（z-index 50）并存 | 收敛为单一 Toast 或明确分工文档 |
 | 🟡 | 未完善 | **部分页面仍用页内错误文案**，未全部改为 `useAppToast`（如刷题 `submitError` 在 Player 内展示） | 统一错误呈现策略 |
 | 🟢 | 未完善 | **无 E2E / 关键路径自动化测试**（P9-6 明确不纳入首版） | 二期 Playwright 等 |
@@ -26,7 +27,7 @@
 | 🟡 | 未完善 | **`ishua-ui-spec.md` §10 勾选框**未随验收更新为已勾 | 文档维护 |
 | 🟢 | 未完善 | **§11 审美终检**未做正式 UI 评审，仅代码走查 | 设计评审一轮 |
 | 🟢 | 未完善 | **`implementation-plan.md` §1.1** M3/M4/M5 里程碑未标 ✅（功能已实现） | 文档同步 |
-| 🟡 | 未完善 | **大厅顶栏「昵称 ▾」下拉**（规格 §6.1），现为昵称文案 + 退出；App 内另有「我的」Sheet | 大厅对齐规格或更新规格 |
+| ✅ | 已修复 | **大厅顶栏「昵称 ▾」+「进入学习」**（导航 IA 重构） | `LobbyAccountMenu`、`HomePage`（2026-05-21） |
 | 🟡 | 未完善 | **`TagQuestionType` 未按 §4.1 分色**（SINGLE/MULTI/JUDGE 统一 `brand-muted`） | 按规格补题型色 |
 | 🟡 | 未完善 | **`findMyBank` 依赖 `pageMyBanks` 前 100 条**（详情页/导入页标题），题库很多时可能找不到 | 后端 `GET /question-banks/{id}` 或前端缓存 |
 | 🟢 | 二期 | 随机顺序、深色模式、Dashboard、ADMIN 用户管理真页、Cookie 鉴权、试题 PATCH | 见 `implementation-plan.md` §5 |
@@ -38,6 +39,8 @@
 | P1/P2/P5 | 大厅/空态 Logo 占位「刷」字块 | **P9** `LogoMark` |
 | P2/P5 | `?redirect=` 开放重定向 | **P9** `sanitizeRedirect` / `buildLoginRedirect` |
 | P2 | 大厅刷新闪「登录/注册」 | **P9** `HomePage` 顶栏 `authLoading` 骨架 |
+| P2/P5 | USER 登录默认 `/`、发现指向大厅 | **导航 IA** `5152e20` → `/app/banks`、`/app/discover` |
+| P5 | 大厅无昵称下拉 | **导航 IA** `LobbyAccountMenu` |
 | P1 | `PracticeComplete` 英文副标题 | 已改为中文「练习完成✅」（含 emoji，可再润色） |
 
 ---
@@ -70,7 +73,7 @@
 
 | 优先级 | 缺陷 | 说明 |
 |--------|------|------|
-| 🟡 | **USER 登录默认落地为 `/`** | 计划亦允许 `/app/wrong-questions`，当前取大厅，属实现选择 |
+| ✅ | **USER 登录默认落地** | 现为 `/app/banks`（导航 IA 重构，2026-05-21） |
 | 🟡 | **已登录访问 `/login` 无自动重定向** | 可跳到默认落地页 |
 | 🟡 | **401 使用 `window.location.assign` 全页跳转** | 功能正确，SPA 体验略硬；登录页 Toast 已接 `authFlash` |
 | 🟡 | **部分 `/app` 子页仍有页内登录守卫** | 与 `AppShell` 统一守卫重复但无害（如早期 `PracticePage` 逻辑） |
@@ -105,12 +108,15 @@
 | 优先级 | 缺陷 | 说明 |
 |--------|------|------|
 | 🟡 | **API `code=403` 不弹 `UpgradePrompt`** | 路由层已挡 USER；若直调 API 仅返回业务错误文案 |
-| 🟡 | **大厅顶栏无「昵称 ▾」** | App 内移动「我的」Sheet 已含昵称与升级说明 |
+| ✅ | App 内「发现」指向 `/` | **已修复**：`/app/discover` 占位；「题库」→ `/app/banks` |
+| ✅ | 侧栏「我的题库」实为管理页 | **已修复**：「题库」刷题选题 +「管理题库」`/app/manage/banks` |
 | ✅ | `?redirect=` 未校验 | **P9 已修复** |
 
 ---
 
 ## P6 — 我的题库（M3 前半）
+
+> **路径变更**：列表与 CRUD 在 `/app/manage/banks`；刷题选题在 `/app/banks`（`PracticeBanksPage`）。
 
 | 优先级 | 缺陷 | 说明 |
 |--------|------|------|
@@ -182,8 +188,9 @@
 |------|------|
 | [implementation-plan.md](./implementation-plan.md) | 分阶段执行与完成状态 |
 | [design/ishua-ui-spec.md](./design/ishua-ui-spec.md) | UI/组件/验收规格 |
+| [plans/navigation-and-banks-ia.md](./plans/navigation-and-banks-ia.md) | 入口与题库 IA（已实施） |
 | [../README.md](../README.md) | 本地启动与环境变量 |
 
 ---
 
-*清单版本：1.0 · 2026-05-20 · 对应 implementation-plan v1.7/v1.8 · P0–P9 均已交付主路径*
+*清单版本：1.1 · 2026-05-21 · 含导航 IA 重构文档同步*
