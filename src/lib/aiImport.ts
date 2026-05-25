@@ -1,4 +1,5 @@
 import { ApiError } from "@/api/client";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import type { QuestionPreview } from "@/api/aiImport";
 import {
   createEmptyFormState,
@@ -30,7 +31,7 @@ export function resolveImportError(error: unknown) {
     }
   }
 
-  return error instanceof Error ? error.message : "操作失败，请重试。";
+  return resolveApiErrorMessage(error, "操作失败，请重试。");
 }
 
 export function isAcceptedImportFile(file: File) {

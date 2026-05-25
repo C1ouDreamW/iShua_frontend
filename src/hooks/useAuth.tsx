@@ -10,6 +10,7 @@ import {
 /* eslint-disable react-refresh/only-export-components */
 
 import * as authApi from "@/api/auth";
+import { isApiOutageError } from "@/lib/apiErrors";
 import {
   clearStoredAuth,
   readStoredToken,
@@ -70,7 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       saveStoredUser(currentUser);
       setUser(currentUser);
       return currentUser;
-    } catch {
+    } catch (error) {
+      if (isApiOutageError(error)) {
+        return readStoredUser();
+      }
+
       logout();
       return null;
     } finally {

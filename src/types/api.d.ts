@@ -252,7 +252,7 @@ export interface paths {
          *     轮询：`GET /api/v1/ai-import/tasks/{taskId}/status`。
          *     预览确认入库：`POST /api/v1/question-banks/{bankId}/questions/batch`。
          *
-         *     失败：code=400（文件/格式/大小）、401 未登录、403（角色为 USER 或题库无权）、404 题库不存在、429（默认每用户每小时 5 次，见配置 quiz.ai-import.rate-limit）。
+         *     失败：code=400（文件/格式/大小）、401 未登录、403（角色为 USER 或题库无权）、404 题库不存在、429（默认每用户每小时 5 次，见配置 ishua.ai-import.rate-limit）。
          */
         post: operations["submitImport"];
         delete?: never;

@@ -8,11 +8,29 @@ import { buildLoginRedirect } from "@/lib/navigation";
 export const AUTH_TOKEN_KEY = "ishua_token";
 const AUTH_USER_KEY = "ishua_user";
 
+export const API_OUTAGE_MESSAGE = "API接口故障，请联系管理员";
+
 export type Result<T> = {
   code: number;
   message: string;
   data: T;
 };
+
+export class ApiOutageError extends Error {
+  constructor(message = API_OUTAGE_MESSAGE) {
+    super(message);
+    this.name = "ApiOutageError";
+  }
+}
+
+function isResultEnvelope(value: unknown): value is Result<unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "code" in value &&
+    typeof (value as Result<unknown>).code === "number"
+  );
+}
 
 export class ApiError<T = unknown> extends Error {
   code: number;
@@ -129,14 +147,36 @@ export async function request<T>(
     }
   }
 
-  const response = await fetch(url, {
-    ...init,
-    body: createBodyAndHeaders(body, headers),
-    headers,
-    method: normalizedMethod,
-  });
+  let response: Response;
 
-  const result = (await response.json()) as Result<T | null>;
+  try {
+    response = await fetch(url, {
+      ...init,
+      body: createBodyAndHeaders(body, headers),
+      headers,
+      method: normalizedMethod,
+    });
+  } catch {
+    throw new ApiOutageError();
+  }
+
+  let payload: unknown;
+
+  try {
+    payload = await response.json();
+  } catch {
+    throw new ApiOutageError();
+  }
+
+  if (!isResultEnvelope(payload)) {
+    throw new ApiOutageError();
+  }
+
+  const result = payload as Result<T | null>;
+
+  if (!response.ok && result.code === 200) {
+    throw new ApiOutageError();
+  }
 
   if (result.code === 401 && !isPublicEndpoint(url.pathname, normalizedMethod)) {
     clearAuthStorage();

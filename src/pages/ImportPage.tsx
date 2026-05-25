@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { findMyBank } from "@/api/banks";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { ImportWizard } from "@/components/import/ImportWizard";
 import { ErrorState } from "@/components/ErrorState";
 import { Button } from "@/components/ui/button";
@@ -38,9 +39,7 @@ export function ImportPage() {
         }
       } catch (loadError) {
         if (!ignore) {
-          setError(
-            loadError instanceof Error ? loadError.message : "题库加载失败。",
-          );
+          setError(resolveApiErrorMessage(loadError, "题库加载失败。"));
         }
       } finally {
         if (!ignore) {

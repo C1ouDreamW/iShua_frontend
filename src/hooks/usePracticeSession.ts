@@ -41,7 +41,7 @@ function resolveLoadError(error: unknown) {
     }
   }
 
-  return error instanceof Error ? error.message : "刷题数据加载失败。";
+  return resolveApiErrorMessage(error, "刷题数据加载失败。");
 }
 
 export function usePracticeSession(bankId: number) {

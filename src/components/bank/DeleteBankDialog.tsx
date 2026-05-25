@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { deleteBank, type QuestionBank } from "@/api/banks";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -54,7 +55,7 @@ export function DeleteBankDialog({
       onOpenChange(false);
       onDeleted();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "删除失败，请重试。");
+      setError(resolveApiErrorMessage(caught, "删除失败，请重试。"));
     } finally {
       setDeleting(false);
     }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { deleteQuestion, type Question } from "@/api/questions";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -56,7 +57,7 @@ export function DeleteQuestionDialog({
       onOpenChange(false);
       onDeleted();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "删除失败，请重试。");
+      setError(resolveApiErrorMessage(caught, "删除失败，请重试。"));
     } finally {
       setDeleting(false);
     }

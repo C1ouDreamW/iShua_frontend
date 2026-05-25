@@ -45,9 +45,7 @@ export function useWrongPracticeSession(filterBankId?: number) {
       setQuestions([]);
       setRecords([]);
       setStatus("error");
-      setError(
-        loadError instanceof Error ? loadError.message : "错题重刷数据加载失败。",
-      );
+      setError(resolveApiErrorMessage(loadError, "错题重刷数据加载失败。"));
     }
   }, [filterBankId]);
 
