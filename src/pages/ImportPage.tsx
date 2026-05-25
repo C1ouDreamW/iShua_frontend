@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { findMyBank } from "@/api/banks";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 
 export function ImportPage() {
   const { bankId } = useParams();
+  const [searchParams] = useSearchParams();
   const numericBankId = Number(bankId);
+  const initialTaskId = searchParams.get("taskId");
   const [bankTitle, setBankTitle] = useState("题库");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +92,11 @@ export function ImportPage() {
         </p>
       </header>
 
-      <ImportWizard bankId={numericBankId} bankTitle={bankTitle} />
+      <ImportWizard
+        bankId={numericBankId}
+        bankTitle={bankTitle}
+        initialTaskId={initialTaskId}
+      />
     </section>
   );
 }

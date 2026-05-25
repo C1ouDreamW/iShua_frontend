@@ -1,9 +1,22 @@
 import { request } from "@/api/client";
+import type { PageResult } from "@/api/banks";
 import type { components } from "@/types/api";
 
 export type AiImportSubmitResult = components["schemas"]["AiImportSubmitVO"];
 export type AiImportTaskStatus = components["schemas"]["AiImportTaskStatusVO"];
+export type AiImportTaskSummary = components["schemas"]["AiImportTaskSummaryVO"];
 export type QuestionPreview = components["schemas"]["QuestionPreviewVO"];
+
+export type PageMyImportTasksQuery = {
+  current: number;
+  pageSize: number;
+  bankId?: number;
+  /** 逗号分隔，如 PARSED,PROCESSING */
+  status?: string;
+  includePreview?: boolean;
+};
+
+export const RECOVERABLE_IMPORT_STATUSES = "PARSED,PROCESSING,SUBMITTED";
 
 export function submitImport(bankId: number, file: File) {
   const formData = new FormData();
@@ -21,4 +34,10 @@ export function getTaskStatus(taskId: string) {
   return request<AiImportTaskStatus | null>(
     `/api/v1/ai-import/tasks/${taskId}/status`,
   );
+}
+
+export function pageMyImportTasks(query: PageMyImportTasksQuery) {
+  return request<PageResult<AiImportTaskSummary>>("/api/v1/ai-import/tasks", {
+    query,
+  });
 }

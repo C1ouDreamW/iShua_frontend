@@ -1,7 +1,7 @@
 # iShua · 前端 UI 设计说明（粗颗粒度草稿）
 
 > **文档性质**：粗颗粒度设计草稿，供产品与开发对齐方向；细粒度组件规格与实现代码不在本文范围。  
-> **依据**：`api-docs-v3.json`（Atlas 智能题库 API，含 RBAC 与完整 Response Schema）、前后端分离架构。  
+> **依据**：`api-docs-v4.json`（Atlas 智能题库 API，含 RBAC 与完整 Response Schema）、前后端分离架构。  
 > **代号（仅内部）**：整体 Shua · 后端 Atlas · 前端 Pleione · **用户可见品牌：iShua**
 
 ---
@@ -27,7 +27,7 @@
 | 试题编辑 | **独立整页表单**；保存走 `PUT /questions/{id}` **全量更新**（`QuestionUpdateDTO`），后端暂无局部更新 |
 | 刷题分页 | **题库练习** `/app/practice/:bankId` 与 **错题重刷** `/app/wrong-questions/practice` 为**不同页面**、不同数据源 |
 
-### 0.1 角色与前端菜单（对齐 api-docs-v3.json）
+### 0.1 角色与前端菜单（对齐 api-docs-v4.json）
 
 | 角色 | 能力摘要 | 前端可见 |
 |------|----------|----------|
@@ -468,7 +468,7 @@ API **无**访客专用 `submit`；数据与判分分工如下：
 
 1. **鉴权**：白名单同 API；`localStorage` 存 token；拦截器设置 `Authorization: Bearer <token>`。
 2. **RBAC**：`login` / `GET /users/me` 的 `role` 控制菜单；`403` → 升级提示或隐藏。
-3. **响应约定**：解析 `Result.code`；类型代码生成可参考 `api-docs-v3.json` 的 `components.schemas`。
+3. **响应约定**：解析 `Result.code`；类型代码生成可参考 `api-docs-v4.json` 的 `components.schemas`。
 4. **分页**：`PageResultVO` → `total` + `records`；列表 `pageSize` 按断点（如 8/12），刷题不分页。
 5. **关键 Schema**：
    - `QuestionBankDetailBundleVO`：`{ bank: QuestionBankVO, questions: QuestionVO[] }`（访客，**含答案**）
@@ -551,8 +551,8 @@ src/
 | 7 | 试题**整页表单 + PUT 全量更新** |
 | 8 | 题库练习与错题重刷为**不同页面/组件** |
 
-**API 文档**：仓库仅保留根目录 **`api-docs-v3.json`**（旧版 `api-docs.json` 已删除）。
+**API 文档**：仓库仅保留根目录 **`api-docs-v4.json`**（旧版 `api-docs.json` 已删除）。
 
 ---
 
-*文档版本：草稿 v0.4 · 2026-05-19 · API：`api-docs-v3.json`*
+*文档版本：草稿 v0.4 · 2026-05-19 · API：`api-docs-v4.json`*

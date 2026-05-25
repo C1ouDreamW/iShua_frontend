@@ -191,13 +191,30 @@ export interface paths {
         put?: never;
         /**
          * 批量确认导入 AI 解析题目（幂等）
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可 bypass 归属或任务 meta 校验）。前端在 status=PARSED 预览确认后提交 BatchImportRequestDTO。
-         *     questions 使用 QuestionPreviewVO（options/answer 为数组，与预览接口一致）。
+         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可 bypass 题库归属）。前端在 `GET .../ai-import/tasks/{taskId}/status` 返回 **PARSED** 且预览确认后调用。
          *
-         *     - 同一 taskId **仅落库一次**：已导入再次提交 code=200、data=null
-         *     - 并发落库中：code=409「该任务正在导入中」
-         *     - taskId 无效/过期：code=400
-         *     - 角色为 USER：code=403；task 与 bankId/用户不匹配：code=403
+         *     **路径参数**：
+         *     - **bankId**：须与任务所属题库一致（路径与任务 meta/DB 记录校验）
+         *
+         *     **请求体**（`BatchImportRequestDTO`）：
+         *     - **taskId**（必填）：submit 或列表/轮询接口获得的 UUID
+         *     - **questions**（必填）：用户确认后的题目列表（QuestionPreviewVO；options/answer 为数组）
+         *
+         *     **预览数据来源优先级**（服务端解析待落库列表时）：
+         *     1. MySQL `ai_import_task.preview_json`（权威，关页后可恢复）
+         *     2. Redis `ishua:task:result:{taskId}`
+         *     3. 请求体 `questions`（若请求体条数明显多于缓存，以缓存为准防重复落库）
+         *
+         *     **幂等与状态**：
+         *     - 已成功 IMPORTED：再次提交 code=200、data=null（幂等成功）
+         *     - 并发落库中：code=409「该任务正在导入中，请稍候再试」
+         *     - 任务 status=EXPIRED：code=400「任务已过期，请重新上传文件」
+         *     - DB 存在且 status 非 PARSED：code=400「任务当前状态不可导入：{status}」
+         *     - taskId 在 DB/Redis 均不存在：code=400「任务不存在或已过期」
+         *
+         *     **成功**：题目写入 `question` 表，任务标记 IMPORTED，清理 Redis 预览缓存。
+         *
+         *     **失败**：code=401 未登录；code=403（USER 角色、题库无权、task 与 bankId/用户不匹配）；code=400/409 见上
          */
         post: operations["batchImportQuestions"];
         delete?: never;
@@ -248,13 +265,54 @@ export interface paths {
          *     - **file**（必填）：.txt / .pdf / .docx，最大 10MB
          *     - **bankId**（必填）：目标题库 ID（form 字段；亦可通过 query `?bankId=` 传递，二者等价）
          *
-         *     成功立即返回 taskId（status=SUBMITTED），后台经 Redis Stream 派发至 Python Worker。
+         *     成功立即返回 taskId（status=SUBMITTED），同时写入 MySQL 任务表；后台经 Redis Stream 派发至 Python Worker。
+         *     关页恢复：`GET /api/v1/ai-import/tasks` 分页列出本人任务。
          *     轮询：`GET /api/v1/ai-import/tasks/{taskId}/status`。
          *     预览确认入库：`POST /api/v1/question-banks/{bankId}/questions/batch`。
          *
          *     失败：code=400（文件/格式/大小）、401 未登录、403（角色为 USER 或题库无权）、404 题库不存在、429（默认每用户每小时 5 次，见配置 ishua.ai-import.rate-limit）。
          */
         post: operations["submitImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/ai-import/tasks/cleanup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 清理长时间未确认的 AI 导入任务
+         * @description 须 JWT，**仅 ADMIN**。扫描 MySQL 中 `status=PARSED` 且 `parsed_at` 早于阈值的记录。
+         *
+         *     **请求体**（`AdminAiImportCleanupDTO`，JSON）：
+         *     - **olderThanDays**（可选，默认 7）：清理 `parsed_at < now - N 天` 的任务；范围 1~365
+         *     - **bankId**（可选）：仅处理指定题库
+         *     - **userId**（可选）：仅处理指定提交用户
+         *     - **dryRun**（可选，**默认 true**）：true 时只统计匹配数与样例 taskId，**不写库、不删文件**
+         *     - **deleteFiles**（可选，**默认 false**）：dryRun=false 时，是否删除 `file_url` 对应的上传文件
+         *     - **maxBatch**（可选，默认 200）：单次最多处理条数，范围 1~1000
+         *
+         *     **dryRun=false 时的副作用**：
+         *     - DB：`status` → `EXPIRED`，写入 `expired_at`、`error_message`，清空 `preview_json`
+         *     - Redis：删除 `ishua:task:meta/status/result/import_lock` 相关键
+         *     - 用户侧：该 taskId 再调 batch 将返回 code=400「任务已过期」
+         *
+         *     **响应**（`AdminAiImportCleanupResultVO`）：
+         *     - `dryRun`、`matchedCount`、`processedCount`、`sampleTaskIds`（最多 10 条）、`message`
+         *
+         *     **运维建议**：生产环境先 `dryRun=true` 确认 `matchedCount` 与 `sampleTaskIds`，再 `dryRun=false` 实清。
+         *
+         *     **失败**：code=401 未登录；code=403 非 ADMIN；code=400（参数校验失败，如 olderThanDays 越界）
+         */
+        post: operations["cleanupStaleParsedTasks"];
         delete?: never;
         options?: never;
         head?: never;
@@ -395,6 +453,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ai-import/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 分页查询当前用户 AI 导入任务
+         * @description 须 JWT，最低角色 PREMIUM（ADMIN 含）。用于页面重新打开后恢复「进行中 / 待确认」任务，无需本地保存 taskId。
+         *
+         *     **Query 参数**（`AiImportTaskPageQueryDTO`，均通过 query 传递）：
+         *     - **current**、**pageSize**（必填）：分页，pageSize 上限见全局校验（默认最大 100）
+         *     - **bankId**（可选）：仅返回指定题库下的任务
+         *     - **status**（可选）：逗号分隔多状态，如 `PARSED,PROCESSING`；合法值：
+         *       `SUBMITTED`、`PROCESSING`、`PARSED`、`IMPORTING`、`IMPORTED`、`FAILED`、`EXPIRED`
+         *     - **includePreview**（可选，默认 false）：为 true 时，`status=PARSED` 的摘要项携带 `questions[]`（QuestionPreviewVO）
+         *
+         *     **响应**：`Result<PageResultVO<AiImportTaskSummaryVO>>`
+         *     - `data.total`：总条数
+         *     - `data.records[]`：当前页摘要（taskId、bankId、fileName、status、message、questionCount、时间戳等）
+         *
+         *     **前端建议**：
+         *     - 导入页 onMounted 调用：`status=PARSED,PROCESSING,SUBMITTED`，展示「待确认 / 解析中」横幅
+         *     - `includePreview=true` 时响应体较大，建议 `pageSize` 不超过 10
+         *
+         *     **失败**：code=401 未登录；code=403 角色为 USER；code=400（status 含非法枚举值）
+         */
+        get: operations["pageMyTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ai-import/tasks/{taskId}/status": {
         parameters: {
             query?: never;
@@ -404,14 +499,31 @@ export interface paths {
         };
         /**
          * 轮询 AI 导入任务状态
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 含）。任务状态流转：SUBMITTED → PROCESSING → PARSED →（用户确认 batch）→ IMPORTED；
-         *     任意环节失败为 FAILED（message 含原因）。
+         * @description 须 JWT，最低角色 PREMIUM（ADMIN 含）。
          *
-         *     - **PARSED**：data.questions 为预览列表（QuestionPreviewVO，options/answer 为数组）
-         *     - **任务不存在或已过期**：code=200 且 **data=null**（非 HTTP 404）
-         *     - 仅任务提交者或 ADMIN 可读取任务状态与预览结果；USER 角色在入口已拦截为 code=403
+         *     **状态流转**：SUBMITTED → PROCESSING → PARSED →（用户确认 batch）→ IMPORTED；
+         *     失败为 FAILED；长时间未确认可被管理端清理为 EXPIRED（不可再 batch）。
          *
-         *     建议前端 2~5 秒轮询，终态为 IMPORTED 或 FAILED 后停止。
+         *     **数据优先级**（MySQL 持久化后）：
+         *     - 任务存在于 MySQL 时，以 DB 状态与 `preview_json` 为准
+         *     - DB 中 PARSED 但预览为空时，尝试从 Redis `ishua:task:result:{taskId}` 回填并异步同步回 DB
+         *     - 仅 Redis 存在、DB 尚未同步的极短窗口内，回退读 Redis meta/status
+         *
+         *     **响应字段**（`AiImportTaskStatusVO`）：
+         *     - **status**：见上；终态为 IMPORTED、FAILED、EXPIRED
+         *     - **message**：失败/过期原因或业务说明
+         *     - **totalCount**：解析题目数（PARSED 及之后有意义）
+         *     - **questions**：仅 status=PARSED 时填充（QuestionPreviewVO，options/answer 为数组）
+         *
+         *     **特殊响应**：
+         *     - 任务不存在或已彻底过期：code=200 且 **data=null**（非 HTTP 404）
+         *     - 无权访问他人任务：code=403
+         *
+         *     **权限**：仅任务提交者或 ADMIN 可读；USER 在类入口已拦截为 code=403。
+         *
+         *     **前端建议**：2~5 秒轮询；终态 IMPORTED / FAILED / EXPIRED 后停止；EXPIRED 提示用户重新上传。
+         *
+         *     **失败**：code=401 未登录；code=403 无权或角色为 USER
          */
         get: operations["getTaskStatus"];
         put?: never;
@@ -603,14 +715,14 @@ export interface components {
              */
             isPublic: number;
         };
-        /** @description 批量确认导入请求 */
+        /** @description 批量确认导入请求（JSON）。须在任务 status=PARSED 时提交；服务端优先使用 DB/Redis 中的预览缓存落库。 */
         BatchImportRequestDTO: {
             /**
-             * @description AI 提交/轮询接口返回的任务 ID（UUID）
+             * @description AI 导入任务 ID（UUID），来自 submit 响应、GET /ai-import/tasks 或 GET .../tasks/{taskId}/status
              * @example a1b2c3d4e5f67890abcdef1234567890
              */
             taskId: string;
-            /** @description 经用户确认/编辑后的题目列表（与预览 QuestionPreviewVO 结构一致） */
+            /** @description 经用户预览页确认/编辑后的题目列表；结构与轮询接口 QuestionPreviewVO 一致 */
             questions: components["schemas"]["QuestionPreviewVO"][];
         };
         /**
@@ -679,6 +791,76 @@ export interface components {
              * @example SUBMITTED
              */
             status?: string;
+        };
+        /**
+         * @description 管理端 AI 导入任务清理请求（JSON）。仅匹配 status=PARSED 且 parsed_at 早于阈值的记录。
+         *     生产环境建议先 dryRun=true 预检，确认 sampleTaskIds 后再 dryRun=false 实清。
+         */
+        AdminAiImportCleanupDTO: {
+            /**
+             * Format: int32
+             * @description parsed_at 早于「当前时间 − olderThanDays 天」的 PARSED 任务纳入清理范围；不传时服务端默认 7（见配置 ishua.ai-import.cleanup-default-older-than-days）
+             * @example 7
+             */
+            olderThanDays?: number;
+            /**
+             * Format: int64
+             * @description 可选：仅清理指定题库下的任务
+             * @example 1001
+             */
+            bankId?: number;
+            /**
+             * Format: int64
+             * @description 可选：仅清理指定用户提交的任务
+             * @example 1
+             */
+            userId?: number;
+            /**
+             * @description 是否仅预检：true 只返回 matchedCount 与 sampleTaskIds，不写库；false 执行 EXPIRED 标记与 Redis 清理。不传时视为 true
+             * @default true
+             * @example true
+             */
+            dryRun: boolean;
+            /**
+             * @description 实清（dryRun=false）时是否删除 file_url 指向的上传文件；默认 false，仅清任务与缓存
+             * @default false
+             * @example false
+             */
+            deleteFiles: boolean;
+            /**
+             * Format: int32
+             * @description 单次请求最多处理的任务条数，防止长事务；不传时默认 200
+             * @default 200
+             * @example 200
+             */
+            maxBatch: number;
+        };
+        /** @description 管理端 AI 导入任务清理结果（POST /api/v1/admin/ai-import/tasks/cleanup 的 data） */
+        AdminAiImportCleanupResultVO: {
+            /**
+             * @description 本次请求是否为预检（与请求体 dryRun 一致）
+             * @example true
+             */
+            dryRun?: boolean;
+            /**
+             * Format: int64
+             * @description 符合清理条件（PARSED 且 parsed_at 早于阈值）的任务总数，可能大于 processedCount
+             * @example 12
+             */
+            matchedCount?: number;
+            /**
+             * Format: int32
+             * @description 实际处理条数：dryRun=true 时为 0；dryRun=false 时为成功标记 EXPIRED 的条数
+             * @example 0
+             */
+            processedCount?: number;
+            /** @description 样例 taskId 列表（最多 10 条），便于运维核对后再实清 */
+            sampleTaskIds?: string[];
+            /**
+             * @description 结果说明，如「dryRun：未执行写操作」或「已清理 N 个长时间未确认任务」
+             * @example dryRun：未执行写操作
+             */
+            message?: string;
         };
         /** @description 错题本记录 */
         WrongQuestionVO: {
@@ -878,24 +1060,86 @@ export interface components {
             /** @description 该题库下全部试题（按 sortNo 有序；含答案与解析） */
             questions?: components["schemas"]["QuestionVO"][];
         };
+        /** @description AI 导入任务列表单条摘要（用于 GET /api/v1/ai-import/tasks 的 data.records[]） */
+        AiImportTaskSummaryVO: {
+            /**
+             * @description 业务任务 ID（UUID），与轮询、batch 接口一致
+             * @example a1b2c3d4e5f67890abcdef1234567890
+             */
+            taskId?: string;
+            /**
+             * Format: int64
+             * @description 目标题库 ID
+             * @example 1001
+             */
+            bankId?: number;
+            /**
+             * @description 用户上传时的原始文件名
+             * @example 期末复习.pdf
+             */
+            fileName?: string;
+            /**
+             * @description 任务状态：SUBMITTED、PROCESSING、PARSED、IMPORTING、IMPORTED、FAILED、EXPIRED。
+             *     PARSED 表示可进入预览确认；EXPIRED 表示已过期清理，需重新 submit。
+             * @example PARSED
+             */
+            status?: string;
+            /**
+             * @description FAILED/EXPIRED 时的原因摘要，或成功态业务说明；可为空
+             * @example 解析完成，待确认导入
+             */
+            message?: string;
+            /**
+             * Format: int32
+             * @description 解析出的题目数量；PARSED 及之后有意义
+             * @example 42
+             */
+            questionCount?: number;
+            /**
+             * Format: date-time
+             * @description 任务提交时间
+             */
+            submittedAt?: string;
+            /**
+             * Format: date-time
+             * @description 进入 PARSED 的时间；未解析完成时为 null
+             */
+            parsedAt?: string;
+            /**
+             * Format: date-time
+             * @description 确认 batch 落库完成时间；未导入时为 null
+             */
+            importedAt?: string;
+            /**
+             * Format: date-time
+             * @description 被管理端清理为 EXPIRED 的时间；未过期时为 null
+             */
+            expiredAt?: string;
+            /** @description 预览题目列表；仅查询参数 includePreview=true 且本条 status=PARSED 时非空 */
+            questions?: components["schemas"]["QuestionPreviewVO"][];
+        };
         /** @description AI 导入任务状态快照 */
         AiImportTaskStatusVO: {
             /** @description 任务 ID（UUID） */
             taskId?: string;
             /**
              * @description 任务状态：SUBMITTED（已入队）→ PROCESSING（解析中）→ PARSED（可预览）→
-             *     IMPORTING（落库中，可选）→ IMPORTED（完成）或 FAILED（失败）
+             *     IMPORTING（落库中，可选）→ IMPORTED（完成）、FAILED（失败）或 EXPIRED（长时间未确认已过期）
              * @example PARSED
              */
             status?: string;
-            /** @description 错误信息或业务说明（成功时可为空） */
+            /** @description FAILED/EXPIRED 时的错误摘要，或业务说明；成功流转中常为空 */
             message?: string;
             /**
              * Format: int32
-             * @description 解析出的题目总数（PARSED 态及之后有意义）
+             * @description 解析出的题目总数；status=PARSED 时通常等于 questions.length
+             * @example 42
              */
             totalCount?: number;
-            /** @description 预览题目列表（status=PARSED 时由轮询接口填充） */
+            /**
+             * @description 预览题目列表。status=PARSED 时返回（优先 MySQL preview_json，其次 Redis result）。
+             *     终态 IMPORTED/FAILED/EXPIRED 时不返回或为空。
+             */
             questions?: components["schemas"]["QuestionPreviewVO"][];
         };
         /** @description 管理端用户列表项 */
@@ -1664,6 +1908,47 @@ export interface operations {
             };
         };
     };
+    cleanupStaleParsedTasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminAiImportCleanupDTO"];
+            };
+        };
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        data?: components["schemas"]["AdminAiImportCleanupResultVO"];
+                    };
+                };
+            };
+        };
+    };
     pageWrongQuestions: {
         parameters: {
             query: {
@@ -1954,6 +2239,81 @@ export interface operations {
                         message?: string;
                         /** @description 列表数据 */
                         data?: components["schemas"]["PracticeQuestionVO"][] | null;
+                    };
+                };
+            };
+        };
+    };
+    pageMyTasks: {
+        parameters: {
+            query: {
+                /**
+                 * @description 目标题库 ID；不传则返回用户全部题库下的任务
+                 * @example 1001
+                 */
+                bankId?: number;
+                /**
+                 * @description 任务状态筛选，逗号分隔多值。合法值：SUBMITTED、PROCESSING、PARSED、IMPORTING、IMPORTED、FAILED、EXPIRED。
+                 *     不传则不过滤状态。前端恢复场景常用：PARSED,PROCESSING,SUBMITTED
+                 * @example PARSED,PROCESSING
+                 */
+                status?: string;
+                /**
+                 * @description 是否在列表项中携带预览题目（questions[]）。默认 false。
+                 *     仅对 status=PARSED 的记录填充；响应体较大，建议 pageSize≤10。
+                 * @example false
+                 */
+                includePreview?: boolean;
+                /**
+                 * @description 当前页码，从 1 开始
+                 * @example 1
+                 */
+                current: number;
+                /**
+                 * @description 每页条数
+                 * @example 10
+                 */
+                pageSize: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        data?: {
+                            /**
+                             * Format: int64
+                             * @description 总记录数
+                             * @example 100
+                             */
+                            total?: number;
+                            /** @description 当前页数据列表 */
+                            records?: components["schemas"]["AiImportTaskSummaryVO"][];
+                        } | null;
                     };
                 };
             };

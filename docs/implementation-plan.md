@@ -1,7 +1,7 @@
 # iShua 前端分步执行方案
 
 > **目的**：将 `docs/design/ishua-ui-spec.md` 拆解为可独立交付、可联调、可验收的实施阶段。  
-> **API**：`api-docs-v3.json`（仓库根目录）  
+> **API**：`api-docs-v4.json`（仓库根目录）  
 > **设计粗稿**：`docs/design/atlas-ui-design-draft.md`（只读参考，实施以终稿为准）
 
 **当前进度（2026-05-21）**：**P0–P9 已落地**；**导航 IA 重构**已实施（`5152e20`：发现占位、题库刷题选题、管理路由 `/app/manage/banks`）。详见 `docs/plans/navigation-and-banks-ia.md`。包管理以 `npm` 为准（`npm run dev` / `npm run generate:api`）。
@@ -96,7 +96,7 @@ flowchart LR
 | P0-1 | `npm create vite` + React + TS；安装 React Router、Tailwind           | 可 `dev` 启动                |
 | P0-2 | 初始化 shadcn/ui；配置 `components.json`                                | Button、Input、Dialog 等基座可用 |
 | P0-3 | `src/styles/tokens.css` 注入 §4 色板与字体（Noto Serif/Sans 链接）           | 全局考纲手札基调                  |
-| P0-4 | `openapi-typescript` 从 `api-docs-v3.json` 生成 `src/types/api.d.ts` | 类型与后端一致                   |
+| P0-4 | `openapi-typescript` 从 `api-docs-v4.json` 生成 `src/types/api.d.ts` | 类型与后端一致                   |
 | P0-5 | `api/client.ts`：`Result<T>` 解析、`code!==200` 拒绝                    | 统一错误形态                    |
 | P0-6 | 请求拦截器：白名单不加 Bearer；`ishua_token` → Header                         | 鉴权骨架                      |
 | P0-7 | `router.tsx` 注册终稿 §5.1 全部路由（页面可先占位 `PageStub`）                    | 路由表完整                     |
@@ -505,6 +505,7 @@ flowchart LR
 | P8-4 | `PreviewQuestionTable` 展开编辑            | `src/components/import/PreviewQuestionTable.tsx` |
 | P8-5 | 页面 `/app/manage/banks/:bankId/import` | `src/pages/ImportPage.tsx` |
 | P8-6 | 429/409/FAILED 文案                      | `src/lib/aiImport.ts` `resolveImportError` |
+| P8-7 | v4 任务列表恢复 + EXPIRED（2026-05-25）   | `pageMyImportTasks`、`ImportRecoveryBanner`、`useAiImportRecovery`；见 `docs/plans/ai-import-recovery-v4.md` |
 
 **已落地文件（摘要）**
 
@@ -521,6 +522,7 @@ flowchart LR
 
 | 方法   | 路径                                                |
 | ---- | ------------------------------------------------- |
+| GET  | `/api/v1/ai-import/tasks`（分页恢复）               |
 | POST | `/api/v1/ai-import/submit`                        |
 | GET  | `/api/v1/ai-import/tasks/{taskId}/status`         |
 | POST | `/api/v1/question-banks/{bankId}/questions/batch` |
@@ -535,7 +537,7 @@ flowchart LR
 
 **遗留 / 后续阶段**
 
-- 轮询不可取消（离开页面自动 cleanup）；可选优化取消按钮  
+- 轮询不可取消（离开页面停止前端轮询；靠任务列表恢复）  
 - 依赖后端 AI Worker 联调；本地无 Worker 时仅能测上传失败态  
 
 **建议 PR**：`feat: ai import wizard`
@@ -652,7 +654,7 @@ P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9
 | -------------------------------------- | -------------- |
 | `docs/design/ishua-ui-spec.md`         | UI/组件/验收唯一实施规格 |
 | `docs/design/atlas-ui-design-draft.md` | 决策背景与粗稿（不随代码改） |
-| `api-docs-v3.json`                     | 接口与 Schema 真源  |
+| `api-docs-v4.json`                     | 接口与 Schema 真源  |
 | **本文** `docs/implementation-plan.md`   | 分步执行与 PR 拆分    |
 | `docs/known-gaps.md`                   | 各阶段验收遗留缺陷与二期 backlog |
 

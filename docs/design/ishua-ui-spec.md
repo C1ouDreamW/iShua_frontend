@@ -2,7 +2,7 @@
 
 > 由 **UI 设计工坊**（阶段 5 组件规格 + 阶段 6 终稿）生成  
 > 日期：2026-05-19  
-> API 依据：根目录 `api-docs-v3.json`  
+> API 依据：根目录 `api-docs-v4.json`  
 > 粗稿参考：`docs/design/atlas-ui-design-draft.md`（本文不替代草稿，为可开发交付规格）
 
 ---
@@ -458,17 +458,22 @@
 
 | 步骤 | UI | 行为 |
 |------|-----|------|
-| 1 上传 | 拖拽区 +「选择文件」；说明 .txt/.pdf/.docx ≤10MB | `POST ai-import/submit` → 存 `taskId` |
-| 2 解析 | Steps 高亮；文案「正在解析，请稍候…」；2–5s 轮询 | 至 PARSED / FAILED / IMPORTED |
-| 3 预览 | `PreviewQuestionTable` | 编辑后可「确认导入」 |
+| 0 恢复 | `ImportRecoveryBanner`（仅上传步） | `GET ai-import/tasks?bankId&status=PARSED,PROCESSING,SUBMITTED`；待确认 / 解析中可继续 |
+| 1 上传 | 拖拽区 +「选择文件」；说明 .txt/.pdf/.docx ≤10MB | `POST ai-import/submit` → `taskId`（可选 sessionStorage 降级） |
+| 2 解析 | Steps 高亮；文案「正在解析，请稍候…」；3s 轮询 `GET .../status` | 至 PARSED / FAILED / IMPORTED / **EXPIRED** |
+| 3 预览 | `PreviewQuestionTable`；空预览可「重新拉取」 | 编辑后 `POST batch` + `taskId` + `questions[]` |
 | 4 完成 | 成功图标 +「已导入 N 题」 | 跳转题库详情 |
 
 | 异常 | 文案 |
 |------|------|
 | FAILED | 展示 `message` +「返回上传」 |
+| EXPIRED | 任务已过期，请重新上传文件 |
+| 任务不存在 | 任务不存在或已失效，请重新上传 |
 | 429 | 导入过于频繁，请稍后再试（每小时上限） |
 | 409 | 正在导入中，请稍候 |
 | 403 | 无权限（USER）→ UpgradePrompt |
+
+**深链**：`/app/manage/banks/:bankId/import?taskId={uuid}` 进入后自动恢复该任务。
 
 ---
 
@@ -609,7 +614,7 @@ src/
 
 ### 9.5 类型生成
 
-- 推荐从 `api-docs-v3.json` 用 `openapi-typescript` 生成 `src/types/api.d.ts`，与 `Result<T>` 包装层组合。
+- 推荐从 `api-docs-v4.json` 用 `openapi-typescript` 生成 `src/types/api.d.ts`，与 `Result<T>` 包装层组合。
 
 ---
 
@@ -672,4 +677,4 @@ src/
 
 ---
 
-*终稿 v1.0 · 对应粗稿 atlas-ui-design-draft v0.4 · API api-docs-v3.json*
+*终稿 v1.0 · 对应粗稿 atlas-ui-design-draft v0.4 · API api-docs-v4.json*

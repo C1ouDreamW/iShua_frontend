@@ -1,16 +1,29 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2, Loader2, Upload } from "lucide-react";
 
-import { getTaskStatus, submitImport } from "@/api/aiImport";
+import {
+  getTaskStatus,
+  submitImport,
+  type AiImportTaskSummary,
+} from "@/api/aiImport";
 import { batchImportQuestions } from "@/api/banks";
+import { ImportRecoveryBanner } from "@/components/import/ImportRecoveryBanner";
 import { PreviewQuestionTable } from "@/components/import/PreviewQuestionTable";
 import { Button } from "@/components/ui/button";
+import { useAiImportRecovery } from "@/hooks/useAiImportRecovery";
 import {
+  clearImportSessionTaskId,
   createEditableList,
   editableToPreview,
+  fetchPreviewQuestionsForTask,
+  IMPORT_EXPIRED_MESSAGE,
+  IMPORT_TASK_MISSING_MESSAGE,
+  isInProgressImportStatus,
   isParsedReady,
+  isTerminalImportStatus,
   resolveImportError,
+  setImportSessionTaskId,
   validateImportFile,
   type EditablePreviewQuestion,
   type ImportWizardStep,
@@ -29,23 +42,197 @@ const STEPS: { id: ImportWizardStep; label: string }[] = [
 type ImportWizardProps = {
   bankId: number;
   bankTitle: string;
+  initialTaskId?: string | null;
 };
 
-export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
+export function ImportWizard({
+  bankId,
+  bankTitle,
+  initialTaskId,
+}: ImportWizardProps) {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const initialResumeDoneRef = useRef(false);
+
   const [step, setStep] = useState<ImportWizardStep>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [previewLoadError, setPreviewLoadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [resuming, setResuming] = useState(false);
   const [previewQuestions, setPreviewQuestions] = useState<EditablePreviewQuestion[]>(
     [],
   );
   const [importedCount, setImportedCount] = useState(0);
   const [dragOver, setDragOver] = useState(false);
+
+  const {
+    parsedTasks,
+    inProgressTasks,
+    loading: recoveryLoading,
+    listError: recoveryListError,
+    refreshTasks,
+    findTaskById,
+  } = useAiImportRecovery({ bankId });
+
+  const applyStatusSnapshot = useCallback(
+    (status: NonNullable<Awaited<ReturnType<typeof getTaskStatus>>>) => {
+      setStatusMessage(status.message ?? null);
+
+      if (status.status === "FAILED") {
+        setError(status.message || "解析失败，请检查文件后重试。");
+        setStep("upload");
+        clearImportSessionTaskId(bankId);
+        return;
+      }
+
+      if (status.status === "EXPIRED") {
+        setError(IMPORT_EXPIRED_MESSAGE);
+        setStep("upload");
+        clearImportSessionTaskId(bankId);
+        void refreshTasks();
+        return;
+      }
+
+      if (status.status === "IMPORTED") {
+        setImportedCount(status.totalCount ?? status.questions?.length ?? 0);
+        setStep("complete");
+        clearImportSessionTaskId(bankId);
+        void refreshTasks();
+        return;
+      }
+
+      if (isParsedReady(status.status)) {
+        setPreviewQuestions(createEditableList(status.questions ?? []));
+        setPreviewLoadError(
+          status.questions?.length ? null : "预览题目为空，请重新拉取。",
+        );
+        setStep("preview");
+        return;
+      }
+
+      if (isInProgressImportStatus(status.status)) {
+        setStatusMessage(status.message ?? "正在处理，请稍候…");
+        setStep("parsing");
+      }
+    },
+    [bankId, refreshTasks],
+  );
+
+  const resumeFromSummary = useCallback(
+    async (summary: AiImportTaskSummary, options?: { includePreview?: boolean }) => {
+      const id = summary.taskId;
+
+      if (!id) {
+        setError("任务 ID 无效，请重新上传。");
+        return;
+      }
+
+      setResuming(true);
+      setError(null);
+      setPreviewLoadError(null);
+      setTaskId(id);
+      setImportSessionTaskId(bankId, id);
+
+      try {
+        if (summary.status === "PARSED") {
+          let activeSummary = summary;
+
+          if (options?.includePreview && !activeSummary.questions?.length) {
+            await refreshTasks({ includePreview: true });
+            activeSummary = findTaskById(id) ?? activeSummary;
+          }
+
+          const questions = await fetchPreviewQuestionsForTask(
+            id,
+            activeSummary.questions,
+          );
+          setPreviewQuestions(createEditableList(questions));
+          setPreviewLoadError(questions.length ? null : "预览题目为空，请重新拉取。");
+          setStep("preview");
+          return;
+        }
+
+        if (summary.status === "SUBMITTED" || summary.status === "PROCESSING") {
+          setStatusMessage(summary.message ?? "正在解析，请稍候…");
+          setStep("parsing");
+          return;
+        }
+
+        const status = await getTaskStatus(id);
+
+        if (!status) {
+          setError(IMPORT_TASK_MISSING_MESSAGE);
+          setStep("upload");
+          return;
+        }
+
+        applyStatusSnapshot(status);
+      } catch (resumeError) {
+        setError(resolveImportError(resumeError));
+        setStep("upload");
+        void refreshTasks();
+      } finally {
+        setResuming(false);
+      }
+    },
+    [applyStatusSnapshot, bankId, findTaskById, refreshTasks],
+  );
+
+  const resumeFromTaskId = useCallback(
+    async (id: string) => {
+      const summary = findTaskById(id);
+
+      if (summary) {
+        await resumeFromSummary(summary, { includePreview: true });
+        return;
+      }
+
+      setResuming(true);
+      setError(null);
+      setTaskId(id);
+      setImportSessionTaskId(bankId, id);
+
+      try {
+        const status = await getTaskStatus(id);
+
+        if (!status) {
+          setError(IMPORT_TASK_MISSING_MESSAGE);
+          setStep("upload");
+          return;
+        }
+
+        if (status.status === "PARSED") {
+          setPreviewQuestions(createEditableList(status.questions ?? []));
+          setPreviewLoadError(
+            status.questions?.length ? null : "预览题目为空，请重新拉取。",
+          );
+          setStep("preview");
+          return;
+        }
+
+        applyStatusSnapshot(status);
+      } catch (resumeError) {
+        setError(resolveImportError(resumeError));
+        setStep("upload");
+      } finally {
+        setResuming(false);
+      }
+    },
+    [applyStatusSnapshot, bankId, findTaskById, resumeFromSummary],
+  );
+
+  useEffect(() => {
+    if (initialResumeDoneRef.current || recoveryLoading || !initialTaskId) {
+      return;
+    }
+
+    initialResumeDoneRef.current = true;
+    void resumeFromTaskId(initialTaskId);
+  }, [initialTaskId, recoveryLoading, resumeFromTaskId]);
 
   useEffect(() => {
     if (step !== "parsing" || !taskId) {
@@ -64,28 +251,21 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
         }
 
         if (!status) {
-          setError("任务不存在或已过期，请重新上传。");
+          setError(IMPORT_TASK_MISSING_MESSAGE);
           setStep("upload");
+          clearImportSessionTaskId(bankId);
           return;
         }
 
         setStatusMessage(status.message ?? null);
 
-        if (status.status === "FAILED") {
-          setError(status.message || "解析失败，请检查文件后重试。");
-          setStep("upload");
-          return;
-        }
-
-        if (status.status === "IMPORTED") {
-          setImportedCount(status.totalCount ?? status.questions?.length ?? 0);
-          setStep("complete");
+        if (isTerminalImportStatus(status.status)) {
+          applyStatusSnapshot(status);
           return;
         }
 
         if (isParsedReady(status.status)) {
-          setPreviewQuestions(createEditableList(status.questions ?? []));
-          setStep("preview");
+          applyStatusSnapshot(status);
           return;
         }
 
@@ -106,7 +286,26 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
         window.clearTimeout(timer);
       }
     };
-  }, [step, taskId]);
+  }, [applyStatusSnapshot, bankId, step, taskId]);
+
+  async function reloadPreviewQuestions() {
+    if (!taskId) {
+      return;
+    }
+
+    setPreviewLoadError(null);
+    setResuming(true);
+
+    try {
+      const questions = await fetchPreviewQuestionsForTask(taskId);
+      setPreviewQuestions(createEditableList(questions));
+      setPreviewLoadError(questions.length ? null : "预览题目为空，请重新拉取。");
+    } catch (loadError) {
+      setPreviewLoadError(resolveImportError(loadError));
+    } finally {
+      setResuming(false);
+    }
+  }
 
   function handleFileSelect(nextFile: File | null) {
     setFile(nextFile);
@@ -142,8 +341,10 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
       }
 
       setTaskId(nextTaskId);
+      setImportSessionTaskId(bankId, nextTaskId);
       setStep("parsing");
       setStatusMessage("任务已提交，正在排队解析…");
+      void refreshTasks();
     } catch (uploadError) {
       setError(resolveImportError(uploadError));
     } finally {
@@ -178,8 +379,17 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
 
       setImportedCount(previewQuestions.length);
       setStep("complete");
+      clearImportSessionTaskId(bankId);
+      void refreshTasks();
     } catch (importError) {
-      setError(resolveImportError(importError));
+      const message = resolveImportError(importError);
+      setError(message);
+
+      if (message === IMPORT_EXPIRED_MESSAGE) {
+        setStep("upload");
+        setTaskId(null);
+        void refreshTasks();
+      }
     } finally {
       setImporting(false);
     }
@@ -191,10 +401,12 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
     setTaskId(null);
     setPreviewQuestions([]);
     setStatusMessage(null);
+    setPreviewLoadError(null);
     setError(null);
   }
 
   const stepIndex = STEPS.findIndex((item) => item.id === step);
+  const showRecoveryBanner = step === "upload" && !uploading;
 
   return (
     <div className="space-y-8">
@@ -214,6 +426,18 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
           </div>
         ))}
       </nav>
+
+      {showRecoveryBanner ? (
+        <ImportRecoveryBanner
+          inProgressTasks={inProgressTasks}
+          listError={recoveryListError}
+          loading={recoveryLoading}
+          onResumeParsed={(task) => void resumeFromSummary(task, { includePreview: true })}
+          onResumeProgress={(task) => void resumeFromSummary(task)}
+          parsedTasks={parsedTasks}
+          resuming={resuming}
+        />
+      ) : null}
 
       {step === "upload" ? (
         <section className="space-y-4">
@@ -286,7 +510,13 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
             <p className="mt-2 text-sm text-text-secondary">
               {statusMessage || "AI 正在读取文件并生成题目预览。"}
             </p>
+            <p className="mt-2 text-xs text-text-muted">
+              可关闭页面，稍后在「进行中的导入」继续。
+            </p>
           </div>
+          <Button onClick={resetToUpload} type="button" variant="outline">
+            返回上传
+          </Button>
         </section>
       ) : null}
 
@@ -301,8 +531,25 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
             </p>
           </div>
 
+          {previewLoadError ? (
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-error/30 bg-error/5 px-4 py-3">
+              <p className="text-sm text-error" role="alert">
+                {previewLoadError}
+              </p>
+              <Button
+                disabled={resuming || !taskId}
+                onClick={() => void reloadPreviewQuestions()}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                重新拉取预览
+              </Button>
+            </div>
+          ) : null}
+
           <PreviewQuestionTable
-            disabled={importing}
+            disabled={importing || resuming}
             onChange={setPreviewQuestions}
             questions={previewQuestions}
           />
@@ -314,7 +561,10 @@ export function ImportWizard({ bankId, bankTitle }: ImportWizardProps) {
           ) : null}
 
           <div className="flex flex-wrap gap-3">
-            <Button disabled={importing} onClick={() => void handleConfirmImport()}>
+            <Button
+              disabled={importing || resuming || previewQuestions.length === 0}
+              onClick={() => void handleConfirmImport()}
+            >
               {importing ? "导入中…" : "确认导入"}
             </Button>
             <Button disabled={importing} onClick={resetToUpload} variant="outline">

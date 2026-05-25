@@ -1,6 +1,6 @@
 # iShua 前端
 
-考纲手札风格的刷题 Web 应用，对接 Atlas API（`api-docs-v3.json`）。
+考纲手札风格的刷题 Web 应用，对接 Atlas API（`api-docs-v4.json`）。
 
 ## 环境要求
 
@@ -43,7 +43,7 @@ VITE_API_BASE_URL=http://localhost:8080
 | `npm run build` | 类型检查并生产构建 |
 | `npm run preview` | 预览生产构建 |
 | `npm run lint` | ESLint 检查 |
-| `npm run generate:api` | 从 `api-docs-v3.json` 生成 `src/types/api.d.ts` |
+| `npm run generate:api` | 从 `api-docs-v4.json` 生成 `src/types/api.d.ts` |
 | `npm run optimize:logo` | 从 `assets/logo/logo.png` 生成 256px `logo.webp`（`npm run build` 前会通过 `prebuild` 自动执行） |
 
 ## API 与错误约定
@@ -73,7 +73,7 @@ PREMIUM 可通过管理员改角色或使用种子数据；普通用户注册默
 | `docs/implementation-plan.md` | 分阶段实施与进度 |
 | `docs/known-gaps.md` | 各阶段验收遗留缺陷与二期 backlog |
 | `docs/plans/navigation-and-banks-ia.md` | 入口与题库信息架构（已实施） |
-| `api-docs-v3.json` | OpenAPI 真源 |
+| `api-docs-v4.json` | OpenAPI 真源 |
 
 ## 里程碑（当前）
 

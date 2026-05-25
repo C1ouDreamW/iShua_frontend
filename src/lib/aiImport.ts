@@ -1,6 +1,6 @@
 import { ApiError } from "@/api/client";
+import { getTaskStatus, type QuestionPreview } from "@/api/aiImport";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
-import type { QuestionPreview } from "@/api/aiImport";
 import {
   createEmptyFormState,
   type QuestionFormState,
@@ -12,9 +12,55 @@ export const MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024;
 
 export type ImportWizardStep = "upload" | "parsing" | "preview" | "complete";
 
+export type ImportTaskStatus =
+  | "SUBMITTED"
+  | "PROCESSING"
+  | "PARSED"
+  | "IMPORTING"
+  | "IMPORTED"
+  | "FAILED"
+  | "EXPIRED";
+
+export const IMPORT_EXPIRED_MESSAGE = "任务已过期，请重新上传文件";
+export const IMPORT_TASK_MISSING_MESSAGE = "任务不存在或已失效，请重新上传";
+
+const IMPORT_SESSION_KEY_PREFIX = "ishua_ai_import_active:";
+
+export function getImportSessionTaskId(bankId: number) {
+  try {
+    return sessionStorage.getItem(`${IMPORT_SESSION_KEY_PREFIX}${bankId}`);
+  } catch {
+    return null;
+  }
+}
+
+export function setImportSessionTaskId(bankId: number, taskId: string) {
+  try {
+    sessionStorage.setItem(`${IMPORT_SESSION_KEY_PREFIX}${bankId}`, taskId);
+  } catch {
+    // private mode / quota
+  }
+}
+
+export function clearImportSessionTaskId(bankId: number) {
+  try {
+    sessionStorage.removeItem(`${IMPORT_SESSION_KEY_PREFIX}${bankId}`);
+  } catch {
+    // ignore
+  }
+}
+
 export type EditablePreviewQuestion = QuestionFormState & {
   key: string;
 };
+
+function isExpiredImportMessage(message: string | undefined) {
+  if (!message) {
+    return false;
+  }
+
+  return message.includes("过期") || message.includes("EXPIRED");
+}
 
 export function resolveImportError(error: unknown) {
   if (error instanceof ApiError) {
@@ -29,6 +75,14 @@ export function resolveImportError(error: unknown) {
     if (error.code === 403) {
       return "无权限执行 AI 导入，请开通 PREMIUM。";
     }
+
+    if (error.code === 400 && isExpiredImportMessage(error.message)) {
+      return IMPORT_EXPIRED_MESSAGE;
+    }
+  }
+
+  if (error instanceof Error && isExpiredImportMessage(error.message)) {
+    return IMPORT_EXPIRED_MESSAGE;
   }
 
   return resolveApiErrorMessage(error, "操作失败，请重试。");
@@ -109,11 +163,42 @@ export function formatAnswerSummary(answers: string[] | undefined) {
 }
 
 export function isTerminalImportStatus(status: string | undefined) {
-  return status === "IMPORTED" || status === "FAILED";
+  return status === "IMPORTED" || status === "FAILED" || status === "EXPIRED";
 }
 
 export function isParsedReady(status: string | undefined) {
   return status === "PARSED";
+}
+
+export function isInProgressImportStatus(status: string | undefined) {
+  return status === "SUBMITTED" || status === "PROCESSING" || status === "IMPORTING";
+}
+
+export async function fetchPreviewQuestionsForTask(
+  taskId: string,
+  summaryQuestions?: QuestionPreview[],
+) {
+  if (summaryQuestions?.length) {
+    return summaryQuestions;
+  }
+
+  const status = await getTaskStatus(taskId);
+
+  if (!status) {
+    throw new Error(IMPORT_TASK_MISSING_MESSAGE);
+  }
+
+  if (status.status === "EXPIRED") {
+    throw new Error(IMPORT_EXPIRED_MESSAGE);
+  }
+
+  if (!isParsedReady(status.status)) {
+    throw new Error(
+      status.message ?? `任务当前状态不可预览：${status.status ?? "未知"}`,
+    );
+  }
+
+  return status.questions ?? [];
 }
 
 export function createEmptyPreviewRow(): EditablePreviewQuestion {

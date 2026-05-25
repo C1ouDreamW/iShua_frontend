@@ -140,10 +140,12 @@
 | 优先级 | 缺陷 | 说明 |
 |--------|------|------|
 | 🔴 | **依赖后端 AI Worker 联调** | 无 Worker 时仅能验证上传/失败态，无法走通 PARSED→预览→入库 |
-| 🟡 | **轮询无显式「取消解析」按钮** | 离开页面会 cleanup 停止轮询；规格写 2–5s，实现固定 3s |
+| 🟡 | **轮询无显式「取消解析」按钮** | 离开页面停止前端轮询；可通过 `GET /ai-import/tasks` 恢复（见 `docs/plans/ai-import-recovery-v4.md`） |
 | 🟡 | **轮询若直接得到 `IMPORTED`** | 未点「确认导入」也可能进完成页（边界态，视后端行为） |
-| 🟡 | **`PARSED` 但 `questions` 为空仍可点确认导入** | 可能提交空数组，需后端校验 |
+| 🟡 | **`PARSED` 但 `questions` 为空** | 预览区提示并禁用确认；支持「重新拉取预览」 |
 | 🟢 | **403 不弹 Upgrade** | 路由 PREMIUM 已挡，同 P5 |
+
+**已修复（2026-05-25，v4 API）**：关页/切路由后无法恢复预览 — `pageMyImportTasks` + `ImportRecoveryBanner` + `EXPIRED` 处理。
 
 ---
 

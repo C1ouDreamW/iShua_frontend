@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { pageMyImportTasks } from "@/api/aiImport";
 import { deleteBank, findMyBank, type QuestionBank } from "@/api/banks";
 import { pageQuestionsInBank, type Question } from "@/api/questions";
 import { BankFormDrawer } from "@/components/bank/BankFormDrawer";
@@ -44,7 +45,41 @@ export function BankDetailPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [deleteBankOpen, setDeleteBankOpen] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState<Question | null>(null);
+  const [pendingImportCount, setPendingImportCount] = useState(0);
   const { error: showError, success } = useAppToast();
+
+  useEffect(() => {
+    if (!Number.isFinite(numericBankId)) {
+      return;
+    }
+
+    let ignore = false;
+
+    async function loadPendingImports() {
+      try {
+        const page = await pageMyImportTasks({
+          bankId: numericBankId,
+          current: 1,
+          pageSize: 1,
+          status: "PARSED",
+        });
+
+        if (!ignore) {
+          setPendingImportCount(page?.total ?? page?.records?.length ?? 0);
+        }
+      } catch {
+        if (!ignore) {
+          setPendingImportCount(0);
+        }
+      }
+    }
+
+    void loadPendingImports();
+
+    return () => {
+      ignore = true;
+    };
+  }, [numericBankId]);
 
   useEffect(() => {
     const flash = consumePageFlash();
@@ -221,7 +256,14 @@ export function BankDetailPage() {
               <Link to={`/app/practice/${numericBankId}`}>开始刷题</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to={`/app/manage/banks/${numericBankId}/import`}>AI 导入</Link>
+              <Link to={`/app/manage/banks/${numericBankId}/import`}>
+                AI 导入
+                {pendingImportCount > 0 ? (
+                  <span className="ml-1.5 rounded-full bg-brand px-1.5 py-0.5 text-xs text-white">
+                    待确认
+                  </span>
+                ) : null}
+              </Link>
             </Button>
             <Button onClick={() => setFormOpen(true)} variant="outline">
               编辑题库
