@@ -23,7 +23,7 @@
 - 安装 Node.js 18+ 与 npm，拉取依赖并成功 `npm run dev`；
 - 通过 `.env.development` 指向本机后端；
 - 在浏览器完成注册/登录、刷题、错题本等主流程；
-- （可选）从 `api-docs-v3.json` 重新生成 TypeScript API 类型；
+- （可选）从 `api-docs-v4.json` 重新生成 TypeScript API 类型；
 - 与后端、MySQL、Redis 组成完整本地链路（后端步骤见后端文档）。
 
 ---
@@ -127,7 +127,7 @@ git status
 |------|------|
 | `package.json` | 脚本与依赖 |
 | `.env.development` | 开发环境 API 地址（已提交示例） |
-| `api-docs-v3.json` | OpenAPI 真源，用于 `generate:api` |
+| `api-docs-v4.json` | OpenAPI 真源，用于 `generate:api` |
 | `src/api/client.ts` | `API_BASE_URL`、鉴权与白名单 |
 | `assets/logo/logo.png` | Logo 源图；构建前会生成 `logo.webp` |
 
@@ -207,7 +207,7 @@ npm run dev
 | `npm run build` | `tsc -b` + 生产构建（会先执行 `prebuild` 优化 Logo） |
 | `npm run preview` | 本地预览 `dist/`（默认另一端口，如 4173） |
 | `npm run lint` | ESLint |
-| `npm run generate:api` | 从 `api-docs-v3.json` 生成 `src/types/api.d.ts` |
+| `npm run generate:api` | 从 `api-docs-v4.json` 生成 `src/types/api.d.ts` |
 | `npm run optimize:logo` | 从 `assets/logo/logo.png` 生成 256px `logo.webp` |
 
 ---
@@ -279,7 +279,7 @@ npm run dev
 
 ### 9.3 同步 OpenAPI 类型
 
-后端接口变更后，将最新 `api-docs` 放到仓库根目录 `api-docs-v3.json`，然后：
+后端接口变更后，将最新 `api-docs` 放到仓库根目录 `api-docs-v4.json`，然后：
 
 ```powershell
 npm run generate:api
@@ -422,7 +422,7 @@ export default defineConfig({
 | [docs/implementation-plan.md](../implementation-plan.md) | 分阶段实施 |
 | [docs/design/ishua-ui-spec.md](../design/ishua-ui-spec.md) | UI 规格 |
 | `backend/docs/环境部署配置/Windows开发环境部署指南.md` | 后端 Windows 一条龙 |
-| `api-docs-v3.json` | OpenAPI 真源 |
+| `api-docs-v4.json` | OpenAPI 真源 |
 
 ---
 

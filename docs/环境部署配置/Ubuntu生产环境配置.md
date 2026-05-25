@@ -537,7 +537,7 @@ Nginx `client_max_body_size` 至少 **12m**（与后端 `max-request-size` 一�
 
 ### 14.8 更新 API 类型后构建失败
 
-在后端更新 OpenAPI 后，将 `api-docs-v3.json` 同步到前端并执行 `npm run generate:api` 再构建。
+在后端更新 OpenAPI 后，将 `api-docs-v4.json` 同步到前端并执行 `npm run generate:api` 再构建。
 
 ---
 
@@ -562,7 +562,7 @@ Nginx `client_max_body_size` 至少 **12m**（与后端 `max-request-size` 一�
 | [Windows开发环境配置.md](./Windows开发环境配置.md) | 本地开发一条龙 |
 | `backend/docs/环境部署配置/Linux生产环境部署指南.md` | 后端 systemd、MySQL、Redis、API Nginx |
 | [docs/known-gaps.md](../known-gaps.md) | 已知限制 |
-| `api-docs-v3.json` | OpenAPI 真源 |
+| `api-docs-v4.json` | OpenAPI 真源 |
 
 ---
 
