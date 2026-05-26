@@ -235,11 +235,16 @@ export function GuestPracticePage() {
   if (!question || state.questions.length === 0) {
     return (
       <main className="min-h-screen bg-bg-canvas px-6 py-12">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-3xl space-y-4">
           <EmptyState
             description="这个公开题库暂时没有可练习的题目。"
             title="暂无题目"
           />
+          <div className="flex justify-center">
+            <Button asChild variant="outline">
+              <Link to="/">返回</Link>
+            </Button>
+          </div>
         </div>
       </main>
     );

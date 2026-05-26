@@ -83,7 +83,7 @@ export function PracticePage() {
           />
           <div className="flex justify-center">
             <Button asChild variant="outline">
-              <Link to="/">返回大厅</Link>
+              <Link to="/app/banks">返回</Link>
             </Button>
           </div>
         </div>

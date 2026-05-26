@@ -28,3 +28,5 @@ node_modules/
 
 # Temp
 docs/temp/
+
+*.tar.gz
