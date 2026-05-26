@@ -92,13 +92,13 @@ export function WrongQuestionList({
       <ul className="flex flex-col gap-3">
         {records.map((item) => (
           <li
-            className="rounded-xl border bg-bg-surface p-4 shadow-sm"
+            className="paper-panel p-4"
             key={item.id ?? `${item.questionId}-${item.questionBankId}`}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
-                  <span className="rounded-full bg-brand-muted px-2 py-0.5 font-medium text-brand">
+                  <span className="rounded-md border border-border bg-bg-sheet px-2 py-0.5 text-xs font-medium text-brand">
                     {QUESTION_TYPE_LABEL[item.questionType ?? ""] ?? "题目"}
                   </span>
                   <span>错误 {item.wrongCount ?? 0} 次</span>

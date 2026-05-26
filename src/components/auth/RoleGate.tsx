@@ -27,7 +27,7 @@ export function RoleGate({
   if (loading) {
     return (
       <section className="mx-auto max-w-3xl px-6 py-10">
-        <div className="h-64 animate-pulse rounded-xl border bg-bg-surface" />
+        <div className="paper-panel h-64 animate-pulse" />
       </section>
     );
   }

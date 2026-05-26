@@ -59,8 +59,8 @@ export function AppShell() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-canvas px-6 py-10">
-        <div className="mx-auto h-64 max-w-3xl animate-pulse rounded-xl border bg-bg-surface" />
+      <div className="min-h-screen px-6 py-10">
+        <div className="paper-panel mx-auto h-64 max-w-3xl animate-pulse" />
       </div>
     );
   }
@@ -111,10 +111,10 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-canvas text-text-primary lg:flex">
+    <div className="min-h-screen text-text-primary lg:flex">
       <UpgradePrompt onOpenChange={setUpgradeOpen} open={upgradeOpen} />
 
-      <aside className="hidden w-60 shrink-0 flex-col border-r bg-bg-surface lg:flex">
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-bg-surface lg:flex">
         <div className="border-b px-5 py-6">
           <Link
             className="font-serif text-xl font-semibold text-brand"

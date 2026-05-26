@@ -45,10 +45,10 @@ export function PracticePage() {
 
   if (session.status === "loading") {
     return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-8">
+      <main className="min-h-screen px-6 py-8">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          <div className="h-16 animate-pulse rounded-xl border bg-bg-surface" />
-          <div className="h-[520px] animate-pulse rounded-2xl border bg-bg-surface" />
+          <div className="h-16 animate-pulse rounded-md border border-border bg-bg-surface" />
+          <div className="h-[520px] animate-pulse rounded-lg border border-border bg-bg-sheet" />
         </div>
       </main>
     );
@@ -56,7 +56,7 @@ export function PracticePage() {
 
   if (session.status === "error" && session.error) {
     return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-12">
+      <main className="min-h-screen px-6 py-12">
         <div className="mx-auto max-w-3xl space-y-4">
           <ErrorState
             backHref="/"
@@ -75,7 +75,7 @@ export function PracticePage() {
 
   if (session.questions.length === 0) {
     return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-12">
+      <main className="min-h-screen px-6 py-12">
         <div className="mx-auto max-w-3xl space-y-4">
           <EmptyState
             description="这个题库暂时没有可练习的题目。"

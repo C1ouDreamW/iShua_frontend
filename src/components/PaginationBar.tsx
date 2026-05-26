@@ -22,7 +22,7 @@ export function PaginationBar({
   return (
     <nav
       aria-label={ariaLabel}
-      className="flex flex-col items-center justify-between gap-3 rounded-xl border bg-bg-surface px-4 py-3 text-sm text-text-secondary sm:flex-row"
+      className="paper-panel flex flex-col items-center justify-between gap-3 px-4 py-3 text-sm text-text-secondary sm:flex-row"
     >
       <span>
         共 {total} {itemLabel} · 第 {current} / {totalPages} 页

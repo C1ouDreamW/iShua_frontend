@@ -24,34 +24,43 @@ export function PracticeComplete({
     answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-bg-canvas px-6 py-12">
-      <section className="w-full max-w-md rounded-2xl border bg-bg-surface p-8 text-center shadow-sm">
-        <p className="text-sm font-medium text-brand">练习完成✅</p>
+    <main className="flex min-h-screen items-center justify-center px-6 py-12">
+      <section className="paper-panel motion-safe:animate-complete-rise w-full max-w-md p-8 text-center">
+        <p className="text-sm font-medium tracking-wide text-brand">练习完成</p>
         <h1 className="mt-3 font-serif text-3xl font-semibold text-text-primary">
           {title}
         </h1>
-        <div className="mt-8 rounded-2xl bg-brand-muted p-6">
-          <p className="font-serif text-5xl font-semibold text-brand">
+        <div className="mt-8 border border-border bg-bg-sheet px-6 py-5 shadow-paper">
+          <p className="font-serif text-5xl font-semibold tabular-nums text-brand">
             {accuracy}%
           </p>
           <p className="mt-2 text-sm text-text-secondary">正确率</p>
         </div>
         <dl className="mt-6 grid grid-cols-3 gap-3 text-center">
-          <div className="rounded-xl border p-3">
+          <div
+            className="motion-safe:animate-stat-in border border-border bg-bg-surface p-3"
+            style={{ animationDelay: "var(--motion-stagger)" }}
+          >
             <dt className="text-xs text-text-muted">答对</dt>
-            <dd className="mt-1 text-xl font-semibold text-success">
+            <dd className="mt-1 text-xl font-semibold tabular-nums text-success">
               {correctCount}
             </dd>
           </div>
-          <div className="rounded-xl border p-3">
+          <div
+            className="motion-safe:animate-stat-in border border-border bg-bg-surface p-3"
+            style={{ animationDelay: "calc(2 * var(--motion-stagger))" }}
+          >
             <dt className="text-xs text-text-muted">答错</dt>
-            <dd className="mt-1 text-xl font-semibold text-error">
+            <dd className="mt-1 text-xl font-semibold tabular-nums text-error">
               {wrongCount}
             </dd>
           </div>
-          <div className="rounded-xl border p-3">
+          <div
+            className="motion-safe:animate-stat-in border border-border bg-bg-surface p-3"
+            style={{ animationDelay: "calc(3 * var(--motion-stagger))" }}
+          >
             <dt className="text-xs text-text-muted">未答</dt>
-            <dd className="mt-1 text-xl font-semibold text-text-secondary">
+            <dd className="mt-1 text-xl font-semibold tabular-nums text-text-secondary">
               {unansweredCount}
             </dd>
           </div>

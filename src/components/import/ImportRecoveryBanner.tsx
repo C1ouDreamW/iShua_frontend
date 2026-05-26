@@ -43,7 +43,7 @@ export function ImportRecoveryBanner({
     <section
       aria-label="进行中的导入任务"
       className={cn(
-        "rounded-2xl border border-brand/30 bg-brand-muted/40 px-4 py-4",
+        "paper-panel border-brand/30 bg-brand-muted/40 px-4 py-4",
       )}
     >
       <h2 className="text-sm font-semibold text-text-primary">进行中的导入</h2>
@@ -68,7 +68,7 @@ export function ImportRecoveryBanner({
         <ul className="mt-3 space-y-2">
           {parsedTasks.map((task) => (
             <li
-              className="flex flex-col gap-2 rounded-xl border bg-bg-surface px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+              className="paper-panel flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
               key={task.taskId ?? task.fileName}
             >
               <div className="min-w-0 text-sm">
@@ -94,7 +94,7 @@ export function ImportRecoveryBanner({
         <ul className={cn("space-y-2", parsedTasks.length > 0 && "mt-2")}>
           {inProgressTasks.map((task) => (
             <li
-              className="flex flex-col gap-2 rounded-xl border bg-bg-surface px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+              className="paper-panel flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-center sm:justify-between"
               key={task.taskId ?? task.fileName}
             >
               <div className="min-w-0 text-sm">

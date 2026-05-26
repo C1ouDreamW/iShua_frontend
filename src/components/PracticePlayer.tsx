@@ -4,11 +4,19 @@ import { Link } from "react-router-dom";
 import type { PracticeQuestion } from "@/api/practice";
 import { PracticeToast } from "@/components/PracticeToast";
 import type { PracticeAnswerRecord } from "@/hooks/usePracticeSession";
+import { usePracticeSheetEnter } from "@/hooks/usePracticeSheetEnter";
 import {
   formatAnswerJson,
   getQuestionOptions,
   isObjectiveQuestionType,
 } from "@/lib/practiceQuestion";
+import {
+  paperSheetClasses,
+  practiceAnalysisClasses,
+  practiceOptionClasses,
+  practiceOptionMarkerClasses,
+  practiceTypeBadgeClasses,
+} from "@/lib/practiceUi";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +48,7 @@ export function PracticePlayer({
   const question = questions[currentIndex];
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const focusedOptionIndex = useRef(0);
+  const sheetEnterClass = usePracticeSheetEnter(currentIndex);
 
   const options = useMemo(
     () => (question ? getQuestionOptions(question) : []),
@@ -102,14 +111,14 @@ export function PracticePlayer({
   }
 
   return (
-    <main className="min-h-screen bg-bg-canvas pb-28">
+    <main className="min-h-screen pb-28">
       <PracticeToast
         message="已加入错题本"
         onDismiss={onDismissWrongToast}
         visible={showWrongToast}
       />
 
-      <header className="sticky top-0 z-10 border-b bg-bg-surface/95 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
           <div className="min-w-0">
             <Button asChild size="sm" variant="ghost">
@@ -123,15 +132,20 @@ export function PracticePlayer({
             aria-live="polite"
             className="shrink-0 font-medium tabular-nums text-text-primary"
           >
-            {currentIndex + 1} / {questions.length}
+            <span className="text-text-muted">第 </span>
+            {currentIndex + 1}
+            <span className="text-text-muted"> / {questions.length} 题</span>
           </p>
         </div>
       </header>
 
       <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-8">
-        <article className="rounded-2xl border bg-bg-surface p-6 shadow-sm">
+        <article
+          className={paperSheetClasses(sheetEnterClass)}
+          key={question.id ?? currentIndex}
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="rounded-full bg-brand-muted px-3 py-1 text-xs font-medium text-brand">
+            <span className={practiceTypeBadgeClasses()}>
               {isManualGrading
                 ? "主观题"
                 : question.questionType === "MULTI"
@@ -154,7 +168,7 @@ export function PracticePlayer({
           </h2>
 
           {isManualGrading ? (
-            <p className="mt-8 rounded-lg border border-dashed bg-bg-canvas px-4 py-6 text-sm text-text-secondary">
+            <p className="mt-8 rounded-md border border-dashed border-border bg-bg-canvas px-4 py-6 text-sm text-text-secondary">
               暂不支持自动批改，请跳过本题继续练习。
             </p>
           ) : (
@@ -169,13 +183,7 @@ export function PracticePlayer({
                 return (
                   <button
                     aria-checked={selected}
-                    className={cn(
-                      "flex w-full items-start gap-3 rounded-lg border bg-bg-surface p-4 text-left transition-colors hover:border-brand/40 disabled:cursor-not-allowed",
-                      selected
-                        ? "border-brand bg-brand-muted shadow-sm"
-                        : "border-border",
-                      selected ? "border-l-[3px]" : "border-l",
-                    )}
+                    className={practiceOptionClasses(selected)}
                     disabled={record?.submitted || record?.submitting}
                     key={option.value}
                     onClick={() => onAnswerChange(option.value)}
@@ -185,7 +193,7 @@ export function PracticePlayer({
                     role={isMultiple ? "checkbox" : "radio"}
                     type="button"
                   >
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-muted text-sm font-semibold text-brand">
+                    <span className={practiceOptionMarkerClasses(selected)}>
                       {option.value}
                     </span>
                     <span className="leading-7 text-text-primary">
@@ -198,7 +206,7 @@ export function PracticePlayer({
           )}
 
           {record?.submitted ? (
-            <section className="mt-8 border-l-[3px] border-brand bg-brand-muted/50 py-4 pl-4">
+            <section className={practiceAnalysisClasses()}>
               <p
                 className={cn(
                   "font-medium",
@@ -226,41 +234,41 @@ export function PracticePlayer({
         </article>
       </section>
 
-      <footer className="fixed inset-x-0 bottom-0 border-t bg-bg-surface/95 backdrop-blur">
+      <footer className="fixed inset-x-0 bottom-0 border-t border-border bg-bg-surface/95 backdrop-blur-sm">
         <div className="mx-auto max-w-3xl px-6 py-4">
           <div className="grid grid-cols-3 gap-3">
-          <Button
-            disabled={currentIndex === 0}
-            onClick={() => onIndexChange(currentIndex - 1)}
-            variant="outline"
-          >
-            上一题
-          </Button>
-          <Button
-            disabled={
-              isManualGrading ||
-              !record ||
-              record.answer.length === 0 ||
-              record.submitted ||
-              record.submitting
-            }
-            onClick={onSubmit}
-          >
-            {record?.submitting ? "提交中…" : "提交"}
-          </Button>
-          <Button
-            onClick={() => {
-              if (currentIndex >= questions.length - 1) {
-                onComplete();
-                return;
+            <Button
+              disabled={currentIndex === 0}
+              onClick={() => onIndexChange(currentIndex - 1)}
+              variant="outline"
+            >
+              上一题
+            </Button>
+            <Button
+              disabled={
+                isManualGrading ||
+                !record ||
+                record.answer.length === 0 ||
+                record.submitted ||
+                record.submitting
               }
+              onClick={onSubmit}
+            >
+              {record?.submitting ? "提交中…" : "提交"}
+            </Button>
+            <Button
+              onClick={() => {
+                if (currentIndex >= questions.length - 1) {
+                  onComplete();
+                  return;
+                }
 
-              onIndexChange(currentIndex + 1);
-            }}
-            variant="outline"
-          >
-            {currentIndex >= questions.length - 1 ? "完成" : "下一题"}
-          </Button>
+                onIndexChange(currentIndex + 1);
+              }}
+              variant="outline"
+            >
+              {currentIndex >= questions.length - 1 ? "完成" : "下一题"}
+            </Button>
           </div>
         </div>
       </footer>

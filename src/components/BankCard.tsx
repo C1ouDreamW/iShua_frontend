@@ -29,16 +29,22 @@ export function BankCard({
   const detailPath = bankId ? `/app/manage/banks/${bankId}` : "#";
 
   return (
-    <article className="group flex min-h-52 flex-col justify-between rounded-xl border bg-bg-surface p-5 shadow-sm motion-safe:transition-all motion-safe:hover:-translate-y-0.5 hover:border-brand/20 hover:shadow-md">
+    <article
+      className={cn(
+        "paper-panel paper-panel-accent flex min-h-52 flex-col justify-between p-5",
+        "transition-[border-color,background-color] duration-100",
+        "hover:border-brand/30",
+      )}
+    >
       <div className="flex flex-col gap-3">
         {isOwned ? (
           <div className="flex items-center justify-between gap-3">
             <span
               className={cn(
-                "rounded-full px-2 py-0.5 text-xs font-medium",
+                "rounded-md border px-2 py-0.5 text-xs font-medium",
                 isPublic
-                  ? "bg-brand-muted text-brand"
-                  : "border text-text-secondary",
+                  ? "border-brand/30 bg-bg-sheet text-brand"
+                  : "border-border text-text-secondary",
               )}
             >
               {isPublic ? "公开" : "私有"}

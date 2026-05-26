@@ -414,7 +414,7 @@ export function ImportWizard({
         {STEPS.map((item, index) => (
           <div
             className={cn(
-              "flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm",
+              "flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm",
               index <= stepIndex
                 ? "border-brand bg-brand-muted text-brand"
                 : "text-text-muted",
@@ -443,7 +443,7 @@ export function ImportWizard({
         <section className="space-y-4">
           <div
             className={cn(
-              "flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed px-6 py-14 text-center transition-colors",
+              "flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed px-6 py-14 text-center transition-[border-color,background-color] duration-100",
               dragOver ? "border-brand bg-brand-muted/50" : "border-border bg-bg-surface",
             )}
             onDragLeave={() => setDragOver(false)}
@@ -501,7 +501,7 @@ export function ImportWizard({
       ) : null}
 
       {step === "parsing" ? (
-        <section className="flex flex-col items-center gap-4 rounded-2xl border bg-bg-surface px-6 py-16 text-center">
+        <section className="paper-panel flex flex-col items-center gap-4 px-6 py-16 text-center">
           <Loader2 aria-hidden="true" className="size-10 animate-spin text-brand" />
           <div>
             <h2 className="font-serif text-xl font-semibold text-text-primary">
@@ -575,7 +575,7 @@ export function ImportWizard({
       ) : null}
 
       {step === "complete" ? (
-        <section className="flex flex-col items-center gap-4 rounded-2xl border bg-bg-surface px-6 py-16 text-center">
+        <section className="paper-panel flex flex-col items-center gap-4 px-6 py-16 text-center">
           <CheckCircle2 aria-hidden="true" className="size-12 text-success" />
           <div>
             <h2 className="font-serif text-2xl font-semibold text-text-primary">

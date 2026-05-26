@@ -175,17 +175,17 @@ export function QuestionFormPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-10">
+      <main className="min-h-screen px-6 py-10">
         <div className="mx-auto max-w-3xl space-y-4">
           <div className="h-10 w-48 animate-pulse rounded-lg bg-bg-surface" />
-          <div className="h-[480px] animate-pulse rounded-2xl border bg-bg-surface" />
+          <div className="h-[480px] animate-pulse rounded-lg border border-border bg-bg-sheet" />
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-bg-canvas pb-28">
+    <main className="min-h-screen pb-28">
       <div className="mx-auto max-w-3xl px-6 py-10">
         <Button asChild className="mb-6" size="sm" variant="ghost">
           <Link to={detailPath}>← 返回题库详情</Link>
@@ -201,7 +201,7 @@ export function QuestionFormPage() {
         </header>
 
         <form
-          className="space-y-6 rounded-2xl border bg-bg-surface p-6 shadow-sm"
+          className="paper-panel space-y-6 p-6"
           onSubmit={(event) => {
             event.preventDefault();
             void handleSave();

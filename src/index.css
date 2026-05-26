@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap");
 @import "tailwindcss";
 @import "./styles/tokens.css";
+@import "./styles/paper.css";
 
 @layer base {
   * {
@@ -8,7 +9,6 @@
   }
 
   html {
-    background: var(--color-bg-canvas);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
@@ -28,6 +28,7 @@
   }
 
   #root {
+    isolation: isolate;
     min-height: 100vh;
   }
 }

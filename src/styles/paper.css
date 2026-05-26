@@ -1,0 +1,135 @@
+/* Paper canvas: grain on body only — do not paint #root (React mount node) */
+html,
+body {
+  background-color: var(--bg-canvas);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E"),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg-canvas) 92%, white) 0%,
+      var(--bg-canvas) 100%
+    );
+  background-blend-mode: multiply, normal;
+  background-size: 180px 180px, 100% 100%;
+}
+
+.paper-canvas {
+  background-color: var(--bg-canvas);
+}
+
+/* Practice sheet: ruled lines + left margin guide */
+.paper-sheet {
+  position: relative;
+  background-color: var(--bg-sheet);
+  box-shadow: var(--shadow-paper);
+}
+
+.paper-sheet.paper-ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--paper-line-height) - 1px),
+    var(--paper-line-color) calc(var(--paper-line-height) - 1px),
+    var(--paper-line-color) var(--paper-line-height)
+  );
+  background-size: 100% var(--paper-line-height);
+}
+
+.paper-sheet.paper-ruled::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2.75rem;
+  width: 1px;
+  background: color-mix(in srgb, var(--error) 35%, transparent);
+  pointer-events: none;
+}
+
+.paper-plain {
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-paper);
+}
+
+/* Panel: index card / lobby hero */
+.paper-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-paper);
+}
+
+.paper-panel-accent {
+  border-left: 4px solid var(--brand);
+}
+
+@keyframes sheet-enter-next {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheet-enter-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.motion-safe\:animate-sheet-next {
+  animation: sheet-enter-next var(--motion-page) cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion-safe\:animate-sheet-prev {
+  animation: sheet-enter-prev var(--motion-page) cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes complete-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.motion-safe\:animate-complete-rise {
+  animation: complete-rise var(--motion-page) cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes stat-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.motion-safe\:animate-stat-in {
+  animation: stat-fade-in var(--motion-expand) cubic-bezier(0.2, 0, 0, 1)
+    backwards;
+}
+
+.shadow-paper {
+  box-shadow: var(--shadow-paper);
+}

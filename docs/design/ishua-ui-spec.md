@@ -58,24 +58,27 @@
 
 ## 4. 设计系统
 
+> **修订（2026-05-26 · V1.1 纸页视觉）**：色板、圆角与纸质 utility 以 `src/styles/tokens.css`、`src/styles/paper.css` 为准；详见 `docs/design/ui-visual-upgrade-plan.md`。练习单页新增 `bg-sheet`、`.paper-sheet` / `.paper-panel`；选项选中改为左边线 + 浅底，不再大面积 `brand-muted` 药丸底。
+
 ### 4.1 Color
 
 | Token | 值 | 使用场景 |
 |-------|-----|----------|
-| `bg-canvas` | `#F7F5F0` | 页面背景 |
-| `bg-surface` | `#FFFFFF` | 卡片、抽屉、模态 |
-| `text-primary` | `#1A1A1A` | 题干、标题 |
-| `text-secondary` | `#5C5C5C` | 描述、辅助 |
-| `text-muted` | `#8A8A8A` | 占位、禁用文案 |
+| `bg-canvas` | `#F0EBE3` | 页面背景（纸堆） |
+| `bg-surface` | `#F7F4EC` | 卡片、抽屉、模态 |
+| `bg-sheet` | `#FFFEF9` | 练习单页 |
+| `text-primary` | `#1A1814` | 题干、标题 |
+| `text-secondary` | `#5C564C` | 描述、辅助 |
+| `text-muted` | `#8A8478` | 占位、禁用文案 |
 | `brand` | `#2D6A4F` | 主按钮、链接、进度条、选中左边框 |
 | `brand-hover` | `#245A43` | 主按钮 hover |
-| `brand-muted` | `#E8F0EC` | 选中选项浅底 |
+| `brand-muted` | `#E8F0EC` | 轻提示、导航选中（选项选中已不用满铺） |
 | `success` | `#2D8A5E` | 答对、完成态 |
 | `success-bg` | `#EAF5EF` | 答对区域背景 |
 | `error` | `#C45C4A` | 答错、破坏性操作 |
 | `error-bg` | `#FBF0EE` | 答错区域背景 |
 | `warning` | `#B8860B` | 409/429 提示 |
-| `border` | `#E5E2DC` | 分割、输入框边框 |
+| `border` | `#D4CFC4` | 分割、输入框边框 |
 
 **题型标签色（`TagQuestionType`）**
 

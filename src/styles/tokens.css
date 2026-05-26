@@ -1,9 +1,10 @@
 :root {
-  --bg-canvas: #f7f5f0;
-  --bg-surface: #ffffff;
-  --text-primary: #1a1a1a;
-  --text-secondary: #5c5c5c;
-  --text-muted: #8a8a8a;
+  --bg-canvas: #f0ebe3;
+  --bg-surface: #f7f4ec;
+  --bg-sheet: #fffef9;
+  --text-primary: #1a1814;
+  --text-secondary: #5c564c;
+  --text-muted: #8a8478;
   --brand: #2d6a4f;
   --brand-hover: #245a43;
   --brand-muted: #e8f0ec;
@@ -12,9 +13,21 @@
   --error: #c45c4a;
   --error-bg: #fbf0ee;
   --warning: #b8860b;
-  --border: #e5e2dc;
+  --border: #d4cfc4;
 
-  --radius: 0.75rem;
+  --radius: 0.25rem;
+  --radius-lg: 0.375rem;
+
+  --shadow-paper: 0 1px 0 rgba(26, 24, 20, 0.06);
+  --shadow-pressed: inset 0 1px 2px rgba(26, 24, 20, 0.08);
+
+  --motion-press: 100ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-page: 200ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-expand: 220ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-stagger: 35ms;
+
+  --paper-line-height: 2rem;
+  --paper-line-color: color-mix(in srgb, var(--brand) 12%, transparent);
 
   --background: var(--bg-canvas);
   --foreground: var(--text-primary);
@@ -26,7 +39,7 @@
   --primary-foreground: #ffffff;
   --secondary: var(--brand-muted);
   --secondary-foreground: var(--brand);
-  --muted: #f1eee7;
+  --muted: #ebe6dc;
   --muted-foreground: var(--text-secondary);
   --accent: var(--brand-muted);
   --accent-foreground: var(--brand);
@@ -39,6 +52,7 @@
 @theme inline {
   --color-bg-canvas: var(--bg-canvas);
   --color-bg-surface: var(--bg-surface);
+  --color-bg-sheet: var(--bg-sheet);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
@@ -73,10 +87,10 @@
 
   --font-sans: "Noto Sans SC", system-ui, sans-serif;
   --font-serif: "Noto Serif SC", "Source Serif 4", serif;
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: calc(var(--radius-lg) + 2px);
 }
 
 @media (prefers-reduced-motion: reduce) {

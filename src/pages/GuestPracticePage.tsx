@@ -7,9 +7,17 @@ import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { Button } from "@/components/ui/button";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import { usePracticeSheetEnter } from "@/hooks/usePracticeSheetEnter";
 import { buildLoginRedirect } from "@/lib/navigation";
 import { gradeAnswer } from "@/lib/gradeAnswer";
 import { parseOptionsJson } from "@/lib/parseOptionsJson";
+import {
+  paperSheetClasses,
+  practiceAnalysisClasses,
+  practiceOptionClasses,
+  practiceOptionMarkerClasses,
+  practiceTypeBadgeClasses,
+} from "@/lib/practiceUi";
 import { cn } from "@/lib/utils";
 
 type AnswerRecord = {
@@ -80,6 +88,7 @@ export function GuestPracticePage() {
     loading: true,
     questions: [],
   });
+  const sheetEnterClass = usePracticeSheetEnter(currentIndex);
 
   useEffect(() => {
     let ignore = false;
@@ -213,10 +222,10 @@ export function GuestPracticePage() {
 
   if (state.loading) {
     return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-8">
+      <main className="min-h-screen px-6 py-8">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          <div className="h-16 animate-pulse rounded-xl border bg-bg-surface" />
-          <div className="h-[520px] animate-pulse rounded-2xl border bg-bg-surface" />
+          <div className="h-16 animate-pulse rounded-md border border-border bg-bg-surface" />
+          <div className="h-[520px] animate-pulse rounded-lg border border-border bg-bg-sheet" />
         </div>
       </main>
     );
@@ -224,7 +233,7 @@ export function GuestPracticePage() {
 
   if (state.error) {
     return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-12">
+      <main className="min-h-screen px-6 py-12">
         <div className="mx-auto max-w-3xl">
           <ErrorState backHref="/" message={state.error} />
         </div>
@@ -234,7 +243,7 @@ export function GuestPracticePage() {
 
   if (!question || state.questions.length === 0) {
     return (
-      <main className="min-h-screen bg-bg-canvas px-6 py-12">
+      <main className="min-h-screen px-6 py-12">
         <div className="mx-auto max-w-3xl space-y-4">
           <EmptyState
             description="这个公开题库暂时没有可练习的题目。"
@@ -253,8 +262,8 @@ export function GuestPracticePage() {
   const isMultiple = question.questionType === "MULTI";
 
   return (
-    <main className="min-h-screen bg-bg-canvas pb-28">
-      <header className="sticky top-0 z-10 border-b bg-bg-surface/95 backdrop-blur">
+    <main className="min-h-screen pb-28">
+      <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
           <div className="min-w-0">
             <Button asChild size="sm" variant="ghost">
@@ -282,9 +291,12 @@ export function GuestPracticePage() {
       </header>
 
       <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-8">
-        <article className="rounded-2xl border bg-bg-surface p-6 shadow-sm">
+        <article
+          className={paperSheetClasses(sheetEnterClass)}
+          key={question.id ?? currentIndex}
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="rounded-full bg-brand-muted px-3 py-1 text-xs font-medium text-brand">
+            <span className={practiceTypeBadgeClasses()}>
               {question.questionType === "MULTI"
                 ? "多选"
                 : question.questionType === "JUDGE"
@@ -311,20 +323,14 @@ export function GuestPracticePage() {
               return (
                 <button
                   aria-checked={selected}
-                  className={cn(
-                    "flex w-full items-start gap-3 rounded-lg border bg-bg-surface p-4 text-left transition-colors hover:border-brand/40 disabled:cursor-not-allowed",
-                    selected
-                      ? "border-brand bg-brand-muted shadow-sm"
-                      : "border-border",
-                    selected ? "border-l-[3px]" : "border-l",
-                  )}
+                  className={practiceOptionClasses(selected)}
                   disabled={record?.submitted}
                   key={option.value}
                   onClick={() => updateCurrentAnswer(option.value)}
                   role={isMultiple ? "checkbox" : "radio"}
                   type="button"
                 >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-muted text-sm font-semibold text-brand">
+                  <span className={practiceOptionMarkerClasses(selected)}>
                     {option.value}
                   </span>
                   <span className="leading-7 text-text-primary">
@@ -336,7 +342,7 @@ export function GuestPracticePage() {
           </div>
 
           {record?.submitted ? (
-            <section className="mt-8 border-l-[3px] border-brand bg-brand-muted/50 py-4 pl-4">
+            <section className={practiceAnalysisClasses()}>
               <p
                 className={cn(
                   "font-medium",
@@ -356,7 +362,7 @@ export function GuestPracticePage() {
         </article>
       </section>
 
-      <footer className="fixed inset-x-0 bottom-0 border-t bg-bg-surface/95 backdrop-blur">
+      <footer className="fixed inset-x-0 bottom-0 border-t border-border bg-bg-surface/95 backdrop-blur-sm">
         <div className="mx-auto grid max-w-3xl grid-cols-3 gap-3 px-6 py-4">
           <Button
             disabled={currentIndex === 0}

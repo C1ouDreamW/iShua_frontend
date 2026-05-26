@@ -19,7 +19,7 @@ export function QuestionList({
     <ul className="flex flex-col gap-3">
       {questions.map((question) => (
         <li
-          className="rounded-xl border bg-bg-surface p-4 shadow-sm"
+          className="paper-panel p-4"
           key={question.id ?? `${question.stem}-${question.sortNo}`}
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

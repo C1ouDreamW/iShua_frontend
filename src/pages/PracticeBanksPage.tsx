@@ -173,7 +173,7 @@ export function PracticeBanksPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
             <div
-              className="min-h-52 animate-pulse rounded-xl border bg-bg-surface"
+              className="paper-panel min-h-52 animate-pulse"
               key={index}
             />
           ))}

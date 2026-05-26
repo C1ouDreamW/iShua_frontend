@@ -1,7 +1,6 @@
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
-import { AUTH_EXPIRED_MESSAGE } from "@/lib/apiErrors";
 import { setAuthFlash } from "@/lib/authFlash";
 import { buildLoginRedirect } from "@/lib/navigation";
 
@@ -9,6 +8,9 @@ export const AUTH_TOKEN_KEY = "ishua_token";
 const AUTH_USER_KEY = "ishua_user";
 
 export const API_OUTAGE_MESSAGE = "API接口故障，请联系管理员";
+
+/** Kept here to avoid circular import with @/lib/apiErrors */
+const AUTH_EXPIRED_MESSAGE = "登录已过期，请重新登录。";
 
 export type Result<T> = {
   code: number;

@@ -8,9 +8,9 @@ type LogoMarkProps = {
 };
 
 const sizeClass: Record<NonNullable<LogoMarkProps["size"]>, string> = {
-  lg: "size-16 rounded-2xl",
-  md: "size-20 rounded-3xl",
-  sm: "size-12 rounded-xl",
+  lg: "size-16 rounded-md",
+  md: "size-20 rounded-lg",
+  sm: "size-12 rounded-md",
 };
 
 export function LogoMark({ size = "md", className, faded = false }: LogoMarkProps) {
@@ -19,7 +19,7 @@ export function LogoMark({ size = "md", className, faded = false }: LogoMarkProp
       alt="iShua"
       className={cn(
         sizeClass[size],
-        "object-contain shadow-sm",
+        "border border-border object-contain shadow-paper",
         faded && "opacity-40 grayscale",
         className,
       )}

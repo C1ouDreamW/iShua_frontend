@@ -27,7 +27,7 @@ export function AppToastViewport() {
       {toast ? (
         <p
           className={cn(
-            "rounded-full border px-4 py-2 text-sm font-medium shadow-md",
+            "rounded-md border border-border px-4 py-2 text-sm font-medium shadow-paper",
             toast.variant === "destructive"
               ? "border-error/30 bg-error-bg text-error"
               : "border-border bg-bg-surface text-text-primary",

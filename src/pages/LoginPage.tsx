@@ -66,9 +66,9 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-bg-canvas px-6 py-12">
-      <section className="grid w-full max-w-5xl gap-8 rounded-3xl border bg-bg-surface p-6 shadow-sm md:grid-cols-[1fr_420px] md:p-8">
-        <div className="flex min-h-72 flex-col justify-between rounded-2xl bg-brand p-8 text-white">
+    <main className="flex min-h-screen items-center justify-center px-6 py-12">
+      <section className="paper-panel grid w-full max-w-5xl gap-8 p-6 md:grid-cols-[1fr_420px] md:p-8">
+        <div className="flex min-h-72 flex-col justify-between rounded-lg bg-brand p-8 text-white shadow-paper">
           <div>
             <Button asChild variant="secondary">
               <Link to="/">返回大厅</Link>

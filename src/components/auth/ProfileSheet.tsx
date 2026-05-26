@@ -51,7 +51,7 @@ export function ProfileSheet({
             <p className="mt-1 text-sm text-text-secondary">
               @{user?.username ?? "—"}
             </p>
-            <span className="mt-2 inline-flex rounded-full bg-brand-muted px-2 py-0.5 text-xs font-medium text-brand">
+            <span className="mt-2 inline-flex rounded-md border border-border bg-bg-sheet px-2 py-0.5 text-xs font-medium text-brand">
               {roleLabel}
             </span>
           </div>
@@ -66,7 +66,7 @@ export function ProfileSheet({
         </div>
 
         {!isPremiumOrAbove(role) ? (
-          <div className="mb-6 rounded-xl border bg-bg-canvas p-4 text-sm leading-6 text-text-secondary">
+          <div className="paper-panel mb-6 bg-bg-sheet p-4 text-sm leading-6 text-text-secondary">
             <p className="font-medium text-text-primary">升级 PREMIUM</p>
             <p className="mt-2">
               开通后可创建题库、管理试题并使用 AI 导入。联系管理员：

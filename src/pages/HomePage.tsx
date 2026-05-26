@@ -81,10 +81,19 @@ export function HomePage() {
   }, [pageSize, state.total]);
 
   return (
-    <main className="min-h-screen bg-bg-canvas">
+    <main className="min-h-screen">
       <section className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
-        <header className="relative overflow-hidden rounded-2xl border bg-bg-surface p-8 shadow-sm">
-          <div className="pointer-events-none absolute -right-12 -top-16 size-48 rounded-full bg-brand-muted blur-3xl" />
+        <header className="paper-panel relative overflow-hidden p-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute right-6 top-6 font-serif text-6xl font-semibold leading-none text-border/80"
+          >
+            §
+          </div>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-border"
+          />
           <div className="relative flex flex-col gap-8">
             <div className="flex items-start justify-between gap-6">
               <div className="flex flex-col gap-3">
@@ -101,7 +110,7 @@ export function HomePage() {
               {authLoading ? (
                 <div
                   aria-hidden
-                  className="h-10 w-28 animate-pulse rounded-lg border bg-bg-surface"
+                  className="h-10 w-28 animate-pulse rounded-md border border-border bg-bg-surface"
                 />
               ) : isAuthenticated ? (
                 <LobbyAuthenticatedActions
@@ -154,7 +163,7 @@ export function HomePage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
                 <div
-                  className="min-h-52 animate-pulse rounded-xl border bg-bg-surface p-5"
+                  className="paper-panel min-h-52 animate-pulse p-5"
                   key={index}
                 />
               ))}

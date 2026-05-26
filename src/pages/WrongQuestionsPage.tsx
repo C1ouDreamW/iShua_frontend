@@ -137,7 +137,7 @@ export function WrongQuestionsPage() {
         <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
-              className="h-24 animate-pulse rounded-xl border bg-bg-surface"
+              className="paper-panel h-24 animate-pulse"
               key={index}
             />
           ))}

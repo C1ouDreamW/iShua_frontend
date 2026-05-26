@@ -124,7 +124,7 @@ export function PreviewQuestionTable({
 
         return (
           <section
-            className="rounded-xl border bg-bg-surface p-4 shadow-sm"
+            className="paper-panel p-4"
             key={`panel-${question.key}`}
           >
             <div className="mb-4 flex items-center justify-between gap-3">

@@ -18,7 +18,7 @@ export function ErrorState({
   backLabel = "返回大厅",
 }: ErrorStateProps) {
   return (
-    <div className="flex min-h-64 flex-col items-center justify-center gap-4 rounded-xl border bg-error-bg px-6 py-12 text-center">
+    <div className="paper-panel flex min-h-64 flex-col items-center justify-center gap-4 border-error/25 bg-error-bg px-6 py-12 text-center">
       <div>
         <h2 className="font-serif text-2xl font-semibold text-error">
           {title}

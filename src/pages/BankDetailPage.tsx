@@ -202,7 +202,7 @@ export function BankDetailPage() {
   if (bankLoading) {
     return (
       <section className="mx-auto max-w-4xl px-6 py-10">
-        <div className="h-64 animate-pulse rounded-xl border bg-bg-surface" />
+        <div className="paper-panel h-64 animate-pulse" />
       </section>
     );
   }
@@ -308,7 +308,7 @@ export function BankDetailPage() {
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, index) => (
               <div
-                className="h-20 animate-pulse rounded-xl border bg-bg-surface"
+                className="paper-panel h-20 animate-pulse"
                 key={index}
               />
             ))}
