@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { submitAnswer, type PracticeQuestion } from "@/api/practice";
+import {
+  revealReferenceAnswer,
+  submitAnswer,
+  type PracticeQuestion,
+} from "@/api/practice";
 import { listWrongPractice } from "@/api/wrong";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { isObjectiveQuestionType } from "@/lib/practiceQuestion";
@@ -76,6 +80,10 @@ export function useWrongPracticeSession(filterBankId?: number) {
             return item;
           }
 
+          if (question.questionType === "SHORT_ANSWER") {
+            return { ...item, answer: value.trim() ? [value] : [] };
+          }
+
           if (question.questionType === "MULTI") {
             const hasValue = item.answer.includes(value);
             return {
@@ -108,10 +116,6 @@ export function useWrongPracticeSession(filterBankId?: number) {
       return;
     }
 
-    if (!isObjectiveQuestionType(question.questionType)) {
-      return;
-    }
-
     setSubmitError(null);
     setRecords((items) =>
       items.map((item, index) =>
@@ -120,6 +124,27 @@ export function useWrongPracticeSession(filterBankId?: number) {
     );
 
     try {
+      if (!isObjectiveQuestionType(question.questionType)) {
+        const result = await revealReferenceAnswer(bankId, question.id);
+
+        setRecords((items) =>
+          items.map((item, index) =>
+            index === currentIndex
+              ? {
+                  ...item,
+                  analysis: result.analysis ?? null,
+                  answerJson: result.answerJson ?? null,
+                  correct: null,
+                  needsManualGrading: true,
+                  submitted: true,
+                  submitting: false,
+                }
+              : item,
+          ),
+        );
+        return;
+      }
+
       const result = await submitAnswer(bankId, question.id, record.answer);
 
       setRecords((items) =>

@@ -52,6 +52,7 @@ export function WrongPracticePlayer({
     ? !isObjectiveQuestionType(question.questionType)
     : false;
   const isMultiple = question?.questionType === "MULTI";
+  const shortAnswerValue = record?.answer[0] ?? "";
 
   useEffect(() => {
     focusedOptionIndex.current = 0;
@@ -143,7 +144,9 @@ export function WrongPracticePlayer({
             </span>
             <span className="text-sm text-text-muted">
               {isManualGrading
-                ? "暂不支持自动批改"
+                ? record?.submitted
+                  ? "已显示参考答案"
+                  : "作答后可查看参考答案"
                 : record?.submitted
                   ? "已提交"
                   : "选择后提交查看解析"}
@@ -155,9 +158,22 @@ export function WrongPracticePlayer({
           </h2>
 
           {isManualGrading ? (
-            <p className="mt-8 rounded-md border border-dashed border-border bg-bg-canvas px-4 py-6 text-sm text-text-secondary">
-              暂不支持自动批改，请跳过本题继续练习。
-            </p>
+            <div className="mt-8 flex flex-col gap-3">
+              <label
+                className="text-sm font-medium text-text-secondary"
+                htmlFor={`wrong-short-answer-${question.id ?? currentIndex}`}
+              >
+                我的答案
+              </label>
+              <textarea
+                className="min-h-36 rounded-md border border-border bg-bg-canvas px-4 py-3 text-sm leading-7 text-text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-70"
+                disabled={record?.submitted || record?.submitting}
+                id={`wrong-short-answer-${question.id ?? currentIndex}`}
+                onChange={(event) => onAnswerChange(event.target.value)}
+                placeholder="在这里写下你的答案要点，再查看参考答案。"
+                value={shortAnswerValue}
+              />
+            </div>
           ) : (
             <div
               aria-label="答案选项"
@@ -197,25 +213,26 @@ export function WrongPracticePlayer({
               <p
                 className={cn(
                   "font-medium",
-                  record.correct ? "text-success" : "text-error",
+                  record.needsManualGrading
+                    ? "text-text-primary"
+                    : record.correct
+                      ? "text-success"
+                      : "text-error",
                 )}
               >
                 {record.needsManualGrading
-                  ? "需人工批改"
+                  ? "已显示参考答案"
                   : record.correct
                     ? "✓ 回答正确"
                     : "✗ 回答错误"}
               </p>
-              {!record.needsManualGrading ? (
-                <>
-                  <p className="mt-2 text-sm text-text-secondary">
-                    正确答案：{formatAnswerJson(record.answerJson)}
-                  </p>
-                  <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-text-secondary">
-                    解析：{record.analysis || "暂无解析。"}
-                  </p>
-                </>
-              ) : null}
+              <p className="mt-2 text-sm text-text-secondary">
+                {record.needsManualGrading ? "参考答案" : "正确答案"}：
+                {formatAnswerJson(record.answerJson)}
+              </p>
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-text-secondary">
+                解析：{record.analysis || "暂无解析。"}
+              </p>
             </section>
           ) : null}
         </article>
@@ -233,7 +250,6 @@ export function WrongPracticePlayer({
             </Button>
             <Button
               disabled={
-                isManualGrading ||
                 !record ||
                 record.answer.length === 0 ||
                 record.submitted ||
@@ -241,7 +257,13 @@ export function WrongPracticePlayer({
               }
               onClick={onSubmit}
             >
-              {record?.submitting ? "提交中…" : "提交"}
+              {record?.submitting
+                ? isManualGrading
+                  ? "加载中…"
+                  : "提交中…"
+                : isManualGrading
+                  ? "显示答案"
+                  : "提交"}
             </Button>
             <Button
               onClick={() => {

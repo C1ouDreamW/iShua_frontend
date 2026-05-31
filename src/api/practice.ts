@@ -3,6 +3,8 @@ import type { components } from "@/types/api";
 
 export type PracticeQuestion = components["schemas"]["PracticeQuestionVO"];
 export type AnswerSubmitResult = components["schemas"]["AnswerSubmitResultVO"];
+export type PracticeReferenceAnswer =
+  components["schemas"]["PracticeReferenceAnswerVO"];
 
 export function listPracticeQuestions(bankId: number) {
   return request<PracticeQuestion[] | null>(
@@ -21,5 +23,11 @@ export function submitAnswer(
       body: { userAnswer },
       method: "POST",
     },
+  );
+}
+
+export function revealReferenceAnswer(bankId: number, questionId: number) {
+  return request<PracticeReferenceAnswer>(
+    `/api/v1/practice/banks/${bankId}/questions/${questionId}/reference`,
   );
 }
