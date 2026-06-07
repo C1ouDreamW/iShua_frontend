@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { PageStub } from "@/components/PageStub";
 import { AppShell } from "@/layouts/AppShell";
+import { AdminAiImportStatsPage } from "@/pages/AdminAiImportStatsPage";
 import { AdminPlaceholderPage } from "@/pages/AdminPlaceholderPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
 import { GuestPracticePage } from "@/pages/GuestPracticePage";
@@ -100,6 +101,14 @@ export const router = createBrowserRouter([
         element: (
           <RoleGate minRole="ADMIN">
             <AdminPlaceholderPage />
+          </RoleGate>
+        ),
+      },
+      {
+        path: "admin/ai-import/stats",
+        element: (
+          <RoleGate minRole="ADMIN">
+            <AdminAiImportStatsPage />
           </RoleGate>
         ),
       },

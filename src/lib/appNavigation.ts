@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   BookmarkX,
   Compass,
   FolderCog,
@@ -54,6 +55,13 @@ export const APP_SIDEBAR_NAV: AppNavItem[] = [
     label: "用户管理",
     to: "/app/admin/users",
     icon: Shield,
+    adminOnly: true,
+  },
+  {
+    id: "admin-ai-import-stats",
+    label: "导入统计",
+    to: "/app/admin/ai-import/stats",
+    icon: BarChart3,
     adminOnly: true,
   },
 ];
