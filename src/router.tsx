@@ -4,6 +4,7 @@ import { RoleGate } from "@/components/auth/RoleGate";
 import { PageStub } from "@/components/PageStub";
 import { AppShell } from "@/layouts/AppShell";
 import { AdminAiImportPage } from "@/pages/AdminAiImportPage";
+import { AdminAiImportStatsPage } from "@/pages/AdminAiImportStatsPage";
 import { AdminUsersPage } from "@/pages/AdminUsersPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
 import { GuestPracticePage } from "@/pages/GuestPracticePage";
