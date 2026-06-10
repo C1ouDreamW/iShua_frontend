@@ -112,6 +112,14 @@ export const router = createBrowserRouter([
           </RoleGate>
         ),
       },
+      {
+        path: "admin/ai-import/stats",
+        element: (
+          <RoleGate minRole="ADMIN">
+            <AdminAiImportStatsPage />
+          </RoleGate>
+        ),
+      },
     ],
   },
   {

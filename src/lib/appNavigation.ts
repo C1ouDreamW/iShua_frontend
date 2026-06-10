@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   BookmarkX,
   Bot,
   Compass,
