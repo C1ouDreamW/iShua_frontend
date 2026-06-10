@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import type { PracticeQuestion } from "@/api/practice";
+import { QuestionTransition } from "@/components/motion/QuestionTransition";
+import { Reveal } from "@/components/motion/Reveal";
 import { PracticeToast } from "@/components/PracticeToast";
 import type { PracticeAnswerRecord } from "@/hooks/usePracticeSession";
-import { usePracticeSheetEnter } from "@/hooks/usePracticeSheetEnter";
 import {
   formatAnswerJson,
   getQuestionOptions,
@@ -48,7 +49,6 @@ export function PracticePlayer({
   const question = questions[currentIndex];
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const focusedOptionIndex = useRef(0);
-  const sheetEnterClass = usePracticeSheetEnter(currentIndex);
 
   const options = useMemo(
     () => (question ? getQuestionOptions(question) : []),
@@ -141,9 +141,10 @@ export function PracticePlayer({
       </header>
 
       <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-8">
-        <article
-          className={paperSheetClasses(sheetEnterClass)}
-          key={question.id ?? currentIndex}
+        <QuestionTransition
+          className={paperSheetClasses()}
+          currentIndex={currentIndex}
+          questionKey={question.id ?? currentIndex}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className={practiceTypeBadgeClasses()}>
@@ -222,7 +223,7 @@ export function PracticePlayer({
           )}
 
           {record?.submitted ? (
-            <section className={practiceAnalysisClasses()}>
+            <Reveal as="section" className={practiceAnalysisClasses()}>
               <p
                 className={cn(
                   "font-medium",
@@ -246,9 +247,9 @@ export function PracticePlayer({
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-text-secondary">
                 解析：{record.analysis || "暂无解析。"}
               </p>
-            </section>
+            </Reveal>
           ) : null}
-        </article>
+        </QuestionTransition>
       </section>
 
       <footer className="fixed inset-x-0 bottom-0 border-t border-border bg-bg-surface/95 backdrop-blur-sm">

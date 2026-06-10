@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2, Loader2, Upload } from "lucide-react";
@@ -11,6 +12,7 @@ import { batchImportQuestions } from "@/api/banks";
 import { ImportRecoveryBanner } from "@/components/import/ImportRecoveryBanner";
 import { PreviewQuestionTable } from "@/components/import/PreviewQuestionTable";
 import { Button } from "@/components/ui/button";
+import { DURATION, EASE_OUT, slideVariants } from "@/lib/motion";
 import { useAiImportRecovery } from "@/hooks/useAiImportRecovery";
 import {
   clearImportSessionTaskId,
@@ -68,6 +70,8 @@ export function ImportWizard({
   );
   const [importedCount, setImportedCount] = useState(0);
   const [dragOver, setDragOver] = useState(false);
+  const [prevStepIndex, setPrevStepIndex] = useState(0);
+  const [stepDirection, setStepDirection] = useState<1 | -1>(1);
 
   const {
     parsedTasks,
@@ -408,24 +412,52 @@ export function ImportWizard({
   const stepIndex = STEPS.findIndex((item) => item.id === step);
   const showRecoveryBanner = step === "upload" && !uploading;
 
+  if (stepIndex !== prevStepIndex) {
+    setStepDirection(stepIndex > prevStepIndex ? 1 : -1);
+    setPrevStepIndex(stepIndex);
+  }
+
   return (
     <div className="space-y-8">
-      <nav aria-label="导入步骤" className="flex flex-wrap gap-2">
-        {STEPS.map((item, index) => (
-          <div
-            className={cn(
-              "flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm",
-              index <= stepIndex
-                ? "border-brand bg-brand-muted text-brand"
-                : "text-text-muted",
-            )}
-            key={item.id}
-          >
-            <span className="font-medium tabular-nums">{index + 1}</span>
-            {item.label}
-          </div>
-        ))}
-      </nav>
+      <div className="space-y-3">
+        <nav aria-label="导入步骤" className="flex flex-wrap gap-2">
+          {STEPS.map((item, index) => {
+            const reached = index <= stepIndex;
+            const isCurrent = index === stepIndex;
+
+            return (
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors duration-200",
+                  reached
+                    ? "border-brand bg-brand-muted text-brand"
+                    : "border-border text-text-muted",
+                )}
+                key={item.id}
+              >
+                <motion.span
+                  animate={isCurrent ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                  className="font-medium tabular-nums"
+                  transition={{ duration: DURATION.expand, ease: EASE_OUT }}
+                >
+                  {index + 1}
+                </motion.span>
+                {item.label}
+              </div>
+            );
+          })}
+        </nav>
+        <div className="h-0.5 w-full overflow-hidden rounded-full bg-border">
+          <motion.div
+            animate={{
+              width: `${(stepIndex / (STEPS.length - 1)) * 100}%`,
+            }}
+            className="h-full rounded-full bg-brand"
+            initial={false}
+            transition={{ duration: DURATION.page, ease: EASE_OUT }}
+          />
+        </div>
+      </div>
 
       {showRecoveryBanner ? (
         <ImportRecoveryBanner
@@ -439,6 +471,15 @@ export function ImportWizard({
         />
       ) : null}
 
+      <AnimatePresence custom={stepDirection} initial={false} mode="wait">
+        <motion.div
+          animate="center"
+          custom={stepDirection}
+          exit="exit"
+          initial="enter"
+          key={step}
+          variants={slideVariants}
+        >
       {step === "upload" ? (
         <section className="space-y-4">
           <div
@@ -507,9 +548,18 @@ export function ImportWizard({
             <h2 className="font-serif text-xl font-semibold text-text-primary">
               正在解析，请稍候…
             </h2>
-            <p className="mt-2 text-sm text-text-secondary">
-              {statusMessage || "AI 正在读取文件并生成题目预览。"}
-            </p>
+            <AnimatePresence initial={false} mode="wait">
+              <motion.p
+                animate={{ opacity: 1 }}
+                className="mt-2 text-sm text-text-secondary"
+                exit={{ opacity: 0 }}
+                initial={{ opacity: 0 }}
+                key={statusMessage || "default"}
+                transition={{ duration: DURATION.press, ease: EASE_OUT }}
+              >
+                {statusMessage || "AI 正在读取文件并生成题目预览。"}
+              </motion.p>
+            </AnimatePresence>
             <p className="mt-2 text-xs text-text-muted">
               可关闭页面，稍后在「进行中的导入」继续。
             </p>
@@ -576,7 +626,13 @@ export function ImportWizard({
 
       {step === "complete" ? (
         <section className="paper-panel flex flex-col items-center gap-4 px-6 py-16 text-center">
-          <CheckCircle2 aria-hidden="true" className="size-12 text-success" />
+          <motion.div
+            animate={{ scale: 1, opacity: 1 }}
+            initial={{ scale: 0.6, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 18 }}
+          >
+            <CheckCircle2 aria-hidden="true" className="size-12 text-success" />
+          </motion.div>
           <div>
             <h2 className="font-serif text-2xl font-semibold text-text-primary">
               已导入 {importedCount} 题
@@ -590,6 +646,8 @@ export function ImportWizard({
           </Button>
         </section>
       ) : null}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

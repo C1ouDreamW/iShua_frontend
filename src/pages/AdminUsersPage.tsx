@@ -6,6 +6,7 @@ import {
   updateAdminUserRole,
   type AdminUser,
 } from "@/api/admin";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PaginationBar } from "@/components/PaginationBar";
@@ -173,13 +174,14 @@ export function AdminUsersPage() {
               <span className="text-right">操作</span>
             </div>
 
-            <div className="divide-y divide-border">
+            <Stagger className="divide-y divide-border" key={current}>
               {usersState.users.map((user) => {
                 const isAdmin = user.role === "ADMIN";
                 const updating = updatingUserId === user.userId;
 
                 return (
-                  <article
+                  <StaggerItem
+                    as="article"
                     className="grid gap-3 px-4 py-4 text-sm md:grid-cols-[1.2fr_1fr_0.9fr_0.9fr_1.2fr] md:items-center"
                     key={user.userId ?? user.username}
                   >
@@ -215,10 +217,10 @@ export function AdminUsersPage() {
                         设为高级
                       </Button>
                     </div>
-                  </article>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </Stagger>
           </div>
 
           <PaginationBar

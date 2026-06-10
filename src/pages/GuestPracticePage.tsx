@@ -4,10 +4,12 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { getHotPracticeDetail, type Question, type QuestionBank } from "@/api/banks";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
+import { PageTransition } from "@/components/motion/PageTransition";
+import { QuestionTransition } from "@/components/motion/QuestionTransition";
+import { Reveal } from "@/components/motion/Reveal";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { Button } from "@/components/ui/button";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
-import { usePracticeSheetEnter } from "@/hooks/usePracticeSheetEnter";
 import { buildLoginRedirect } from "@/lib/navigation";
 import { gradeAnswer } from "@/lib/gradeAnswer";
 import { parseOptionsJson } from "@/lib/parseOptionsJson";
@@ -88,7 +90,6 @@ export function GuestPracticePage() {
     loading: true,
     questions: [],
   });
-  const sheetEnterClass = usePracticeSheetEnter(currentIndex);
 
   useEffect(() => {
     let ignore = false;
@@ -262,6 +263,7 @@ export function GuestPracticePage() {
   const isMultiple = question.questionType === "MULTI";
 
   return (
+    <PageTransition>
     <main className="min-h-screen pb-28">
       <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
@@ -291,9 +293,10 @@ export function GuestPracticePage() {
       </header>
 
       <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-8">
-        <article
-          className={paperSheetClasses(sheetEnterClass)}
-          key={question.id ?? currentIndex}
+        <QuestionTransition
+          className={paperSheetClasses()}
+          currentIndex={currentIndex}
+          questionKey={question.id ?? currentIndex}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className={practiceTypeBadgeClasses()}>
@@ -342,7 +345,7 @@ export function GuestPracticePage() {
           </div>
 
           {record?.submitted ? (
-            <section className={practiceAnalysisClasses()}>
+            <Reveal as="section" className={practiceAnalysisClasses()}>
               <p
                 className={cn(
                   "font-medium",
@@ -357,9 +360,9 @@ export function GuestPracticePage() {
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-text-secondary">
                 解析：{question.analysis || "暂无解析。"}
               </p>
-            </section>
+            </Reveal>
           ) : null}
-        </article>
+        </QuestionTransition>
       </section>
 
       <footer className="fixed inset-x-0 bottom-0 border-t border-border bg-bg-surface/95 backdrop-blur-sm">
@@ -393,5 +396,6 @@ export function GuestPracticePage() {
         </div>
       </footer>
     </main>
+    </PageTransition>
   );
 }

@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import {
   Link,
@@ -6,8 +7,11 @@ import {
   useLocation,
   useMatches,
   useNavigate,
+  useOutlet,
 } from "react-router-dom";
 import { User } from "lucide-react";
+
+import { fadeSlideUp } from "@/lib/motion";
 
 import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
 import {
@@ -36,6 +40,7 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const matches = useMatches();
+  const outlet = useOutlet();
   const { isAuthenticated, loading, logout, user } = useAuth();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -203,7 +208,17 @@ export function AppShell() {
         </a>
 
         <main className="flex-1 pb-20 lg:pb-0" id="main-content">
-          <Outlet />
+          <AnimatePresence initial={false} mode="wait">
+            <motion.div
+              animate="visible"
+              exit="exit"
+              initial="hidden"
+              key={location.pathname}
+              variants={fadeSlideUp}
+            >
+              {outlet}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         <MobileNavBar items={mobileNavItems} onItemClick={handleMobileNavClick} />

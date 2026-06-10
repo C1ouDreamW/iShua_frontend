@@ -1,8 +1,11 @@
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 import { pageMyBanks, pagePublicBanks, type QuestionBank } from "@/api/banks";
 import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
 import { BankCard } from "@/components/BankCard";
+import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PaginationBar } from "@/components/PaginationBar";
@@ -135,9 +138,9 @@ export function PracticeBanksPage() {
             <button
               aria-selected={isActive}
               className={cn(
-                "flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors",
+                "relative flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-brand-muted text-brand"
+                  ? "text-brand"
                   : "text-text-secondary hover:text-text-primary",
                 isPrivateLocked && "opacity-60",
               )}
@@ -146,9 +149,17 @@ export function PracticeBanksPage() {
               role="tab"
               type="button"
             >
-              {label}
+              {isActive ? (
+                <motion.span
+                  aria-hidden="true"
+                  className="absolute inset-0 rounded-md bg-brand-muted"
+                  layoutId="banks-tab-indicator"
+                  transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+                />
+              ) : null}
+              <span className="relative z-10">{label}</span>
               {isPrivateLocked ? (
-                <span className="ml-1 text-xs text-text-muted inline-flex items-center">
+                <span className="relative z-10 ml-1 text-xs text-text-muted inline-flex items-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="mr-0.5 inline-block h-3 w-3"
@@ -169,54 +180,62 @@ export function PracticeBanksPage() {
         })}
       </div>
 
-      {state.loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
-            <div
-              className="paper-panel min-h-52 animate-pulse"
-              key={index}
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {!state.loading && state.error ? (
-        <ErrorState
-          message={state.error}
-          onRetry={() => setReloadKey((key) => key + 1)}
-        />
-      ) : null}
-
-      {!state.loading && !state.error && state.banks.length === 0 ? (
-        <EmptyState
-          description={
-            tab === "public"
-              ? "当前还没有公开题库，请稍后再来或联系管理员。"
-              : canAccessPrivate
-                ? "你还没有私有题库。可在「管理题库」中创建。"
-                : "升级 PREMIUM 后可刷私有题库。"
-          }
-          title={tab === "public" ? "还没有公开题库" : "还没有私有题库"}
-        />
-      ) : null}
-
-      {!state.loading && !state.error && state.banks.length > 0 ? (
-        <>
+      <ContentCrossfade
+        stateKey={
+          state.loading
+            ? `loading-${tab}`
+            : state.error
+              ? `error-${tab}`
+              : state.banks.length === 0
+                ? `empty-${tab}`
+                : `content-${tab}-${current}`
+        }
+      >
+        {state.loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {state.banks.map((bank) => (
-              <BankCard bank={bank} key={bank.id ?? bank.title} />
+            {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
+              <div
+                className="paper-panel min-h-52 animate-pulse"
+                key={index}
+              />
             ))}
           </div>
-          <PaginationBar
-            ariaLabel={tab === "public" ? "公开题库分页" : "私有题库分页"}
-            current={current}
-            itemLabel="个题库"
-            onPageChange={setCurrent}
-            pageSize={pageSize}
-            total={state.total}
+        ) : state.error ? (
+          <ErrorState
+            message={state.error}
+            onRetry={() => setReloadKey((key) => key + 1)}
           />
-        </>
-      ) : null}
+        ) : state.banks.length === 0 ? (
+          <EmptyState
+            description={
+              tab === "public"
+                ? "当前还没有公开题库，请稍后再来或联系管理员。"
+                : canAccessPrivate
+                  ? "你还没有私有题库。可在「管理题库」中创建。"
+                  : "升级 PREMIUM 后可刷私有题库。"
+            }
+            title={tab === "public" ? "还没有公开题库" : "还没有私有题库"}
+          />
+        ) : (
+          <>
+            <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" key={`${tab}-${current}`}>
+              {state.banks.map((bank) => (
+                <StaggerItem key={bank.id ?? bank.title}>
+                  <BankCard bank={bank} />
+                </StaggerItem>
+              ))}
+            </Stagger>
+            <PaginationBar
+              ariaLabel={tab === "public" ? "公开题库分页" : "私有题库分页"}
+              current={current}
+              itemLabel="个题库"
+              onPageChange={setCurrent}
+              pageSize={pageSize}
+              total={state.total}
+            />
+          </>
+        )}
+      </ContentCrossfade>
     </section>
   );
 }

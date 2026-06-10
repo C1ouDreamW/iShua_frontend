@@ -43,17 +43,6 @@ body::before {
   background-size: 100% var(--paper-line-height);
 }
 
-.paper-sheet.paper-ruled::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 2.75rem;
-  width: 1px;
-  background: color-mix(in srgb, var(--error) 35%, transparent);
-  pointer-events: none;
-}
-
 .paper-plain {
   background-color: var(--bg-surface);
   box-shadow: var(--shadow-paper);
@@ -71,65 +60,63 @@ body::before {
   border-left: 4px solid var(--brand);
 }
 
-@keyframes sheet-enter-next {
-  from {
-    opacity: 0;
-    transform: translateX(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes sheet-enter-prev {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.motion-safe\:animate-sheet-next {
-  animation: sheet-enter-next var(--motion-page) cubic-bezier(0.2, 0, 0, 1);
-}
-
-.motion-safe\:animate-sheet-prev {
-  animation: sheet-enter-prev var(--motion-page) cubic-bezier(0.2, 0, 0, 1);
-}
-
-@keyframes complete-rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.motion-safe\:animate-complete-rise {
-  animation: complete-rise var(--motion-page) cubic-bezier(0.2, 0, 0, 1);
-}
-
-@keyframes stat-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.motion-safe\:animate-stat-in {
-  animation: stat-fade-in var(--motion-expand) cubic-bezier(0.2, 0, 0, 1)
-    backwards;
-}
-
 .shadow-paper {
   box-shadow: var(--shadow-paper);
+}
+
+/* Radix Dialog enter/exit (no tailwindcss-animate dependency) */
+@keyframes dialog-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-content-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
+[data-slot="dialog-overlay"][data-state="open"] {
+  animation: dialog-overlay-in var(--motion-page) cubic-bezier(0.2, 0, 0, 1);
+}
+
+[data-slot="dialog-overlay"][data-state="closed"] {
+  animation: dialog-overlay-out var(--motion-press) cubic-bezier(0.2, 0, 0, 1);
+}
+
+[data-slot="dialog-content"][data-state="open"] {
+  animation: dialog-content-in var(--motion-expand) cubic-bezier(0.2, 0, 0, 1);
+}
+
+[data-slot="dialog-content"][data-state="closed"] {
+  animation: dialog-content-out var(--motion-press) cubic-bezier(0.2, 0, 0, 1);
 }

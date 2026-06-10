@@ -19,6 +19,7 @@
     "class-variance-authority": "latest",
     "clsx": "latest",
     "lucide-react": "latest",
+    "motion": "^12.40.0",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest",

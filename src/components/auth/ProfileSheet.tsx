@@ -1,9 +1,10 @@
+import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { FolderCog, LogOut, X, type LucideIcon } from "lucide-react";
 
-import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { DURATION, EASE_OUT } from "@/lib/motion";
 import { isPremiumOrAbove, ROLE_LABEL, UPGRADE_CONTACT_EMAIL } from "@/lib/rbac";
 import { cn } from "@/lib/utils";
 
@@ -26,23 +27,29 @@ export function ProfileSheet({
       ? ROLE_LABEL[role as keyof typeof ROLE_LABEL]
       : "用户";
 
-  if (!open) {
-    return null;
-  }
-
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
-      <button
-        aria-label="关闭菜单"
-        className="absolute inset-0 bg-black/40"
-        onClick={() => onOpenChange(false)}
-        type="button"
-      />
-      <section
-        aria-label="我的"
-        className="absolute inset-x-0 bottom-0 rounded-t-2xl border bg-bg-surface p-6 pb-8 shadow-lg"
-        role="dialog"
-      >
+    <AnimatePresence>
+      {open ? (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <motion.button
+            animate={{ opacity: 1 }}
+            aria-label="关闭菜单"
+            className="absolute inset-0 bg-black/40"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            onClick={() => onOpenChange(false)}
+            transition={{ duration: DURATION.page, ease: EASE_OUT }}
+            type="button"
+          />
+          <motion.section
+            animate={{ y: 0 }}
+            aria-label="我的"
+            className="absolute inset-x-0 bottom-0 rounded-t-2xl border bg-bg-surface p-6 pb-8 shadow-lg"
+            exit={{ y: "100%" }}
+            initial={{ y: "100%" }}
+            role="dialog"
+            transition={{ duration: DURATION.expand, ease: EASE_OUT }}
+          >
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <p className="font-serif text-xl font-semibold text-text-primary">
@@ -101,8 +108,10 @@ export function ProfileSheet({
             退出登录
           </Button>
         </div>
-      </section>
-    </div>
+          </motion.section>
+        </div>
+      ) : null}
+    </AnimatePresence>
   );
 }
 

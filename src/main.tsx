@@ -1,3 +1,4 @@
+import { MotionConfig } from "motion/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
@@ -11,11 +12,13 @@ import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AppToastProvider>
-      <AuthProvider>
-        <AppToastViewport />
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </AppToastProvider>
+    <MotionConfig reducedMotion="user">
+      <AppToastProvider>
+        <AuthProvider>
+          <AppToastViewport />
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </AppToastProvider>
+    </MotionConfig>
   </StrictMode>,
 );

@@ -5,6 +5,8 @@ import { pageMyBanks, type QuestionBank } from "@/api/banks";
 import { BankFormDrawer } from "@/components/bank/BankFormDrawer";
 import { DeleteBankDialog } from "@/components/bank/DeleteBankDialog";
 import { BankCard } from "@/components/BankCard";
+import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PaginationBar } from "@/components/PaginationBar";
@@ -112,51 +114,58 @@ export function MyBanksPage() {
         <Button onClick={openCreate}>新建题库</Button>
       </header>
 
-      {state.loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
-            <div
-              className="paper-panel min-h-56 animate-pulse"
-              key={index}
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {!state.loading && state.error ? (
-        <ErrorState message={state.error} onRetry={refreshList} />
-      ) : null}
-
-      {!state.loading && !state.error && state.banks.length === 0 ? (
-        <EmptyState
-          description="点击「新建题库」创建第一个题库，随后可添加试题或开启 AI 导入。"
-          title="还没有题库"
-        />
-      ) : null}
-
-      {!state.loading && !state.error && state.banks.length > 0 ? (
-        <>
+      <ContentCrossfade
+        stateKey={
+          state.loading
+            ? "loading"
+            : state.error
+              ? "error"
+              : state.banks.length === 0
+                ? "empty"
+                : `content-${current}`
+        }
+      >
+        {state.loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {state.banks.map((bank) => (
-              <BankCard
-                bank={bank}
-                key={bank.id ?? bank.title}
-                onDelete={() => setDeletingBank(bank)}
-                onEdit={() => openEdit(bank)}
-                variant="owned"
+            {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
+              <div
+                className="paper-panel min-h-56 animate-pulse"
+                key={index}
               />
             ))}
           </div>
-          <PaginationBar
-            ariaLabel="管理题库分页"
-            current={current}
-            itemLabel="个题库"
-            onPageChange={setCurrent}
-            pageSize={pageSize}
-            total={state.total}
+        ) : state.error ? (
+          <ErrorState message={state.error} onRetry={refreshList} />
+        ) : state.banks.length === 0 ? (
+          <EmptyState
+            description="点击「新建题库」创建第一个题库，随后可添加试题或开启 AI 导入。"
+            title="还没有题库"
           />
-        </>
-      ) : null}
+        ) : (
+          <>
+            <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" key={current}>
+              {state.banks.map((bank) => (
+                <StaggerItem key={bank.id ?? bank.title}>
+                  <BankCard
+                    bank={bank}
+                    onDelete={() => setDeletingBank(bank)}
+                    onEdit={() => openEdit(bank)}
+                    variant="owned"
+                  />
+                </StaggerItem>
+              ))}
+            </Stagger>
+            <PaginationBar
+              ariaLabel="管理题库分页"
+              current={current}
+              itemLabel="个题库"
+              onPageChange={setCurrent}
+              pageSize={pageSize}
+              total={state.total}
+            />
+          </>
+        )}
+      </ContentCrossfade>
 
       <BankFormDrawer
         bank={editingBank}

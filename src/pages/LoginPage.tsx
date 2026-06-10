@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 
 import { ApiError } from "@/api/client";
 import { AuthForm } from "@/components/AuthForm";
+import { PageTransition } from "@/components/motion/PageTransition";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
 import { useAuth } from "@/hooks/useAuth";
@@ -67,7 +68,8 @@ export function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6 py-12">
-      <section className="paper-panel grid w-full max-w-5xl gap-8 p-6 md:grid-cols-[1fr_420px] md:p-8">
+      <PageTransition className="w-full max-w-5xl">
+      <section className="paper-panel grid w-full gap-8 p-6 md:grid-cols-[1fr_420px] md:p-8">
         <div className="flex min-h-72 flex-col justify-between rounded-lg bg-brand p-8 text-white shadow-paper">
           <div>
             <Button asChild variant="secondary">
@@ -102,6 +104,7 @@ export function LoginPage() {
           />
         </div>
       </section>
+      </PageTransition>
     </main>
   );
 }

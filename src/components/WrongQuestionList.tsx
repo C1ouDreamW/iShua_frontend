@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import type { WrongQuestion } from "@/api/wrong";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { RemoveWrongQuestionDialog } from "@/components/RemoveWrongQuestionDialog";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
@@ -89,9 +90,10 @@ export function WrongQuestionList({
         </Button>
       </div>
 
-      <ul className="flex flex-col gap-3">
+      <Stagger as="ul" className="flex flex-col gap-3">
         {records.map((item) => (
-          <li
+          <StaggerItem
+            as="li"
             className="paper-panel p-4"
             key={item.id ?? `${item.questionId}-${item.questionBankId}`}
           >
@@ -122,9 +124,9 @@ export function WrongQuestionList({
                 </Button>
               </div>
             </div>
-          </li>
+          </StaggerItem>
         ))}
-      </ul>
+      </Stagger>
 
       <RemoveWrongQuestionDialog
         onConfirm={() => void confirmRemove()}

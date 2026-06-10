@@ -7,6 +7,10 @@ import { LobbyAuthenticatedActions } from "@/components/LobbyAccountMenu";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { LogoMark } from "@/components/LogoMark";
+import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
+import { PageTransition } from "@/components/motion/PageTransition";
+import { Reveal } from "@/components/motion/Reveal";
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { PaginationBar } from "@/components/PaginationBar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -82,14 +86,14 @@ export function HomePage() {
 
   return (
     <main className="min-h-screen">
-      <section className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
+      <PageTransition className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
         <header className="paper-panel relative overflow-hidden p-8">
-          <div
+          <Reveal
             aria-hidden
             className="pointer-events-none absolute right-6 top-6 font-serif text-6xl font-semibold leading-none text-border/80"
           >
             §
-          </div>
+          </Reveal>
           <div
             aria-hidden
             className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-border"
@@ -107,29 +111,31 @@ export function HomePage() {
                   </p>
                 </div>
               </div>
-              {authLoading ? (
-                <div
-                  aria-hidden
-                  className="h-10 w-28 animate-pulse rounded-md border border-border bg-bg-surface"
-                />
-              ) : isAuthenticated ? (
-                <LobbyAuthenticatedActions
-                  displayName={user?.nickname || user?.username || "用户"}
-                  onLogout={logout}
-                />
-              ) : (
-                <nav
-                  aria-label="访客导航"
-                  className="flex shrink-0 items-center gap-2"
-                >
-                  <Button asChild variant="ghost">
-                    <Link to="/login">登录</Link>
-                  </Button>
-                  <Button asChild>
-                    <Link to="/register">注册</Link>
-                  </Button>
-                </nav>
-              )}
+              <Reveal>
+                {authLoading ? (
+                  <div
+                    aria-hidden
+                    className="h-10 w-28 animate-pulse rounded-md border border-border bg-bg-surface"
+                  />
+                ) : isAuthenticated ? (
+                  <LobbyAuthenticatedActions
+                    displayName={user?.nickname || user?.username || "用户"}
+                    onLogout={logout}
+                  />
+                ) : (
+                  <nav
+                    aria-label="访客导航"
+                    className="flex shrink-0 items-center gap-2"
+                  >
+                    <Button asChild variant="ghost">
+                      <Link to="/login">登录</Link>
+                    </Button>
+                    <Button asChild>
+                      <Link to="/register">注册</Link>
+                    </Button>
+                  </nav>
+                )}
+              </Reveal>
             </div>
             <div className="flex flex-col gap-3">
               <p className="text-sm font-medium text-brand">公开题库大厅</p>
@@ -159,43 +165,57 @@ export function HomePage() {
             ) : null}
           </div>
 
-          {state.loading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
-                <div
-                  className="paper-panel min-h-52 animate-pulse p-5"
-                  key={index}
-                />
-              ))}
-            </div>
-          ) : state.error ? (
-            <ErrorState
-              backHref="/"
-              message={state.error}
-              onRetry={() => setReloadKey((key) => key + 1)}
-            />
-          ) : state.banks.length === 0 ? (
-            <EmptyState
-              description="当前还没有公开题库。后端添加公开题库后，这里会显示可开始刷题的卡片。"
-              title="还没有公开题库"
-            />
-          ) : (
-            <>
+          <ContentCrossfade
+            stateKey={
+              state.loading
+                ? "loading"
+                : state.error
+                  ? "error"
+                  : state.banks.length === 0
+                    ? "empty"
+                    : `content-${current}`
+            }
+          >
+            {state.loading ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {state.banks.map((bank) => (
-                  <BankCard bank={bank} key={bank.id ?? bank.title} />
+                {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
+                  <div
+                    className="paper-panel min-h-52 animate-pulse p-5"
+                    key={index}
+                  />
                 ))}
               </div>
-              <PaginationBar
-                current={current}
-                onPageChange={setCurrent}
-                pageSize={pageSize}
-                total={state.total}
+            ) : state.error ? (
+              <ErrorState
+                backHref="/"
+                message={state.error}
+                onRetry={() => setReloadKey((key) => key + 1)}
               />
-            </>
-          )}
+            ) : state.banks.length === 0 ? (
+              <EmptyState
+                description="当前还没有公开题库。后端添加公开题库后，这里会显示可开始刷题的卡片。"
+                title="还没有公开题库"
+              />
+            ) : (
+              <div className="flex flex-col gap-4">
+                <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" key={current}>
+                  {state.banks.map((bank) => (
+                    <StaggerItem key={bank.id ?? bank.title}>
+                      <BankCard bank={bank} />
+                    </StaggerItem>
+                  ))}
+                </Stagger>
+                <PaginationBar
+                  current={current}
+                  onPageChange={setCurrent}
+                  pageSize={pageSize}
+                  total={state.total}
+                />
+              </div>
+            )}
+          </ContentCrossfade>
         </section>
-      </section>
+      </PageTransition>
     </main>
   );
 }

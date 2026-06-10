@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { TagQuestionType } from "@/components/question/TagQuestionType";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,12 +78,12 @@ export function PreviewQuestionTable({
               <th className="px-4 py-3 font-medium">操作</th>
             </tr>
           </thead>
-          <tbody>
+          <Stagger as="tbody" key={questions.length}>
             {questions.map((question, index) => {
               const isExpanded = expandedKeys.has(question.key);
 
               return (
-                <tr className="border-b align-top" key={question.key}>
+                <StaggerItem as="tr" className="border-b align-top" key={question.key}>
                   <td className="px-4 py-3 tabular-nums">{index + 1}</td>
                   <td className="px-4 py-3">
                     <TagQuestionType type={question.questionType} />
@@ -105,10 +106,10 @@ export function PreviewQuestionTable({
                       {isExpanded ? "收起" : "展开编辑"}
                     </Button>
                   </td>
-                </tr>
+                </StaggerItem>
               );
             })}
-          </tbody>
+          </Stagger>
         </table>
       </div>
 
