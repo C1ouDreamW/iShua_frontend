@@ -1,5 +1,6 @@
 import {
   BookmarkX,
+  Bot,
   Compass,
   FolderCog,
   Library,
@@ -54,6 +55,13 @@ export const APP_SIDEBAR_NAV: AppNavItem[] = [
     label: "用户管理",
     to: "/app/admin/users",
     icon: Shield,
+    adminOnly: true,
+  },
+  {
+    id: "admin-ai-import",
+    label: "AI 导入",
+    to: "/app/admin/ai-import",
+    icon: Bot,
     adminOnly: true,
   },
 ];
