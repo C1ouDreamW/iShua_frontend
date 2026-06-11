@@ -83,6 +83,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/register/email-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 发送注册邮箱验证码
+         * @description **无需登录。** 向指定邮箱发送 6 位验证码，用于后续注册。
+         *     成功：code=200，data 为 null。
+         *     失败：code=400 参数校验失败；code=429 发送过于频繁。
+         */
+        post: operations["sendRegisterEmailCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/register": {
         parameters: {
             query?: never;
@@ -94,9 +116,9 @@ export interface paths {
         put?: never;
         /**
          * 用户注册
-         * @description **无需登录。** 使用 BCrypt 加密存储密码；服务端固定角色为 `USER`，忽略请求体中的 `role` 字段。
+         * @description **无需登录。** 先校验邮箱验证码，通过后再创建用户；服务端固定角色为 `USER`。
          *     成功：code=200，data 为 null。
-         *     失败：code=409 用户名已存在（含已逻辑删除账号）。
+         *     失败：code=400 验证码错误或过期；code=409 用户名或邮箱已存在。
          */
         post: operations["register"];
         delete?: never;
@@ -658,6 +680,14 @@ export interface components {
              */
             role: string;
         };
+        /** @description 注册邮箱验证码请求 */
+        UserRegisterEmailCodeDTO: {
+            /**
+             * @description 邮箱
+             * @example zhangsan@example.com
+             */
+            email: string;
+        };
         /** @description 用户注册请求 */
         UserRegisterDTO: {
             /**
@@ -670,6 +700,16 @@ export interface components {
              * @example 123456
              */
             password: string;
+            /**
+             * @description 邮箱
+             * @example zhangsan@example.com
+             */
+            email: string;
+            /**
+             * @description 邮箱验证码
+             * @example 123456
+             */
+            code: string;
             /**
              * @description 昵称（选填）
              * @example 张三
@@ -1498,6 +1538,33 @@ export interface operations {
                          */
                         message?: string;
                         /** @description 无业务数据（成功时亦为 null） */
+                        data?: unknown;
+                    };
+                };
+            };
+        };
+    };
+    sendRegisterEmailCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserRegisterEmailCodeDTO"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        code?: number;
+                        message?: string;
                         data?: unknown;
                     };
                 };

@@ -22,12 +22,16 @@ export function RegisterPage() {
     username: string;
     password: string;
     nickname: string;
+    email: string;
+    code: string;
   }) {
     setLoading(true);
     setError(null);
 
     try {
       await register({
+        code: values.code,
+        email: values.email.trim(),
         nickname: values.nickname || undefined,
         password: values.password,
         username: values.username,
@@ -35,7 +39,7 @@ export function RegisterPage() {
       navigate("/login", { replace: true });
     } catch (caught) {
       if (caught instanceof ApiError && caught.code === 409) {
-        setError("用户名已被使用。");
+        setError(resolveApiErrorMessage(caught, "用户名或邮箱已被使用。"));
       } else {
         setError(resolveApiErrorMessage(caught, "注册失败。"));
       }
@@ -71,7 +75,7 @@ export function RegisterPage() {
               注册
             </h2>
             <p className="mt-2 text-sm text-text-secondary">
-              服务端会固定创建 USER 账号。
+              需先验证邮箱，服务端会固定创建 USER 账号。
             </p>
           </div>
           <AuthForm

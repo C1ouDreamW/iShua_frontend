@@ -13,6 +13,17 @@ export function login(payload: LoginPayload) {
   });
 }
 
+export type RegisterEmailCodePayload = {
+  email: string;
+};
+
+export function sendRegisterEmailCode(payload: RegisterEmailCodePayload) {
+  return request<null>("/api/v1/users/register/email-code", {
+    body: payload,
+    method: "POST",
+  });
+}
+
 export function register(payload: RegisterPayload) {
   return request<null>("/api/v1/users/register", {
     body: payload,
