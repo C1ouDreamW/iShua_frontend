@@ -38,19 +38,28 @@ export type BankNodeUpdatePayload = {
 
 export type BankTreeScope = "public" | "mine";
 
-export function listBankTree(params: {
-  scope: BankTreeScope;
-  rootId?: number;
-}) {
-  return request<BankNode[]>("/api/v1/bank-nodes/tree", { query: params });
+export function listPublicBankTree(params?: { rootId?: number }) {
+  return request<BankNode[]>("/api/v1/bank-nodes/public/tree", { query: params });
 }
 
-export function pageBankRoots(params: {
-  scope: BankTreeScope;
+export function listMyBankTree(params?: { rootId?: number }) {
+  return request<BankNode[]>("/api/v1/bank-nodes/mine/tree", { query: params });
+}
+
+export function pagePublicBankRoots(params: {
   current: number;
   pageSize: number;
 }) {
-  return request<PageResult<BankNode>>("/api/v1/bank-nodes/roots", {
+  return request<PageResult<BankNode>>("/api/v1/bank-nodes/public/roots", {
+    query: params,
+  });
+}
+
+export function pageMyBankRoots(params: {
+  current: number;
+  pageSize: number;
+}) {
+  return request<PageResult<BankNode>>("/api/v1/bank-nodes/mine/roots", {
     query: params,
   });
 }

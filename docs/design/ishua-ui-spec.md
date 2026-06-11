@@ -136,13 +136,14 @@
 
 | 路径 | 页面 | 壳层 | 最低角色 |
 |------|------|------|----------|
-| `/` | 公开大厅 | 简易顶栏（无侧栏） | 无 |
-| `/practice/guest/:bankId` | 访客刷题 | 极简顶栏 | 无 |
+| `/` | 公开大厅（**仅根节点**） | 简易顶栏（无侧栏） | 无 |
+| `/banks/browse/:rootId` | 公开子树浏览 | 简易顶栏 | 无 |
+| `/practice/guest/:bankId` | 访客刷题（`bankId` = LEAF 节点 ID） | 极简顶栏 | 无 |
 | `/login`, `/register` | 鉴权 | 无壳 | 无 |
 | `/app/*` | 登录后业务 | `AppShell` | USER+（按路由再限） |
 | `/app`（index） | 重定向 | — | → `/app/banks` |
 | `/app/discover` | 发现（占位） | AppShell | USER |
-| `/app/banks` | 题库（刷题选题：公共 \| 私有 Tab） | AppShell | USER |
+| `/app/banks` | 题库（刷题选题树：公共 \| 私有 Tab） | AppShell | USER |
 | `/app/manage/banks` | 管理题库（左树 + 右预览） | AppShell | PREMIUM |
 | `/app/manage/banks/:bankId` | 题库详情（**仅 LEAF**；路由参数为节点 ID） | AppShell | PREMIUM |
 | `/app/manage/banks/:bankId/questions/new` | 新建试题 | AppShell | PREMIUM |
@@ -305,16 +306,22 @@
 
 ---
 
-### 7.5 `BankCard`
+### 7.5 `RootNodeCard`（大厅根节点）
 
 | 项 | 规格 |
 |----|------|
-| **用途** | 大厅、题库页（`lobby`）、管理题库列表（`owned`） |
-| **内容** | **仅** `title`（H2）、`description`（最多 2 行 `line-clamp-2`） |
-| **不展示** | 题量、更新时间（大厅与题库选题列表） |
-| **操作** | `lobby`：主按钮「开始刷题」→ `/app/practice/:id`；`owned`：主按钮「管理题库」→ `/app/manage/banks/:id`，次按钮「刷题」 |
-| **hover** | `shadow-md`；边框 `brand/20` |
-| **owned 角标** | 「公开」`brand-muted` / 「私有」`border` 描边 |
+| **用途** | 大厅 `/` 根节点卡片；数据 `GET /bank-nodes/roots?scope=public` |
+| **FOLDER** | 角标「文件夹」；副文案 `descendantLeafCount` / `childCount`；主按钮「浏览子题库」→ `/banks/browse/:rootId` |
+| **LEAF** | 角标「公开题库」；展示 `questionCount`；主按钮「开始刷题」→ 访客 `/practice/guest/:id` 或登录 `/app/practice/:id` |
+| **样式** | 延续 `paper-panel` + `BankCard` 布局 |
+
+### 7.5b `BankCard`（兼容）
+
+| 项 | 规格 |
+|----|------|
+| **用途** | 旧扁平题库卡片（`question-banks` alias）；管理端 `owned` 变体仍可用 |
+| **内容** | `title`（H2）、`description`（最多 2 行） |
+| **操作** | `lobby`：「开始刷题」；`owned`：「管理题库」+ 刷题/编辑/删除 |
 
 ---
 

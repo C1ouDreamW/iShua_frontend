@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { pagePublicBanks, type QuestionBank } from "@/api/banks";
-import { BankCard } from "@/components/BankCard";
+import { pagePublicBankRoots, type BankNode } from "@/api/bankNodes";
 import { LobbyAuthenticatedActions } from "@/components/LobbyAccountMenu";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
@@ -12,13 +11,14 @@ import { PageTransition } from "@/components/motion/PageTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { PaginationBar } from "@/components/PaginationBar";
+import { RootNodeCard } from "@/components/RootNodeCard";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useResponsivePageSize } from "@/hooks/useResponsivePageSize";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
 
 type LobbyState = {
-  banks: QuestionBank[];
+  roots: BankNode[];
   total: number;
   loading: boolean;
   error: string | null;
@@ -30,45 +30,48 @@ export function HomePage() {
   const [current, setCurrent] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
   const [state, setState] = useState<LobbyState>({
-    banks: [],
     error: null,
     loading: true,
+    roots: [],
     total: 0,
   });
 
   useEffect(() => {
     let ignore = false;
 
-    async function loadBanks() {
+    async function loadRoots() {
       setState((prev) => ({ ...prev, error: null, loading: true }));
 
       try {
-        const data = await pagePublicBanks({ current, pageSize });
+        const data = await pagePublicBankRoots({
+          current,
+          pageSize,
+        });
 
         if (!ignore) {
           setState({
-            banks: data?.records ?? [],
             error: null,
             loading: false,
+            roots: data?.records ?? [],
             total: data?.total ?? 0,
           });
         }
       } catch (error) {
         if (!ignore) {
           setState({
-            banks: [],
             error: resolveApiErrorMessage(
               error,
               "公开题库加载失败，请稍后再试。",
             ),
             loading: false,
+            roots: [],
             total: 0,
           });
         }
       }
     }
 
-    void loadBanks();
+    void loadRoots();
 
     return () => {
       ignore = true;
@@ -135,8 +138,8 @@ export function HomePage() {
               <p className="text-sm font-medium text-brand">公开题库大厅</p>
               <p className="max-w-2xl text-sm leading-6 text-text-secondary">
                 {isAuthenticated
-                  ? "访客大厅仍可浏览公开题库；日常刷题与错题请通过「进入学习」进入应用内题库。"
-                  : "选择一个公开题库即可开始访客刷题。本阶段只做本地判分，不同步错题与记录。"}
+                  ? "大厅展示公开根节点；文件夹可进入子树浏览，题库节点可直接刷题。"
+                  : "选择一个公开入口开始刷题。文件夹需进入子树选择题库；本阶段访客刷题仅本地判分。"}
               </p>
             </div>
           </div>
@@ -149,7 +152,7 @@ export function HomePage() {
                 发现公开题库
               </h2>
               <p className="mt-1 text-sm text-text-secondary">
-                卡片仅展示标题与描述，保持选题路径清爽。
+                仅展示根节点；文件夹含子题库统计，题库节点显示题量。
               </p>
             </div>
             {state.total > 0 ? (
@@ -165,7 +168,7 @@ export function HomePage() {
                 ? "loading"
                 : state.error
                   ? "error"
-                  : state.banks.length === 0
+                  : state.roots.length === 0
                     ? "empty"
                     : `content-${current}`
             }
@@ -185,17 +188,17 @@ export function HomePage() {
                 message={state.error}
                 onRetry={() => setReloadKey((key) => key + 1)}
               />
-            ) : state.banks.length === 0 ? (
+            ) : state.roots.length === 0 ? (
               <EmptyState
-                description="当前还没有公开题库。后端添加公开题库后，这里会显示可开始刷题的卡片。"
+                description="当前还没有公开根节点。管理员添加公开题库后，这里会显示可浏览的入口。"
                 title="还没有公开题库"
               />
             ) : (
               <div className="flex flex-col gap-4">
                 <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" key={current}>
-                  {state.banks.map((bank) => (
-                    <StaggerItem key={bank.id ?? bank.title}>
-                      <BankCard bank={bank} />
+                  {state.roots.map((node) => (
+                    <StaggerItem key={node.id ?? node.title}>
+                      <RootNodeCard node={node} />
                     </StaggerItem>
                   ))}
                 </Stagger>

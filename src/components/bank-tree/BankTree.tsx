@@ -7,6 +7,8 @@ import type { TreeBankNode } from "./buildBankTree";
 
 type BankTreeProps = {
   className?: string;
+  emptyDescription?: string;
+  emptyTitle?: string;
   error?: string | null;
   loading?: boolean;
   onRetry?: () => void;
@@ -17,6 +19,8 @@ type BankTreeProps = {
 
 export function BankTree({
   className,
+  emptyDescription = "新建文件夹或题库，开始组织你的题目结构。",
+  emptyTitle = "还没有节点",
   error,
   loading,
   onRetry,
@@ -48,10 +52,7 @@ export function BankTree({
   if (tree.length === 0) {
     return (
       <div className={className}>
-        <EmptyState
-          description="新建文件夹或题库，开始组织你的题目结构。"
-          title="还没有节点"
-        />
+        <EmptyState description={emptyDescription} title={emptyTitle} />
       </div>
     );
   }

@@ -64,6 +64,8 @@ const PUBLIC_ENDPOINTS: Array<{
     method: "GET",
     pattern: /^\/api\/v1\/question-banks\/[^/]+\/hot-practice-detail$/,
   },
+  { method: "GET", pattern: /^\/api\/v1\/bank-nodes\/public\/tree$/ },
+  { method: "GET", pattern: /^\/api\/v1\/bank-nodes\/public\/roots$/ },
 ];
 
 export function isPublicEndpoint(pathname: string, method = "GET") {

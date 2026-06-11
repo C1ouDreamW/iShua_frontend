@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 import {
-  listBankTree,
+  listMyBankTree,
+  listPublicBankTree,
   type BankNode,
   type BankTreeScope,
 } from "@/api/bankNodes";
@@ -11,6 +12,7 @@ import { buildBankTree, type TreeBankNode } from "./buildBankTree";
 
 type UseBankTreeOptions = {
   scope?: BankTreeScope;
+  rootId?: number;
   enabled?: boolean;
 };
 
@@ -24,6 +26,7 @@ type UseBankTreeState = {
 
 export function useBankTree({
   scope = "mine",
+  rootId,
   enabled = true,
 }: UseBankTreeOptions = {}): UseBankTreeState {
   const [flatNodes, setFlatNodes] = useState<BankNode[]>([]);
@@ -48,7 +51,10 @@ export function useBankTree({
       setError(null);
 
       try {
-        const nodes = await listBankTree({ scope });
+        const nodes =
+          scope === "public"
+            ? await listPublicBankTree({ rootId })
+            : await listMyBankTree({ rootId });
         if (!ignore) {
           setFlatNodes(nodes ?? []);
         }
@@ -71,7 +77,7 @@ export function useBankTree({
     return () => {
       ignore = true;
     };
-  }, [enabled, reloadKey, scope]);
+  }, [enabled, reloadKey, rootId, scope]);
 
   return {
     error,

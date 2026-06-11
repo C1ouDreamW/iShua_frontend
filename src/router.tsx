@@ -8,6 +8,7 @@ import { AdminAiImportStatsPage } from "@/pages/AdminAiImportStatsPage";
 import { AdminUsersPage } from "@/pages/AdminUsersPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
 import { GuestPracticePage } from "@/pages/GuestPracticePage";
+import { BankBrowsePage } from "@/pages/BankBrowsePage";
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { BankDetailPage } from "@/pages/BankDetailPage";
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <HomePage />,
+  },
+  {
+    path: "/banks/browse/:rootId",
+    element: <BankBrowsePage />,
   },
   {
     path: "/practice/guest/:bankId",

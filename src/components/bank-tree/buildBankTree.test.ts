@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { BankNode } from "@/api/bankNodes";
 
-import { buildBankTree } from "./buildBankTree";
+import { buildBankTree, filterPrivatePracticeNodes } from "./buildBankTree";
 
 function node(
   id: number,
@@ -46,5 +46,18 @@ describe("buildBankTree", () => {
 
     expect(tree).toHaveLength(1);
     expect(tree[0]?.id).toBe(5);
+  });
+});
+
+describe("filterPrivatePracticeNodes", () => {
+  it("keeps private leaves and ancestor folders only", () => {
+    const filtered = filterPrivatePracticeNodes([
+      node(1, null, 0, "root"),
+      node(2, 1, 0, "folder"),
+      { ...node(3, 2, 0, "private-leaf"), nodeKind: "LEAF", isPublic: 0 },
+      { ...node(4, 2, 1, "public-leaf"), nodeKind: "LEAF", isPublic: 1 },
+    ]);
+
+    expect(filtered.map((item) => item.id)).toEqual([1, 2, 3]);
   });
 });

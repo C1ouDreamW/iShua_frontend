@@ -30,3 +30,12 @@ export function buildLoginRedirect(pathname: string, search = ""): string {
   const target = sanitizeRedirect(`${pathname}${search}`);
   return `/login?redirect=${encodeURIComponent(target)}`;
 }
+
+export function buildPracticePath(
+  nodeId: number,
+  isAuthenticated: boolean,
+): string {
+  return isAuthenticated
+    ? `/app/practice/${nodeId}`
+    : `/practice/guest/${nodeId}`;
+}
