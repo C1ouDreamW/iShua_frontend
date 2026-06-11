@@ -88,12 +88,6 @@ export function HomePage() {
     <main className="min-h-screen">
       <PageTransition className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
         <header className="paper-panel relative overflow-hidden p-8">
-          <Reveal
-            aria-hidden
-            className="pointer-events-none absolute right-6 top-6 font-serif text-6xl font-semibold leading-none text-border/80"
-          >
-            §
-          </Reveal>
           <div
             aria-hidden
             className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-border"
