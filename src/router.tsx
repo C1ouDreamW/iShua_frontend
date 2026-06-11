@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { RoleGate } from "@/components/auth/RoleGate";
 import { PageStub } from "@/components/PageStub";
@@ -12,7 +12,8 @@ import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { BankDetailPage } from "@/pages/BankDetailPage";
 import { ImportPage } from "@/pages/ImportPage";
-import { MyBanksPage } from "@/pages/MyBanksPage";
+import { ManageBanksHome } from "@/pages/ManageBanksHome";
+import { ManageBanksLayout } from "@/pages/ManageBanksLayout";
 import { PracticeBanksPage } from "@/pages/PracticeBanksPage";
 import { PracticePage } from "@/pages/PracticePage";
 import { QuestionFormPage } from "@/pages/QuestionFormPage";
@@ -57,13 +58,13 @@ export const router = createBrowserRouter([
         path: "manage/banks",
         element: (
           <RoleGate minRole="PREMIUM" premiumFeature>
-            <Outlet />
+            <ManageBanksLayout />
           </RoleGate>
         ),
         children: [
           {
             index: true,
-            element: <MyBanksPage />,
+            element: <ManageBanksHome />,
           },
           {
             path: ":bankId",

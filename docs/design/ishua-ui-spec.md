@@ -143,8 +143,8 @@
 | `/app`（index） | 重定向 | — | → `/app/banks` |
 | `/app/discover` | 发现（占位） | AppShell | USER |
 | `/app/banks` | 题库（刷题选题：公共 \| 私有 Tab） | AppShell | USER |
-| `/app/manage/banks` | 管理题库列表 | AppShell | PREMIUM |
-| `/app/manage/banks/:bankId` | 题库详情 | AppShell | PREMIUM |
+| `/app/manage/banks` | 管理题库（左树 + 右预览） | AppShell | PREMIUM |
+| `/app/manage/banks/:bankId` | 题库详情（**仅 LEAF**；路由参数为节点 ID） | AppShell | PREMIUM |
 | `/app/manage/banks/:bankId/questions/new` | 新建试题 | AppShell | PREMIUM |
 | `/app/manage/banks/:bankId/questions/:id/edit` | 编辑试题 | AppShell | PREMIUM |
 | `/app/manage/banks/:bankId/import` | AI 导入 | AppShell | PREMIUM |
@@ -318,11 +318,50 @@
 
 ---
 
-### 7.6 `BankForm`（Drawer）
+### 7.6 管理题库树 `/app/manage/banks`
 
 | 项 | 规格 |
 |----|------|
-| **用途** | 新建/编辑题库；无 `/edit` 路由 |
+| **布局** | 桌面 `lg+`：左栏 `280px` 树 + 右栏预览/子路由 `Outlet`；移动纵向堆叠 |
+| **数据** | `GET /api/v1/bank-nodes/tree?scope=mine`；扁平列表前端 `buildBankTree` 组嵌套 |
+| **顶栏** | 「新建文件夹」「新建题库」→ `BankNodeFormDrawer` |
+| **树节点** | `FOLDER` 图标 Folder；`LEAF` 图标 FileText；展开/折叠；选中 `brand-muted` |
+| **点击 FOLDER** | 右栏预览：子节点统计、新建子文件夹/子题库、编辑、删除 |
+| **点击 LEAF** | 导航 `/app/manage/banks/:nodeId` 进入详情（录题/导入/刷题） |
+| **空态** | 树空：「还没有节点」；未选中：「选择左侧节点」 |
+
+**API**：`bankNodes.ts` — `listBankTree`、`getBankNode`、`createBankNode`、`updateBankNode`、`deleteBankNode`。
+
+---
+
+### 7.7 `BankNodeForm`（Drawer）
+
+| 项 | 规格 |
+|----|------|
+| **用途** | 新建/编辑 **FOLDER** 或 **LEAF**；无独立 `/edit` 路由 |
+| **字段** | 类型（新建时由入口固定）、名称（必填）、描述、公开（仅 LEAF Switch） |
+| **标题** | 新建文件夹 / 新建题库 / 编辑文件夹 / 编辑题库 |
+| **footer** | 取消 + 保存 |
+| **success** | 刷新树；新建 LEAF 跳转详情；新建 FOLDER 停留预览 |
+
+---
+
+### 7.8 `DeleteBankNodeDialog`
+
+| 项 | 规格 |
+|----|------|
+| **触发** | 树预览或 LEAF 详情「删除」 |
+| **FOLDER** | 额外提示「将同时删除所有子节点与题目」 |
+| **确认** | 输入名称完全匹配后方可删除 |
+| **API** | `DELETE /api/v1/bank-nodes/{id}` |
+
+---
+
+### 7.9 `BankForm`（Drawer，兼容）
+
+| 项 | 规格 |
+|----|------|
+| **用途** | 旧扁平题库创建（`question-banks` alias）；管理页已改用 §7.7 |
 | **字段** | 名称（必填）、描述（多行）、是否公开（Switch） |
 | **标题** | 新建题库 / 编辑题库 |
 | **footer** | 取消（次） + 保存（主） |
@@ -332,7 +371,7 @@
 
 ---
 
-### 7.7 `DeleteBankDialog`
+### 7.10 `DeleteBankDialog`（兼容）
 
 | 项 | 规格 |
 |----|------|
@@ -345,7 +384,7 @@
 
 ---
 
-### 7.8 `QuestionList` + `Pagination`
+### 7.11 `QuestionList` + `Pagination`
 
 | 项 | 规格 |
 |----|------|

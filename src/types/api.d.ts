@@ -62,6 +62,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/bank-nodes/{nodeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 查询节点详情
+         * @description 须 PREMIUM+ 且为节点所有者（ADMIN 可 bypass）。
+         */
+        get: operations["getNode"];
+        /** 更新树节点 */
+        put: operations["updateNode"];
+        post?: never;
+        /**
+         * 删除树节点
+         * @description FOLDER 递归删除子树；LEAF 级联删除题目。
+         */
+        delete: operations["deleteNode"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/users/{userId}/role": {
         parameters: {
             query?: never;
@@ -83,28 +108,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/users/register/email-code": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 发送注册邮箱验证码
-         * @description **无需登录。** 向指定邮箱发送 6 位验证码，用于后续注册。
-         *     成功：code=200，data 为 null。
-         *     失败：code=400 参数校验失败；code=429 发送过于频繁。
-         */
-        post: operations["sendRegisterEmailCode"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/users/register": {
         parameters: {
             query?: never;
@@ -116,11 +119,29 @@ export interface paths {
         put?: never;
         /**
          * 用户注册
-         * @description **无需登录。** 先校验邮箱验证码，通过后再创建用户；服务端固定角色为 `USER`。
-         *     成功：code=200，data 为 null。
-         *     失败：code=400 验证码错误或过期；code=409 用户名或邮箱已存在。
+         * @description 无需登录。先校验邮箱验证码，通过后再创建用户。
          */
         post: operations["register"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/register/email-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 发送注册邮箱验证码
+         * @description 无需登录。须先通过 Cloudflare Turnstile 人机验证，再向指定邮箱发送 6 位验证码。
+         */
+        post: operations["sendRegisterEmailCode"];
         delete?: never;
         options?: never;
         head?: never;
@@ -138,9 +159,7 @@ export interface paths {
         put?: never;
         /**
          * 用户登录
-         * @description **无需登录。** 校验账号密码，成功返回 JWT 与用户信息（含 `role`：`USER` / `PREMIUM` / `ADMIN`）。
-         *     失败：code=401 账号或密码错误。
-         *     后续请求 Header：`Authorization: Bearer <token>`。
+         * @description 无需登录。校验账号密码，成功返回 JWT 与用户信息。
          */
         post: operations["login"];
         delete?: never;
@@ -260,7 +279,7 @@ export interface paths {
          *     公开/私有题库访问规则同「获取刷题题目列表」。
          *     - 客观题（SINGLE / MULTI / JUDGE）：自动判分，`correct` 为 true/false。
          *     - 答错时自动将该题加入错题本（若已在错题本中则递增错误次数）。
-         *     - 主观题或未知题型：`needsManualGrading=true`，`correct=null`，**不自动加入错题本**。
+         *     - **简答题（SHORT_ANSWER）不支持本接口**，请使用 `GET .../reference`。
          *     - 答案与解析在响应的 `answerJson`、`analysis` 字段中返回。
          *     - 用户答案格式：单选/多选传大写字母列表如 `["A"]`、`["A","C"]`；判断题传 `["T"]` 或 `["F"]`。
          *     失败：code=404 题库/试题不存在；code=400 试题不属于该题库；code=403 私有库无权（USER 刷私有库或非所有者）。
@@ -272,22 +291,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/practice/banks/{bankId}/questions/{questionId}/reference": {
+    "/api/v1/bank-nodes": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * 查看简答题参考答案
-         * @description 须 JWT，最低角色 USER。仅适用于 SHORT_ANSWER（简答题）。
-         *     不接收用户答案，不判分，不写错题本。用户在前端本地作答后，点击「显示答案」时调用。
-         *     返回 answerJson（JSON 数组字符串，每项为一个要点/段落）与 analysis。
-         */
-        get: operations["revealReferenceAnswer"];
+        get?: never;
         put?: never;
-        post?: never;
+        /**
+         * 创建树节点
+         * @description nodeKind 为 FOLDER 或 LEAF；LEAF 可挂题。
+         */
+        post: operations["createNode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bank-nodes/{nodeId}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 分页查询 LEAF 节点下的试题 */
+        get: operations["pageQuestionsInNode"];
+        put?: never;
+        /** 在 LEAF 节点下新增试题 */
+        post: operations["createQuestionInNode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bank-nodes/{nodeId}/questions/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 批量确认导入 AI 解析题目（幂等） */
+        post: operations["batchImportQuestions_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -363,6 +415,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/bank-nodes/{nodeId}/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * 移动树节点
+         * @description 可调整父节点与同级排序；禁止形成环。
+         */
+        patch: operations["moveNode"];
+        trace?: never;
+    };
     "/api/v1/wrong-questions": {
         parameters: {
             query?: never;
@@ -418,8 +490,7 @@ export interface paths {
         };
         /**
          * 获取当前登录用户信息
-         * @description 须 JWT，最低角色 USER。返回 userId、username、nickname、role，供前端按角色渲染菜单。
-         *     失败：code=401 未登录或 Token 无效。
+         * @description 须 JWT，最低角色 USER。
          */
         get: operations["me"];
         put?: never;
@@ -485,10 +556,94 @@ export interface paths {
          *     - **公开题库**（is_public=1）：任意登录用户可刷，复用 Redis 热点缓存。
          *     - **私有题库**：仅 PREMIUM 且为题库所有者可刷；USER 刷他人或任意私有库 → code=403；ADMIN 可 bypass。
          *     - `random=true` 时随机打乱题目顺序。
-         *     答案与解析在提交接口（`POST .../submit`）后返回。
+         *     - **客观题**（SINGLE/MULTI/JUDGE）：提交后判分，见 `POST .../submit`。
+         *     - **简答题**（SHORT_ANSWER）：`optionsJson` 为 `[]`，用户在前端本地作答，点「显示答案」时调 `GET .../reference`。
          *     失败：code=404 题库不存在；code=403 私有库无权（含 USER 访问私有库）。
          */
         get: operations["listPracticeQuestions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/practice/banks/{bankId}/questions/{questionId}/reference": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 查看简答题参考答案
+         * @description 须 JWT，最低角色 USER。仅适用于 **SHORT_ANSWER（简答题）**。
+         *     - **不接收用户答案**，不判分，不写错题本，无副作用。
+         *     - 用户在前端本地作答后，点击「显示答案」时调用本接口。
+         *     - 返回 `answerJson`（JSON 数组字符串，每项为一个要点/段落）与 `analysis`。
+         *     - 公开/私有题库访问规则同「获取刷题题目列表」。
+         *     失败：code=404 题库/试题不存在；code=400 试题不属于该题库或非简答题；code=403 私有库无权。
+         */
+        get: operations["revealReferenceAnswer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bank-nodes/{nodeId}/hot-practice-detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取公开 LEAF 热点刷题聚合数据（Redis 缓存） */
+        get: operations["getHotPracticeDetail_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bank-nodes/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 查询扁平题库树
+         * @description 返回扁平节点列表，前端自行组树。scope=public 无需登录；scope=mine 须 PREMIUM+。
+         *     可选 rootId 限定子树。
+         */
+        get: operations["listTree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bank-nodes/roots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 分页查询根节点
+         * @description scope=public 无需登录，返回大厅可见根节点；scope=mine 须 PREMIUM+ JWT，返回当前用户根节点。
+         */
+        get: operations["pageRoots"];
         put?: never;
         post?: never;
         delete?: never;
@@ -599,6 +754,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/ai-import/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * AI 导入任务统计看板
+         * @description 须 JWT，**仅 ADMIN**。基于 MySQL 聚合 `ai_import_task` 表，统计近 N 天导入流水线运行情况。
+         *
+         *     **查询参数**：
+         *     - **days**（可选，默认 30）：统计窗口天数，范围 1~365；以 `submitted_at >= now - days` 为过滤条件
+         *
+         *     **响应**（`AdminAiImportStatsVO`）：
+         *     - **periodDays / periodStart / periodEnd**：统计窗口元数据
+         *     - **totalTasks**：窗口内提交任务总数
+         *     - **statusStats[]**：各状态任务数及该状态下的平均流水线耗时（秒，Worker 实测 pipeline_duration_ms）
+         *     - **dailyAvgSubmitCount**：日均提交量（totalTasks / periodDays）
+         *     - **avgPipelineSeconds**：MinerU + LLM 平均总耗时（秒）
+         *     - **avgMineruSeconds** / **avgLlmSeconds**：分项平均耗时（秒）
+         *     - **avgParseSeconds**：同 avgPipelineSeconds（兼容字段）
+         *     - **avgQuestionCount**：平均解析题目数
+         *     - **failureRate**：失败率（FAILED / totalTasks，0~1）
+         *
+         *     **失败**：code=401 未登录；code=403 非 ADMIN；code=400（days 越界）
+         */
+        get: operations["getStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/wrong-questions/{id}": {
         parameters: {
             query?: never;
@@ -672,6 +863,23 @@ export interface components {
              */
             isPublic: number;
         };
+        /** @description 更新题库树节点请求 */
+        BankNodeUpdateDTO: {
+            /** @description 节点标题 */
+            title: string;
+            /** @description 节点描述 */
+            description?: string;
+            /**
+             * Format: int32
+             * @description 是否公开：0-否，1-是（LEAF 有效）
+             */
+            isPublic?: number;
+            /**
+             * Format: int32
+             * @description 同级排序号
+             */
+            sortNo?: number;
+        };
         /** @description 管理端用户角色更新请求 */
         AdminUserRoleUpdateDTO: {
             /**
@@ -679,18 +887,6 @@ export interface components {
              * @example PREMIUM
              */
             role: string;
-        };
-        /** @description 注册邮箱验证码请求 */
-        UserRegisterEmailCodeDTO: {
-            /**
-             * @description 邮箱
-             * @example zhangsan@example.com
-             */
-            email: string;
-            /**
-             * @description Cloudflare Turnstile 验证 token
-             */
-            turnstileToken: string;
         };
         /** @description 用户注册请求 */
         UserRegisterDTO: {
@@ -719,6 +915,19 @@ export interface components {
              * @example 张三
              */
             nickname?: string;
+        };
+        /** @description 注册邮箱验证码请求 */
+        UserRegisterEmailCodeDTO: {
+            /**
+             * @description 邮箱
+             * @example zhangsan@example.com
+             */
+            email: string;
+            /**
+             * @description Cloudflare Turnstile 令牌
+             * @example 0.abcdefghijklmnopqrstuvwxyz
+             */
+            turnstileToken: string;
         };
         /** @description 用户登录请求 */
         UserLoginDTO: {
@@ -845,6 +1054,39 @@ export interface components {
             /** @description 题目解析（可为空） */
             analysis?: string;
         };
+        /** @description 创建题库树节点请求 */
+        BankNodeCreateDTO: {
+            /**
+             * Format: int64
+             * @description 父节点 ID，NULL 表示根节点
+             * @example 1
+             */
+            parentId?: number;
+            /**
+             * @description 节点类型：FOLDER-文件夹，LEAF-可挂题题库
+             * @example LEAF
+             */
+            nodeKind: string;
+            /**
+             * @description 节点标题
+             * @example 高等数学
+             */
+            title: string;
+            /** @description 节点描述 */
+            description?: string;
+            /**
+             * Format: int32
+             * @description 是否公开：0-否，1-是（LEAF 有效）
+             * @example 0
+             */
+            isPublic?: number;
+            /**
+             * Format: int32
+             * @description 同级排序号，越小越前
+             * @example 0
+             */
+            sortNo?: number;
+        };
         /** @description AI 导入提交响应 */
         AiImportSubmitVO: {
             /**
@@ -928,6 +1170,21 @@ export interface components {
              */
             message?: string;
         };
+        /** @description 移动题库树节点请求 */
+        BankNodeMoveDTO: {
+            /**
+             * Format: int64
+             * @description 新父节点 ID，NULL 表示移到根
+             * @example 5
+             */
+            newParentId?: number;
+            /**
+             * Format: int32
+             * @description 在新父节点下的排序号
+             * @example 0
+             */
+            newSortNo?: number;
+        };
         /** @description 错题本记录 */
         WrongQuestionVO: {
             /**
@@ -996,7 +1253,7 @@ export interface components {
             /** @description 题干纯文本 */
             stem?: string;
             /**
-             * @description 选项 JSON 数组字符串，如 ["TCP","UDP"]；判断题为 []
+             * @description 选项 JSON 数组字符串，如 ["TCP","UDP"]；简答题（SHORT_ANSWER）为 []
              * @example ["TCP","UDP","IP","ICMP"]
              */
             optionsJson?: string;
@@ -1006,28 +1263,6 @@ export interface components {
              * @example 1
              */
             sortNo?: number;
-        };
-        /** @description 简答题参考答案（不含用户作答，不判分） */
-        PracticeReferenceAnswerVO: {
-            /**
-             * Format: int64
-             * @description 试题 ID
-             * @example 50001
-             */
-            questionId?: number;
-            /**
-             * @description 试题题型（接口字段为同名 string，取值见枚举）
-             * @example SHORT_ANSWER
-             * @enum {string}
-             */
-            questionType?: "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
-            /**
-             * @description 参考答案 JSON 数组字符串，每项为一个要点或段落
-             * @example ["客户端发 SYN，服务端回 SYN+ACK，客户端再发 ACK"]
-             */
-            answerJson?: string;
-            /** @description 题目解析（可为空） */
-            analysis?: string;
         };
         /** @description 当前登录用户信息 */
         UserMeVO: {
@@ -1076,12 +1311,12 @@ export interface components {
             /** @description 题干纯文本 */
             stem?: string;
             /**
-             * @description 选项 JSON 数组字符串。单选/多选为选项文案列表，如 ["TCP","UDP","IP"]
+             * @description 选项 JSON 数组字符串。单选/多选为选项文案列表；简答题（SHORT_ANSWER）为 []
              * @example ["8.31 J/(mol·K)","8.31 kJ/(mol·K)","0.0821 L·atm/(mol·K)"]
              */
             optionsJson?: string;
             /**
-             * @description 答案 JSON 数组字符串。单选/多选为大写字母选项标，如 ["A"]、["A","C"]；判断题为 ["T"] 或 ["F"]
+             * @description 答案 JSON 数组字符串。单选/多选为字母；判断题为 ["T"]/["F"]；简答题为文本要点数组
              * @example ["C"]
              */
             answerJson?: string;
@@ -1148,6 +1383,89 @@ export interface components {
             /** @description 该题库下全部试题（按 sortNo 有序；含答案与解析） */
             questions?: components["schemas"]["QuestionVO"][];
         };
+        /** @description 简答题参考答案（不含用户作答，不判分） */
+        PracticeReferenceAnswerVO: {
+            /**
+             * Format: int64
+             * @description 试题 ID
+             * @example 50001
+             */
+            questionId?: number;
+            /**
+             * @description 试题题型（接口字段为同名 string，取值见枚举）
+             * @example SHORT_ANSWER
+             * @enum {string}
+             */
+            questionType?: "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
+            /**
+             * @description 参考答案 JSON 数组字符串，每项为一个要点或段落，如 ["要点一","要点二"]
+             * @example ["客户端发 SYN，服务端回 SYN+ACK，客户端再发 ACK"]
+             */
+            answerJson?: string;
+            /** @description 题目解析（可为空） */
+            analysis?: string;
+        };
+        /** @description 题库树节点 */
+        BankNodeVO: {
+            /**
+             * Format: int64
+             * @description 节点 ID
+             */
+            id?: number;
+            /**
+             * Format: int64
+             * @description 所有者用户 ID
+             */
+            userId?: number;
+            /**
+             * Format: int64
+             * @description 父节点 ID，根节点为 null
+             */
+            parentId?: number;
+            /** @description 节点类型：FOLDER | LEAF */
+            nodeKind?: string;
+            /** @description 标题 */
+            title?: string;
+            /** @description 描述 */
+            description?: string;
+            /**
+             * Format: int32
+             * @description 是否公开：0-否，1-是
+             */
+            isPublic?: number;
+            /**
+             * Format: int32
+             * @description 同级排序号
+             */
+            sortNo?: number;
+            /**
+             * Format: int32
+             * @description 题目数量（LEAF 冗余字段）
+             */
+            questionCount?: number;
+            /**
+             * Format: int32
+             * @description 直接子节点数量
+             */
+            childCount?: number;
+            /**
+             * Format: int32
+             * @description 子树内 LEAF 节点总数
+             */
+            descendantLeafCount?: number;
+            /** @description 子树是否含公开 LEAF */
+            hasPublicDescendant?: boolean;
+            /**
+             * Format: date-time
+             * @description 创建时间
+             */
+            createTime?: string;
+            /**
+             * Format: date-time
+             * @description 更新时间
+             */
+            updateTime?: string;
+        };
         /** @description AI 导入任务列表单条摘要（用于 GET /api/v1/ai-import/tasks 的 data.records[]） */
         AiImportTaskSummaryVO: {
             /**
@@ -1206,6 +1524,27 @@ export interface components {
             /** @description 预览题目列表；仅查询参数 includePreview=true 且本条 status=PARSED 时非空 */
             questions?: components["schemas"]["QuestionPreviewVO"][];
         };
+        /** @description AI 导入 Worker 实测耗时（毫秒），经 Redis 同步至 MySQL */
+        AiImportTaskPipelineMetricsVO: {
+            /**
+             * Format: int32
+             * @description MinerU 文档解析耗时（毫秒）
+             * @example 120000
+             */
+            mineruMs?: number;
+            /**
+             * Format: int32
+             * @description LLM 题目抽取耗时（毫秒）
+             * @example 8500
+             */
+            llmMs?: number;
+            /**
+             * Format: int32
+             * @description MinerU + LLM 总耗时（毫秒）
+             * @example 128500
+             */
+            pipelineMs?: number;
+        };
         /** @description AI 导入任务状态快照 */
         AiImportTaskStatusVO: {
             /** @description 任务 ID（UUID） */
@@ -1229,6 +1568,7 @@ export interface components {
              *     终态 IMPORTED/FAILED/EXPIRED 时不返回或为空。
              */
             questions?: components["schemas"]["QuestionPreviewVO"][];
+            metrics?: components["schemas"]["AiImportTaskPipelineMetricsVO"];
         };
         /** @description 管理端用户列表项 */
         AdminUserVO: {
@@ -1263,6 +1603,95 @@ export interface components {
              * @description 更新时间
              */
             updateTime?: string;
+        };
+        /** @description 管理端 AI 导入任务统计看板（GET /api/v1/admin/ai-import/stats 的 data） */
+        AdminAiImportStatsVO: {
+            /**
+             * Format: int32
+             * @description 统计窗口天数（与请求参数 days 一致）
+             * @example 30
+             */
+            periodDays?: number;
+            /**
+             * Format: date-time
+             * @description 统计起始时间（含）：submitted_at >= periodStart
+             */
+            periodStart?: string;
+            /**
+             * Format: date-time
+             * @description 统计截止时间（不含，通常为接口调用时刻）
+             */
+            periodEnd?: string;
+            /**
+             * Format: int64
+             * @description 窗口内提交的任务总数
+             * @example 120
+             */
+            totalTasks?: number;
+            /** @description 各状态任务数及该状态下的平均解析耗时 */
+            statusStats?: components["schemas"]["AdminAiImportStatusStatVO"][];
+            /**
+             * Format: double
+             * @description 日均提交量（totalTasks / periodDays）
+             * @example 4
+             */
+            dailyAvgSubmitCount?: number;
+            /**
+             * Format: double
+             * @description Worker 实测流水线平均耗时（秒，MinerU + LLM）；无 pipeline_duration_ms 的历史任务不参与
+             * @example 128.5
+             */
+            avgPipelineSeconds?: number;
+            /**
+             * Format: double
+             * @description MinerU 平均耗时（秒）
+             * @example 120
+             */
+            avgMineruSeconds?: number;
+            /**
+             * Format: double
+             * @description LLM 平均耗时（秒）
+             * @example 8.5
+             */
+            avgLlmSeconds?: number;
+            /**
+             * Format: double
+             * @description 同 avgPipelineSeconds，保留兼容
+             * @example 128.5
+             */
+            avgParseSeconds?: number;
+            /**
+             * Format: double
+             * @description 平均解析题目数（question_count 非空记录的平均值）
+             * @example 15.6
+             */
+            avgQuestionCount?: number;
+            /**
+             * Format: double
+             * @description 失败率（status=FAILED 占 totalTasks 的比例，0~1，如 0.08 表示 8%）
+             * @example 0.08
+             */
+            failureRate?: number;
+        };
+        /** @description AI 导入任务按 status 聚合的单项统计 */
+        AdminAiImportStatusStatVO: {
+            /**
+             * @description 任务状态
+             * @example IMPORTED
+             */
+            status?: string;
+            /**
+             * Format: int64
+             * @description 该状态任务数
+             * @example 42
+             */
+            count?: number;
+            /**
+             * Format: double
+             * @description 该状态下任务的平均流水线耗时（秒，pipeline_duration_ms）；无实测数据时不参与计算
+             * @example 18.5
+             */
+            avgParseSeconds?: number;
         };
     };
     responses: never;
@@ -1500,6 +1929,130 @@ export interface operations {
             };
         };
     };
+    getNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 节点 ID */
+                nodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        data?: components["schemas"]["BankNodeVO"];
+                    };
+                };
+            };
+        };
+    };
+    updateNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BankNodeUpdateDTO"];
+            };
+        };
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description 无业务数据（成功时亦为 null） */
+                        data?: unknown;
+                    };
+                };
+            };
+        };
+    };
+    deleteNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description 无业务数据（成功时亦为 null） */
+                        data?: unknown;
+                    };
+                };
+            };
+        };
+    };
     updateRole: {
         parameters: {
             query?: never;
@@ -1548,33 +2101,6 @@ export interface operations {
             };
         };
     };
-    sendRegisterEmailCode: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserRegisterEmailCodeDTO"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        code?: number;
-                        message?: string;
-                        data?: unknown;
-                    };
-                };
-            };
-        };
-    };
     register: {
         parameters: {
             query?: never;
@@ -1585,6 +2111,48 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UserRegisterDTO"];
+            };
+        };
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description 无业务数据（成功时亦为 null） */
+                        data?: unknown;
+                    };
+                };
+            };
+        };
+    };
+    sendRegisterEmailCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserRegisterEmailCodeDTO"];
             };
         };
         responses: {
@@ -1980,21 +2548,71 @@ export interface operations {
             };
         };
     };
-    revealReferenceAnswer: {
+    createNode: {
         parameters: {
             query?: never;
             header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BankNodeCreateDTO"];
+            };
+        };
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /**
+                         * Format: int64
+                         * @description 新建资源主键 ID
+                         * @example 1001
+                         */
+                        data?: number | null;
+                    };
+                };
+            };
+        };
+    };
+    pageQuestionsInNode: {
+        parameters: {
+            query: {
+                /** @description 题干关键词模糊检索，可选 */
+                keyword?: string;
+                /**
+                 * @description 当前页码，从 1 开始
+                 * @example 1
+                 */
+                current: number;
+                /**
+                 * @description 每页条数
+                 * @example 10
+                 */
+                pageSize: number;
+            };
+            header?: never;
             path: {
-                /**
-                 * @description 题库 ID
-                 * @example 1001
-                 */
-                bankId: number;
-                /**
-                 * @description 试题 ID
-                 * @example 50001
-                 */
-                questionId: number;
+                nodeId: number;
             };
             cookie?: never;
         };
@@ -2022,7 +2640,109 @@ export interface operations {
                          * @example success
                          */
                         message?: string;
-                        data?: components["schemas"]["PracticeReferenceAnswerVO"];
+                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        data?: {
+                            /**
+                             * Format: int64
+                             * @description 总记录数
+                             * @example 100
+                             */
+                            total?: number;
+                            /** @description 当前页数据列表 */
+                            records?: components["schemas"]["QuestionVO"][];
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    createQuestionInNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionUpdateDTO"];
+            };
+        };
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /**
+                         * Format: int64
+                         * @description 新建资源主键 ID
+                         * @example 1001
+                         */
+                        data?: number | null;
+                    };
+                };
+            };
+        };
+    };
+    batchImportQuestions_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchImportRequestDTO"];
+            };
+        };
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description 无业务数据（成功时亦为 null） */
+                        data?: unknown;
                     };
                 };
             };
@@ -2107,6 +2827,50 @@ export interface operations {
                          */
                         message?: string;
                         data?: components["schemas"]["AdminAiImportCleanupResultVO"];
+                    };
+                };
+            };
+        };
+    };
+    moveNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BankNodeMoveDTO"];
+            };
+        };
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description 无业务数据（成功时亦为 null） */
+                        data?: unknown;
                     };
                 };
             };
@@ -2407,6 +3171,205 @@ export interface operations {
             };
         };
     };
+    revealReferenceAnswer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 题库 ID
+                 * @example 1001
+                 */
+                bankId: number;
+                /**
+                 * @description 试题 ID
+                 * @example 50001
+                 */
+                questionId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        data?: components["schemas"]["PracticeReferenceAnswerVO"];
+                    };
+                };
+            };
+        };
+    };
+    getHotPracticeDetail_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        data?: components["schemas"]["QuestionBankDetailBundleVO"];
+                    };
+                };
+            };
+        };
+    };
+    listTree: {
+        parameters: {
+            query: {
+                /**
+                 * @description 查询范围：mine-我的树，public-公开可见树
+                 * @example public
+                 */
+                scope: string;
+                /**
+                 * @description 子树根节点 ID，为空则返回整棵森林
+                 * @example 1
+                 */
+                rootId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description 列表数据 */
+                        data?: components["schemas"]["BankNodeVO"][] | null;
+                    };
+                };
+            };
+        };
+    };
+    pageRoots: {
+        parameters: {
+            query: {
+                /**
+                 * @description 查询范围：mine-我的根节点，public-公开根节点
+                 * @example public
+                 */
+                scope: string;
+                /**
+                 * @description 当前页码，从 1 开始
+                 * @example 1
+                 */
+                current: number;
+                /**
+                 * @description 每页条数
+                 * @example 10
+                 */
+                pageSize: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        data?: {
+                            /**
+                             * Format: int64
+                             * @description 总记录数
+                             * @example 100
+                             */
+                            total?: number;
+                            /** @description 当前页数据列表 */
+                            records?: components["schemas"]["BankNodeVO"][];
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
     pageMyTasks: {
         parameters: {
             query: {
@@ -2585,6 +3548,49 @@ export interface operations {
                             /** @description 当前页数据列表 */
                             records?: components["schemas"]["AdminUserVO"][];
                         } | null;
+                    };
+                };
+            };
+        };
+    };
+    getStats: {
+        parameters: {
+            query?: {
+                /**
+                 * @description 统计窗口天数，默认 30
+                 * @example 30
+                 */
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
+             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
+             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description 提示信息
+                         * @example success
+                         */
+                        message?: string;
+                        data?: components["schemas"]["AdminAiImportStatsVO"];
                     };
                 };
             };

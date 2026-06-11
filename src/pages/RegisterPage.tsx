@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import { ApiError } from "@/api/client";
+import { RegisterMascot } from "@/components/auth/RegisterMascot";
 import { AuthForm } from "@/components/AuthForm";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Button } from "@/components/ui/button";
@@ -59,8 +60,8 @@ export function RegisterPage() {
             </Button>
           </div>
           <div>
-            <p className="text-sm font-medium text-brand">iShua</p>
-            <h1 className="mt-3 font-serif text-4xl font-semibold text-text-primary">
+            {/* <RegisterMascot /> */}
+            <h1 className="mt-4 font-serif text-4xl font-semibold text-text-primary">
               今天，也刷一点
             </h1>
             <p className="mt-4 max-w-md leading-7 text-text-secondary">

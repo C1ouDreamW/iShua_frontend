@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { pageMyImportTasks } from "@/api/aiImport";
-import { deleteBank, findMyBank, type QuestionBank } from "@/api/banks";
+import {
+  getBankNode,
+  isLeafNode,
+  type BankNode,
+} from "@/api/bankNodes";
 import { pageQuestionsInBank, type Question } from "@/api/questions";
-import { BankFormDrawer } from "@/components/bank/BankFormDrawer";
-import { DeleteBankDialog } from "@/components/bank/DeleteBankDialog";
+import { BankNodeFormDrawer } from "@/components/bank/BankNodeFormDrawer";
+import { DeleteBankNodeDialog } from "@/components/bank/DeleteBankNodeDialog";
 import {
   DeleteQuestionDialog,
   deleteQuestionWithOptionalConfirm,
@@ -29,7 +33,7 @@ export function BankDetailPage() {
   const navigate = useNavigate();
   const numericBankId = Number(bankId);
 
-  const [bank, setBank] = useState<QuestionBank | null>(null);
+  const [bank, setBank] = useState<BankNode | null>(null);
   const [bankLoading, setBankLoading] = useState(true);
   const [bankError, setBankError] = useState<string | null>(null);
 
@@ -106,12 +110,12 @@ export function BankDetailPage() {
       setBankError(null);
 
       try {
-        const result = await findMyBank(numericBankId);
+        const result = await getBankNode(numericBankId);
 
         if (!ignore) {
-          if (!result) {
+          if (!isLeafNode(result)) {
             setBank(null);
-            setBankError("题库不存在或无权访问。");
+            setBankError("仅题库节点支持录题与导入，请选择 LEAF 节点。");
           } else {
             setBank(result);
           }
@@ -226,7 +230,7 @@ export function BankDetailPage() {
     <section className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-10">
       <header className="space-y-4">
         <Button asChild size="sm" variant="ghost">
-          <Link to="/app/manage/banks">← 返回管理题库</Link>
+          <Link to="/app/manage/banks">← 返回树形总览</Link>
         </Button>
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -266,13 +270,13 @@ export function BankDetailPage() {
               </Link>
             </Button>
             <Button onClick={() => setFormOpen(true)} variant="outline">
-              编辑题库
+              编辑
             </Button>
             <Button
               onClick={() => setDeleteBankOpen(true)}
               variant="ghost"
             >
-              删除题库
+              删除
             </Button>
           </div>
         </div>
@@ -360,8 +364,9 @@ export function BankDetailPage() {
         ) : null}
       </section>
 
-      <BankFormDrawer
-        bank={bank}
+      <BankNodeFormDrawer
+        fixedKind="LEAF"
+        node={bank}
         onOpenChange={setFormOpen}
         onSaved={() => {
           refreshAll();
@@ -370,8 +375,8 @@ export function BankDetailPage() {
         open={formOpen}
       />
 
-      <DeleteBankDialog
-        bank={bank}
+      <DeleteBankNodeDialog
+        node={bank}
         onDeleted={() => {
           success("已删除题库");
           navigate("/app/manage/banks");

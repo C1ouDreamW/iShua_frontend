@@ -1,0 +1,206 @@
+{
+  "skeleton": {
+    "hash": "ishua-capsule-v1",
+    "spine": "4.2.33",
+    "x": -48,
+    "y": -2,
+    "width": 96,
+    "height": 158,
+    "images": "./",
+    "audio": ""
+  },
+  "bones": [
+    {
+      "name": "root"
+    },
+    {
+      "name": "capsule",
+      "parent": "root",
+      "y": 72
+    },
+    {
+      "name": "face",
+      "parent": "capsule",
+      "y": 28
+    },
+    {
+      "name": "eye-l",
+      "parent": "face",
+      "x": -16,
+      "y": 10
+    },
+    {
+      "name": "eye-r",
+      "parent": "face",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "name": "pupil-l",
+      "parent": "eye-l"
+    },
+    {
+      "name": "pupil-r",
+      "parent": "eye-r"
+    }
+  ],
+  "slots": [
+    {
+      "name": "shadow",
+      "bone": "root",
+      "attachment": "shadow"
+    },
+    {
+      "name": "capsule",
+      "bone": "capsule",
+      "attachment": "capsule"
+    },
+    {
+      "name": "highlight",
+      "bone": "capsule",
+      "attachment": "highlight"
+    },
+    {
+      "name": "eye-l",
+      "bone": "eye-l",
+      "attachment": "eye-white"
+    },
+    {
+      "name": "eye-r",
+      "bone": "eye-r",
+      "attachment": "eye-white"
+    },
+    {
+      "name": "pupil-l",
+      "bone": "pupil-l",
+      "attachment": "eye-pupil"
+    },
+    {
+      "name": "pupil-r",
+      "bone": "pupil-r",
+      "attachment": "eye-pupil"
+    },
+    {
+      "name": "mouth",
+      "bone": "face",
+      "attachment": "mouth"
+    }
+  ],
+  "skins": [
+    {
+      "name": "default",
+      "attachments": {
+        "shadow": {
+          "shadow": {
+            "x": 0,
+            "y": 6,
+            "width": 96,
+            "height": 20
+          }
+        },
+        "capsule": {
+          "capsule": {
+            "x": 0,
+            "y": 0,
+            "width": 96,
+            "height": 130
+          }
+        },
+        "highlight": {
+          "highlight": {
+            "x": -22,
+            "y": 8,
+            "width": 28,
+            "height": 80
+          }
+        },
+        "eye-l": {
+          "eye-white": {
+            "width": 28,
+            "height": 28
+          }
+        },
+        "eye-r": {
+          "eye-white": {
+            "width": 28,
+            "height": 28
+          }
+        },
+        "pupil-l": {
+          "eye-pupil": {
+            "width": 12,
+            "height": 12
+          }
+        },
+        "pupil-r": {
+          "eye-pupil": {
+            "width": 12,
+            "height": 12
+          }
+        },
+        "mouth": {
+          "mouth": {
+            "x": 0,
+            "y": -8,
+            "width": 24,
+            "height": 10
+          }
+        }
+      }
+    }
+  ],
+  "animations": {
+    "idle": {
+      "bones": {
+        "capsule": {
+          "translate": [
+            {
+              "time": 0
+            },
+            {
+              "time": 0.9,
+              "y": 5,
+              "curve": "sine"
+            },
+            {
+              "time": 1.8
+            }
+          ],
+          "scale": [
+            {
+              "time": 0,
+              "x": 1,
+              "y": 1
+            },
+            {
+              "time": 0.9,
+              "x": 1.03,
+              "y": 0.97,
+              "curve": "sine"
+            },
+            {
+              "time": 1.8,
+              "x": 1,
+              "y": 1
+            }
+          ]
+        },
+        "face": {
+          "translate": [
+            {
+              "time": 0
+            },
+            {
+              "time": 0.9,
+              "y": 2,
+              "curve": "sine"
+            },
+            {
+              "time": 1.8
+            }
+          ]
+        }
+      }
+    }
+  }
+}

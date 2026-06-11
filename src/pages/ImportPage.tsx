@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 
-import { findMyBank } from "@/api/banks";
+import { getBankNode, isLeafNode } from "@/api/bankNodes";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { ImportWizard } from "@/components/import/ImportWizard";
 import { ErrorState } from "@/components/ErrorState";
@@ -30,11 +30,11 @@ export function ImportPage() {
       setError(null);
 
       try {
-        const bank = await findMyBank(numericBankId);
+        const bank = await getBankNode(numericBankId);
 
         if (!ignore) {
-          if (!bank) {
-            setError("题库不存在或无权访问。");
+          if (!isLeafNode(bank)) {
+            setError("仅题库节点支持 AI 导入。");
           } else {
             setBankTitle(bank.title ?? "题库");
           }

@@ -1,3 +1,4 @@
+import { getBankNode, isLeafNode } from "@/api/bankNodes";
 import { request } from "@/api/client";
 import type { components } from "@/types/api";
 
@@ -57,9 +58,22 @@ export function deleteBank(bankId: number) {
   });
 }
 
+/** @deprecated 请使用 `getBankNode`（`@/api/bankNodes`） */
 export async function findMyBank(bankId: number) {
-  const data = await pageMyBanks({ current: 1, pageSize: 100 });
-  return data?.records?.find((bank) => bank.id === bankId) ?? null;
+  try {
+    const node = await getBankNode(bankId);
+    if (!isLeafNode(node)) {
+      return null;
+    }
+    return {
+      description: node.description ?? undefined,
+      id: node.id,
+      isPublic: node.isPublic,
+      title: node.title,
+    } satisfies QuestionBank;
+  } catch {
+    return null;
+  }
 }
 
 export function batchImportQuestions(bankId: number, payload: BatchImportPayload) {

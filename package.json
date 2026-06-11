@@ -9,10 +9,13 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:api": "openapi-typescript api-docs-v4.json -o src/types/api.d.ts",
-    "optimize:logo": "node scripts/optimize-logo.mjs"
+    "generate:api": "openapi-typescript api-docs-v5.json -o src/types/api.d.ts",
+    "test": "vitest run",
+    "optimize:logo": "node scripts/optimize-logo.mjs",
+    "generate:spine-mascot": "node scripts/generate-capsule-spine.mjs"
   },
   "dependencies": {
+    "@esotericsoftware/spine-player": "^4.3.7",
     "@radix-ui/react-dialog": "latest",
     "@radix-ui/react-slot": "latest",
     "@tailwindcss/vite": "latest",
@@ -40,6 +43,7 @@
     "sharp": "^0.34.5",
     "typescript": "latest",
     "typescript-eslint": "latest",
-    "vite": "latest"
+    "vite": "latest",
+    "vitest": "latest"
   }
 }

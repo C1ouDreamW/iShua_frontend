@@ -220,7 +220,7 @@ npm run dev
 
 按后端文档完成：
 
-1. MySQL：库 `ishua_atlas` + 执行 `backend/sql/schema/init_core_tables.sql`
+1. MySQL：库 `ishua_backend` + 执行 `backend/sql/schema/init_core_tables.sql`
 2. Redis：本机 `6379` 可 `PING`
 3. 配置 `DB_*`、`REDIS_*`、`JWT_SECRET` 等环境变量
 4. `mvn spring-boot:run` 或 IDEA 运行 `ishuaBackendApplication`
