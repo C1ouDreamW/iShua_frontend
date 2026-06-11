@@ -64,6 +64,22 @@ body::before {
   box-shadow: var(--shadow-paper);
 }
 
+/* Turnstile: full-width bar aligned with form inputs */
+.turnstile-widget {
+  width: 100%;
+}
+
+.turnstile-widget > div {
+  width: 100% !important;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.turnstile-widget iframe {
+  width: 100% !important;
+  border-radius: var(--radius-lg);
+}
+
 /* Radix Dialog enter/exit (no tailwindcss-animate dependency) */
 @keyframes dialog-overlay-in {
   from {

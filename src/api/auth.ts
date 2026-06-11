@@ -15,6 +15,7 @@ export function login(payload: LoginPayload) {
 
 export type RegisterEmailCodePayload = {
   email: string;
+  turnstileToken: string;
 };
 
 export function sendRegisterEmailCode(payload: RegisterEmailCodePayload) {

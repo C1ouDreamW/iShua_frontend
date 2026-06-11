@@ -1,10 +1,13 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 
 import { sendRegisterEmailCode } from "@/api/auth";
+import { ApiError } from "@/api/client";
+import { TurnstileField } from "@/components/TurnstileField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import { getTurnstileSiteKey } from "@/lib/turnstile";
 
 const REGISTER_EMAIL_CODE_COOLDOWN_SECONDS = 60;
 
@@ -38,7 +41,10 @@ export function AuthForm({ mode, error, loading, onSubmit }: AuthFormProps) {
   const [codeError, setCodeError] = useState<string | null>(null);
   const [sendingCode, setSendingCode] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const resetTurnstileRef = useRef<() => void>(() => {});
   const isLogin = mode === "login";
+  const siteKeyConfigured = Boolean(getTurnstileSiteKey());
 
   useEffect(() => {
     if (cooldown <= 0) {
@@ -65,14 +71,31 @@ export function AuthForm({ mode, error, loading, onSubmit }: AuthFormProps) {
       return;
     }
 
+    if (!siteKeyConfigured) {
+      setCodeError("人机验证未配置，请联系管理员。");
+      return;
+    }
+
+    if (!turnstileToken) {
+      setCodeError("请先完成人机验证。");
+      return;
+    }
+
     setSendingCode(true);
     setCodeError(null);
 
     try {
-      await sendRegisterEmailCode({ email });
+      await sendRegisterEmailCode({
+        email,
+        turnstileToken,
+      });
       setCooldown(REGISTER_EMAIL_CODE_COOLDOWN_SECONDS);
+      resetTurnstileRef.current();
     } catch (caught) {
       setCodeError(resolveApiErrorMessage(caught, "验证码发送失败，请稍后重试。"));
+      if (caught instanceof ApiError && caught.code === 400) {
+        resetTurnstileRef.current();
+      }
     } finally {
       setSendingCode(false);
     }
@@ -126,6 +149,15 @@ export function AuthForm({ mode, error, loading, onSubmit }: AuthFormProps) {
       ) : null}
 
       {!isLogin ? (
+        <TurnstileField
+          onResetReady={(reset) => {
+            resetTurnstileRef.current = reset;
+          }}
+          onTokenChange={setTurnstileToken}
+        />
+      ) : null}
+
+      {!isLogin ? (
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-text-primary" htmlFor="code">
             验证码
@@ -150,7 +182,9 @@ export function AuthForm({ mode, error, loading, onSubmit }: AuthFormProps) {
             />
             <Button
               className="shrink-0"
-              disabled={loading || sendingCode || cooldown > 0}
+              disabled={
+                loading || sendingCode || cooldown > 0 || !turnstileToken
+              }
               onClick={() => void handleSendCode()}
               type="button"
               variant="outline"
