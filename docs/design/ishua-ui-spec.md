@@ -330,9 +330,10 @@
 | 项 | 规格 |
 |----|------|
 | **布局** | 桌面 `lg+`：左栏 `280px` 树 + 右栏预览/子路由 `Outlet`；移动纵向堆叠 |
-| **数据** | `GET /api/v1/bank-nodes/tree?scope=mine`；扁平列表前端 `buildBankTree` 组嵌套 |
+| **数据** | `GET /api/v1/bank-nodes/mine/tree`；扁平列表前端 `buildBankTree` 组嵌套 |
 | **顶栏** | 「新建文件夹」「新建题库」→ `BankNodeFormDrawer` |
 | **树节点** | `FOLDER` 图标 Folder；`LEAF` 图标 FileText；展开/折叠；选中 `brand-muted` |
+| **拖拽** | `DraggableManageTree` + `@dnd-kit`；手柄拖动；结束 `PATCH .../move`；层级 &gt; 10 Toast 提示 |
 | **点击 FOLDER** | 右栏预览：子节点统计、新建子文件夹/子题库、编辑、删除 |
 | **点击 LEAF** | 导航 `/app/manage/banks/:nodeId` 进入详情（录题/导入/刷题） |
 | **空态** | 树空：「还没有节点」；未选中：「选择左侧节点」 |

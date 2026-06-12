@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getHotPracticeDetail } from "@/api/banks";
+import { getHotPracticeDetail } from "@/api/bankNodes";
 import { ApiError } from "@/api/client";
 import {
   listPracticeQuestions,

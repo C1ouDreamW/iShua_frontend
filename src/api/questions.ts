@@ -14,13 +14,13 @@ export function pageQuestionsInBank(
   },
 ) {
   return request<PageResult<Question>>(
-    `/api/v1/question-banks/${bankId}/questions`,
+    `/api/v1/bank-nodes/${bankId}/questions`,
     { query: params },
   );
 }
 
 export function createQuestionInBank(bankId: number, payload: QuestionPayload) {
-  return request<number>(`/api/v1/question-banks/${bankId}/questions`, {
+  return request<number>(`/api/v1/bank-nodes/${bankId}/questions`, {
     body: payload,
     method: "POST",
   });

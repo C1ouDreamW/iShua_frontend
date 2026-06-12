@@ -29,7 +29,7 @@
 | 🟢 | 未完善 | **`implementation-plan.md` §1.1** M3/M4/M5 里程碑未标 ✅（功能已实现） | 文档同步 |
 | ✅ | 已修复 | **大厅顶栏「昵称 ▾」+「进入学习」**（导航 IA 重构） | `LobbyAccountMenu`、`HomePage`（2026-05-21） |
 | 🟡 | 未完善 | **`TagQuestionType` 未按 §4.1 分色**（SINGLE/MULTI/JUDGE 统一 `brand-muted`） | 按规格补题型色 |
-| 🟡 | 未完善 | **`findMyBank` 依赖 `pageMyBanks` 前 100 条**（详情页/导入页标题），题库很多时可能找不到 | 后端 `GET /question-banks/{id}` 或前端缓存 |
+| ✅ | 已修复 | **`findMyBank` 分页 100 上限** | Phase 4：`getBankNode`（`GET /bank-nodes/{id}`） |
 | 🟢 | 二期 | 随机顺序、深色模式、Dashboard、ADMIN 用户管理真页、Cookie 鉴权、试题 PATCH | 见 `implementation-plan.md` §5 |
 
 **已在后续阶段修复（追溯）**
@@ -129,7 +129,7 @@
 
 | 优先级 | 缺陷 | 说明 |
 |--------|------|------|
-| 🟡 | **`findMyBank` 分页 100 上限** | 见跨阶段；题库元信息加载瓶颈 |
+| ✅ | **`findMyBank` 分页 100 上限** | Phase 4 已改为 `getBankNode` |
 | 🟡 | **`TagQuestionType` 未分色** | 见跨阶段 |
 | 🟢 | 试题表单与预览导入表单逻辑部分重复 | 可抽公共表单项（二期重构） |
 
@@ -176,7 +176,7 @@
 
 1. **判断题选项与 T/F 联调**（P1 访客 + P3/P4 登录刷题）  
 2. **AI 导入全链路 + Worker**（P8）  
-3. **`findMyBank` 改为按 ID 查询**（P6/P7/P8）  
+3. ~~**`findMyBank` 改为按 ID 查询**~~（Phase 4 已完成）  
 4. **Toast 体系统一**（P9 延续）  
 5. **大厅 resize 分页校正、已登录访问 `/login` 重定向**（P1/P2 小改）  
 6. **E2E 关键路径**（P9-6）  

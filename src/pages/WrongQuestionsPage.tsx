@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { pagePublicBanks } from "@/api/banks";
+import { isLeafNode, listPublicBankTree } from "@/api/bankNodes";
 import {
   pageWrongQuestions,
   removeWrongQuestion,
@@ -32,12 +32,12 @@ export function WrongQuestionsPage() {
 
     async function loadPublicBanks() {
       try {
-        const data = await pagePublicBanks({ current: 1, pageSize: 100 });
+        const nodes = await listPublicBankTree();
         const labels: Record<number, string> = {};
 
-        for (const bank of data?.records ?? []) {
-          if (bank.id) {
-            labels[bank.id] = bank.title ?? `题库 ${bank.id}`;
+        for (const node of nodes ?? []) {
+          if (isLeafNode(node) && node.id) {
+            labels[node.id] = node.title ?? `题库 ${node.id}`;
           }
         }
 

@@ -2,16 +2,22 @@ import { useMemo, useState } from "react";
 import { Outlet, useMatch, useNavigate } from "react-router-dom";
 
 import {
+  moveBankNode,
   type BankNode,
   type BankNodeKind,
 } from "@/api/bankNodes";
 import { BankNodeFormDrawer } from "@/components/bank/BankNodeFormDrawer";
 import { DeleteBankNodeDialog } from "@/components/bank/DeleteBankNodeDialog";
-import { BankTree } from "@/components/bank-tree/BankTree";
+import {
+  computeBankNodeMove,
+  getNodeDepth,
+} from "@/components/bank-tree/computeBankNodeMove";
+import { DraggableManageTree } from "@/components/bank-tree/DraggableManageTree";
 import type { TreeBankNode } from "@/components/bank-tree/buildBankTree";
 import { useBankTree } from "@/components/bank-tree/useBankTree";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
+import { resolveApiErrorMessage } from "@/lib/apiErrors";
 
 export type ManageBanksOutletContext = {
   previewNode: BankNode | null;
@@ -32,7 +38,7 @@ export function ManageBanksLayout() {
     : null;
 
   const { error, flatNodes, loading, refresh, tree } = useBankTree();
-  const { success } = useAppToast();
+  const { error: showError, show, success } = useAppToast();
 
   const [folderPreviewId, setFolderPreviewId] = useState<number | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -78,6 +84,27 @@ export function ManageBanksLayout() {
     }
   }
 
+  async function handleMove(activeId: number, overId: number) {
+    const move = computeBankNodeMove(flatNodes, activeId, overId);
+    if (!move) {
+      return;
+    }
+
+    const parentDepth =
+      move.newParentId == null ? -1 : getNodeDepth(flatNodes, move.newParentId);
+    if (parentDepth + 1 > 10) {
+      show({ message: "当前层级已超过 10 层，结构可能较难维护。" });
+    }
+
+    try {
+      await moveBankNode(activeId, move);
+      refresh();
+      success("已移动节点");
+    } catch (caught) {
+      showError(resolveApiErrorMessage(caught, "移动失败，请重试。"));
+    }
+  }
+
   function handleSaved(nodeId?: number) {
     refresh();
     success("保存成功");
@@ -111,7 +138,7 @@ export function ManageBanksLayout() {
             管理题库
           </h1>
           <p className="mt-2 text-sm leading-6 text-text-secondary">
-            用文件夹组织多层结构，在题库节点中录题、导入与刷题。
+            用文件夹组织多层结构；拖拽左侧手柄可调整层级与排序。
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -128,9 +155,10 @@ export function ManageBanksLayout() {
             我的题库树
           </p>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <BankTree
+            <DraggableManageTree
               error={error}
               loading={loading}
+              onMove={(activeId, overId) => void handleMove(activeId, overId)}
               onRetry={refresh}
               onSelect={handleSelect}
               selectedId={treeSelectedId}

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { getHotPracticeDetail, type Question, type QuestionBank } from "@/api/banks";
+import { getHotPracticeDetail } from "@/api/bankNodes";
+import type { QuestionBank } from "@/api/banks";
+import type { Question } from "@/api/questions";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PageTransition } from "@/components/motion/PageTransition";

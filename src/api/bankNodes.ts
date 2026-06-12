@@ -1,5 +1,10 @@
 import { request } from "@/api/client";
-import type { PageResult } from "@/api/banks";
+import type { components } from "@/types/api";
+
+export type PageResult<T> = {
+  total?: number;
+  records?: T[];
+} | null;
 
 export type BankNodeKind = "FOLDER" | "LEAF";
 
@@ -35,6 +40,17 @@ export type BankNodeUpdatePayload = {
   isPublic?: number;
   sortNo?: number;
 };
+
+export type BankNodeMovePayload = {
+  newParentId?: number | null;
+  newSortNo?: number;
+};
+
+export type QuestionBankDetailBundle =
+  components["schemas"]["QuestionBankDetailBundleVO"];
+
+export type BatchImportPayload =
+  components["schemas"]["BatchImportRequestDTO"];
 
 export type BankTreeScope = "public" | "mine";
 
@@ -85,6 +101,29 @@ export function updateBankNode(nodeId: number, payload: BankNodeUpdatePayload) {
 export function deleteBankNode(nodeId: number) {
   return request<null>(`/api/v1/bank-nodes/${nodeId}`, {
     method: "DELETE",
+  });
+}
+
+export function moveBankNode(nodeId: number, payload: BankNodeMovePayload) {
+  return request<null>(`/api/v1/bank-nodes/${nodeId}/move`, {
+    body: payload,
+    method: "PATCH",
+  });
+}
+
+export function getHotPracticeDetail(nodeId: number) {
+  return request<QuestionBankDetailBundle>(
+    `/api/v1/bank-nodes/${nodeId}/hot-practice-detail`,
+  );
+}
+
+export function batchImportQuestions(
+  nodeId: number,
+  payload: BatchImportPayload,
+) {
+  return request<null>(`/api/v1/bank-nodes/${nodeId}/questions/batch`, {
+    body: payload,
+    method: "POST",
   });
 }
 

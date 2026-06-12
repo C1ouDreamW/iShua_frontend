@@ -8,7 +8,7 @@ import {
   submitImport,
   type AiImportTaskSummary,
 } from "@/api/aiImport";
-import { batchImportQuestions } from "@/api/banks";
+import { batchImportQuestions } from "@/api/bankNodes";
 import { ImportRecoveryBanner } from "@/components/import/ImportRecoveryBanner";
 import { PreviewQuestionTable } from "@/components/import/PreviewQuestionTable";
 import { Button } from "@/components/ui/button";
