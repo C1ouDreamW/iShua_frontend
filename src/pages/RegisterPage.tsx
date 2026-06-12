@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import { ApiError } from "@/api/client";
-import { RegisterMascot } from "@/components/auth/RegisterMascot";
+import { RoleFeatureCompare } from "@/components/auth/RoleFeatureCompare";
 import { AuthForm } from "@/components/AuthForm";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Button } from "@/components/ui/button";
@@ -53,18 +53,20 @@ export function RegisterPage() {
     <main className="flex min-h-screen items-center justify-center px-6 py-12">
       <PageTransition className="w-full max-w-5xl">
       <section className="paper-panel grid w-full gap-8 p-6 md:grid-cols-[1fr_420px] md:p-8">
-        <div className="flex min-h-72 flex-col justify-between rounded-lg border border-brand/20 bg-brand-muted p-8 shadow-paper">
+        <div className="flex min-h-72 flex-col justify-between gap-6 rounded-lg bg-brand p-8 text-white shadow-paper">
           <div>
-            <Button asChild variant="outline">
+            <Button asChild variant="secondary">
               <Link to="/">返回大厅</Link>
             </Button>
           </div>
+
+          <RoleFeatureCompare tone="onBrand" />
+
           <div>
-            {/* <RegisterMascot /> */}
-            <h1 className="mt-4 font-serif text-4xl font-semibold text-text-primary">
+            <h1 className="font-serif text-4xl font-semibold">
               今天，也刷一点
             </h1>
-            <p className="mt-4 max-w-md leading-7 text-text-secondary">
+            <p className="mt-4 max-w-md leading-7 text-white/90">
               注册后默认获得 USER 权限，可在后续阶段同步错题与练习记录。
             </p>
           </div>
