@@ -127,7 +127,7 @@ export function PracticeBanksPage() {
                   >
                     <path d="M4.5 7V5a3.5 3.5 0 117 0v2h.75A1.75 1.75 0 0114 8.75v4.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-4.5A1.75 1.75 0 013.75 7H4.5zm1 0h5V5a2.5 2.5 0 10-5 0v2zM3.75 8a.75.75 0 00-.75.75v4.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4.5a.75.75 0 00-.75-.75h-8.5z" />
                   </svg>
-                  （PREMIUM）
+                  <span className="hidden sm:inline">（PREMIUM）</span>
                 </span>
               ) : null}
             </button>

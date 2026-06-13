@@ -96,7 +96,7 @@ export function LobbyAuthenticatedActions({
   onLogout,
 }: LobbyAccountMenuProps) {
   return (
-    <div className="flex shrink-0 items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2">
       <Button asChild>
         <Link to="/app/banks">进入学习</Link>
       </Button>

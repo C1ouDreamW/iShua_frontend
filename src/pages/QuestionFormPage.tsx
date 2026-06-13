@@ -21,6 +21,7 @@ import {
   type QuestionFormState,
   type QuestionType,
 } from "@/lib/questionForm";
+import { practiceFooterClasses } from "@/lib/practiceUi";
 import { cn } from "@/lib/utils";
 
 export function QuestionFormPage() {
@@ -185,7 +186,7 @@ export function QuestionFormPage() {
   }
 
   return (
-    <main className="min-h-screen pb-28">
+    <main className="min-h-screen pb-practice-footer">
       <div className="mx-auto max-w-3xl px-6 py-10">
         <Button asChild className="mb-6" size="sm" variant="ghost">
           <Link to={detailPath}>← 返回题库详情</Link>
@@ -347,8 +348,8 @@ export function QuestionFormPage() {
         </form>
       </div>
 
-      <footer className="fixed inset-x-0 bottom-0 border-t bg-bg-surface/95 backdrop-blur lg:left-60">
-        <div className="mx-auto flex max-w-3xl gap-3 px-6 py-4">
+      <footer className={cn(practiceFooterClasses(), "lg:left-60")}>
+        <div className="mx-auto flex max-w-3xl gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Button asChild className="flex-1" variant="outline">
             <Link to={detailPath}>取消</Link>
           </Button>

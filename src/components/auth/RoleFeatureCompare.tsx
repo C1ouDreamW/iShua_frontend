@@ -44,7 +44,7 @@ export function RoleFeatureCompare({
       </p>
 
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[280px] border-collapse text-left text-xs">
+        <table className="w-full min-w-0 border-collapse text-left text-xs">
           <thead>
             <tr
               className={cn(

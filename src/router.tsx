@@ -77,10 +77,12 @@ export const router = createBrowserRouter([
           },
           {
             path: ":bankId/questions/new",
+            handle: { immersive: true },
             element: <QuestionFormPage />,
           },
           {
             path: ":bankId/questions/:id/edit",
+            handle: { immersive: true },
             element: <QuestionFormPage />,
           },
           {

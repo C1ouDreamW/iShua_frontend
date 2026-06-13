@@ -19,7 +19,7 @@ export function AppToastViewport() {
     <div
       aria-live="polite"
       className={cn(
-        "pointer-events-none fixed inset-x-0 top-4 z-[100] flex justify-center px-4 motion-safe:transition-opacity motion-safe:duration-200",
+        "pointer-events-none fixed inset-x-0 top-[calc(1rem+env(safe-area-inset-top,0px))] z-[100] flex justify-center px-4 motion-safe:transition-opacity motion-safe:duration-200",
         toast ? "opacity-100" : "opacity-0",
       )}
       role="status"

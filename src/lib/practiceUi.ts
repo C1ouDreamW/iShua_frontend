@@ -40,3 +40,16 @@ export function practiceAnalysisClasses() {
     "motion-safe:transition-opacity motion-safe:duration-200",
   );
 }
+
+export function practiceFooterClasses() {
+  return cn(
+    "fixed inset-x-0 bottom-0 z-30 border-t border-border bg-bg-surface/95 backdrop-blur-sm pb-safe",
+  );
+}
+
+export function practiceFooterInnerClasses() {
+  return cn(
+    "mx-auto grid max-w-3xl grid-cols-3 gap-2 px-4 py-3 sm:gap-3 sm:px-6 sm:py-4",
+    "[&_button]:min-w-0 [&_button]:px-2 sm:[&_button]:px-4",
+  );
+}

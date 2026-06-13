@@ -70,7 +70,7 @@ export function LoginPage() {
     <main className="flex min-h-screen items-center justify-center px-6 py-12">
       <PageTransition className="w-full max-w-5xl">
       <section className="paper-panel grid w-full gap-8 p-6 md:grid-cols-[1fr_420px] md:p-8">
-        <div className="flex min-h-72 flex-col justify-between rounded-lg bg-brand p-8 text-white shadow-paper">
+        <div className="flex flex-col gap-6 rounded-lg bg-brand p-6 text-white shadow-paper sm:min-h-72 sm:justify-between sm:p-8">
           <div>
             <Button asChild variant="secondary">
               <Link to="/">返回大厅</Link>

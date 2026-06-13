@@ -32,7 +32,7 @@ export function RootNodeCard({ node }: RootNodeCardProps) {
   return (
     <article
       className={cn(
-        "paper-panel paper-panel-accent flex min-h-52 flex-col justify-between p-5",
+        "paper-panel paper-panel-accent flex min-h-44 flex-col justify-between p-5 sm:min-h-52",
         "transition-[border-color,background-color] duration-100",
         "hover:border-brand/30",
       )}

@@ -18,6 +18,8 @@ import { parseOptionsJson } from "@/lib/parseOptionsJson";
 import {
   paperSheetClasses,
   practiceAnalysisClasses,
+  practiceFooterClasses,
+  practiceFooterInnerClasses,
   practiceOptionClasses,
   practiceOptionMarkerClasses,
   practiceTypeBadgeClasses,
@@ -266,7 +268,7 @@ export function GuestPracticePage() {
 
   return (
     <PageTransition>
-    <main className="min-h-screen pb-28">
+    <main className="min-h-screen pb-practice-footer">
       <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
           <div className="min-w-0">
@@ -367,8 +369,8 @@ export function GuestPracticePage() {
         </QuestionTransition>
       </section>
 
-      <footer className="fixed inset-x-0 bottom-0 border-t border-border bg-bg-surface/95 backdrop-blur-sm">
-        <div className="mx-auto grid max-w-3xl grid-cols-3 gap-3 px-6 py-4">
+      <footer className={practiceFooterClasses()}>
+        <div className={practiceFooterInnerClasses()}>
           <Button
             disabled={currentIndex === 0}
             onClick={() => setCurrentIndex((index) => index - 1)}

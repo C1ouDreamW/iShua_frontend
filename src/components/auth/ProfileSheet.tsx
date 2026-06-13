@@ -44,7 +44,7 @@ export function ProfileSheet({
           <motion.section
             animate={{ y: 0 }}
             aria-label="我的"
-            className="absolute inset-x-0 bottom-0 rounded-t-2xl border bg-bg-surface p-6 pb-8 shadow-lg"
+            className="absolute inset-x-0 bottom-0 rounded-t-2xl border bg-bg-surface p-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] shadow-lg"
             exit={{ y: "100%" }}
             initial={{ y: "100%" }}
             role="dialog"
@@ -134,7 +134,7 @@ export function MobileNavBar({
   return (
     <nav
       aria-label="底部导航"
-      className="fixed inset-x-0 bottom-0 z-40 border-t bg-bg-surface/95 backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t bg-bg-surface/95 backdrop-blur pb-safe lg:hidden"
     >
       <ul className="mx-auto grid h-14 max-w-lg grid-cols-4">
         {items.map((item) => {

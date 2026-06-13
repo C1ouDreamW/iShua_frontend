@@ -207,7 +207,7 @@ export function AppShell() {
           跳到主内容
         </a>
 
-        <main className="flex-1 pb-20 lg:pb-0" id="main-content">
+        <main className="flex-1 pb-mobile-nav lg:pb-0" id="main-content">
           <AnimatePresence initial={false} mode="wait">
             <motion.div
               animate="visible"

@@ -28,7 +28,7 @@ export function PracticeToast({
     <div
       aria-live="polite"
       className={cn(
-        "pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4 motion-safe:transition-opacity motion-safe:duration-300",
+        "pointer-events-none fixed inset-x-0 top-[calc(1rem+env(safe-area-inset-top,0px))] z-50 flex justify-center px-4 motion-safe:transition-opacity motion-safe:duration-300",
         visible ? "opacity-100" : "opacity-0",
       )}
       role="status"

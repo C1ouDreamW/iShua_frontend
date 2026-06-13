@@ -14,6 +14,8 @@ import {
 import {
   paperSheetClasses,
   practiceAnalysisClasses,
+  practiceFooterClasses,
+  practiceFooterInnerClasses,
   practiceOptionClasses,
   practiceOptionMarkerClasses,
   practiceTypeBadgeClasses,
@@ -112,7 +114,7 @@ export function PracticePlayer({
   }
 
   return (
-    <main className="min-h-screen pb-28">
+    <main className="min-h-screen pb-practice-footer">
       <PracticeToast
         message="已加入错题本"
         onDismiss={onDismissWrongToast}
@@ -252,47 +254,45 @@ export function PracticePlayer({
         </QuestionTransition>
       </section>
 
-      <footer className="fixed inset-x-0 bottom-0 border-t border-border bg-bg-surface/95 backdrop-blur-sm">
-        <div className="mx-auto max-w-3xl px-6 py-4">
-          <div className="grid grid-cols-3 gap-3">
-            <Button
-              disabled={currentIndex === 0}
-              onClick={() => onIndexChange(currentIndex - 1)}
-              variant="outline"
-            >
-              上一题
-            </Button>
-            <Button
-              disabled={
-                !record ||
-                record.answer.length === 0 ||
-                record.submitted ||
-                record.submitting
+      <footer className={practiceFooterClasses()}>
+        <div className={practiceFooterInnerClasses()}>
+          <Button
+            disabled={currentIndex === 0}
+            onClick={() => onIndexChange(currentIndex - 1)}
+            variant="outline"
+          >
+            上一题
+          </Button>
+          <Button
+            disabled={
+              !record ||
+              record.answer.length === 0 ||
+              record.submitted ||
+              record.submitting
+            }
+            onClick={onSubmit}
+          >
+            {record?.submitting
+              ? isManualGrading
+                ? "加载中…"
+                : "提交中…"
+              : isManualGrading
+                ? "显示答案"
+                : "提交"}
+          </Button>
+          <Button
+            onClick={() => {
+              if (currentIndex >= questions.length - 1) {
+                onComplete();
+                return;
               }
-              onClick={onSubmit}
-            >
-              {record?.submitting
-                ? isManualGrading
-                  ? "加载中…"
-                  : "提交中…"
-                : isManualGrading
-                  ? "显示答案"
-                  : "提交"}
-            </Button>
-            <Button
-              onClick={() => {
-                if (currentIndex >= questions.length - 1) {
-                  onComplete();
-                  return;
-                }
 
-                onIndexChange(currentIndex + 1);
-              }}
-              variant="outline"
-            >
-              {currentIndex >= questions.length - 1 ? "完成" : "下一题"}
-            </Button>
-          </div>
+              onIndexChange(currentIndex + 1);
+            }}
+            variant="outline"
+          >
+            {currentIndex >= questions.length - 1 ? "完成" : "下一题"}
+          </Button>
         </div>
       </footer>
     </main>

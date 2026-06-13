@@ -90,17 +90,17 @@ export function HomePage() {
   return (
     <main className="min-h-screen">
       <PageTransition className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
-        <header className="paper-panel relative overflow-hidden p-8">
+        <header className="paper-panel relative overflow-hidden p-6 sm:p-8">
           <div
             aria-hidden
             className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-border"
           />
           <div className="relative flex flex-col gap-8">
-            <div className="flex items-start justify-between gap-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex flex-col gap-3">
                 <LogoMark size="lg" />
                 <div>
-                  <h1 className="font-serif text-4xl font-semibold text-text-primary">
+                  <h1 className="font-serif text-3xl font-semibold text-text-primary sm:text-4xl">
                     iShua
                   </h1>
                   <p className="mt-2 text-lg text-text-secondary">
@@ -108,7 +108,7 @@ export function HomePage() {
                   </p>
                 </div>
               </div>
-              <Reveal>
+              <Reveal className="sm:shrink-0">
                 {authLoading ? (
                   <div
                     aria-hidden
@@ -122,7 +122,7 @@ export function HomePage() {
                 ) : (
                   <nav
                     aria-label="访客导航"
-                    className="flex shrink-0 items-center gap-2"
+                    className="flex items-center gap-2 self-end sm:shrink-0"
                   >
                     <Button asChild variant="ghost">
                       <Link to="/login">登录</Link>

@@ -150,7 +150,7 @@ export function ManageBanksLayout() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(240px,280px)_minmax(0,1fr)]">
-        <aside className="paper-panel flex max-h-[calc(100vh-12rem)] flex-col gap-3 overflow-hidden p-3">
+        <aside className="paper-panel flex max-h-[calc(100vh-12rem-3.5rem-env(safe-area-inset-bottom,0px))] flex-col gap-3 overflow-hidden p-3 lg:max-h-[calc(100vh-12rem)]">
           <p className="px-1 text-xs font-medium uppercase tracking-wide text-text-muted">
             我的题库树
           </p>
