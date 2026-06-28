@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import type { Question } from "@/api/questions";
+import { TagAnswerSource } from "@/components/question/TagAnswerSource";
 import { TagQuestionType } from "@/components/question/TagQuestionType";
 import { Button } from "@/components/ui/button";
 
@@ -26,6 +27,10 @@ export function QuestionList({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <TagQuestionType type={question.questionType} />
+                <TagAnswerSource
+                  confidence={question.answerConfidence}
+                  source={question.answerSource}
+                />
                 {question.sortNo != null ? (
                   <span className="text-xs text-text-muted">
                     排序 {question.sortNo}

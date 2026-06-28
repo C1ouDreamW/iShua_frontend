@@ -1,12 +1,14 @@
 import { useState } from "react";
 
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
+import { TagAnswerSource } from "@/components/question/TagAnswerSource";
 import { TagQuestionType } from "@/components/question/TagQuestionType";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   createEmptyPreviewRow,
   formatAnswerSummary,
+  isLowConfidenceAiQuestion,
   type EditablePreviewQuestion,
 } from "@/lib/aiImport";
 import {
@@ -81,9 +83,20 @@ export function PreviewQuestionTable({
           <Stagger as="tbody" key={questions.length}>
             {questions.map((question, index) => {
               const isExpanded = expandedKeys.has(question.key);
+              const isLowConfidence = isLowConfidenceAiQuestion(
+                question.answerSource,
+                question.answerConfidence,
+              );
 
               return (
-                <StaggerItem as="tr" className="border-b align-top" key={question.key}>
+                <StaggerItem
+                  as="tr"
+                  className={cn(
+                    "border-b align-top",
+                    isLowConfidence && "bg-error/5",
+                  )}
+                  key={question.key}
+                >
                   <td className="px-4 py-3 tabular-nums">{index + 1}</td>
                   <td className="px-4 py-3">
                     <TagQuestionType type={question.questionType} />
@@ -92,6 +105,11 @@ export function PreviewQuestionTable({
                     <p className="line-clamp-1 text-text-primary">
                       {question.stem || "（无题干）"}
                     </p>
+                    <TagAnswerSource
+                      className="mt-1"
+                      confidence={question.answerConfidence}
+                      source={question.answerSource}
+                    />
                   </td>
                   <td className="px-4 py-3 text-text-secondary">
                     {formatAnswerSummary(question.answers)}

@@ -21,6 +21,32 @@ export type ImportTaskStatus =
   | "FAILED"
   | "EXPIRED";
 
+export type AnswerTaskStatus =
+  | "SUBMITTED"
+  | "PROCESSING"
+  | "ANSWERED"
+  | "PARTIAL"
+  | "FAILED"
+  | "IMPORTED";
+
+export type AnswerSource = "ORIGINAL" | "MISSING" | "AI_GENERATED";
+export type AnswerConfidence = "HIGH" | "MEDIUM" | "LOW";
+
+export const ANSWER_SOURCE_LABEL: Record<AnswerSource, string> = {
+  ORIGINAL: "原文",
+  MISSING: "缺答案",
+  AI_GENERATED: "AI解答",
+};
+
+export const ANSWER_CONFIDENCE_LABEL: Record<AnswerConfidence, string> = {
+  HIGH: "高",
+  MEDIUM: "中",
+  LOW: "低",
+};
+
+/** 仅这几类客观题可进入 AI 解答流程。 */
+const ANSWERABLE_QUESTION_TYPES = new Set(["SINGLE", "MULTI", "JUDGE"]);
+
 export const IMPORT_EXPIRED_MESSAGE = "任务已过期，请重新上传文件";
 export const IMPORT_TASK_MISSING_MESSAGE = "任务不存在或已失效，请重新上传";
 
@@ -52,6 +78,10 @@ export function clearImportSessionTaskId(bankId: number) {
 
 export type EditablePreviewQuestion = QuestionFormState & {
   key: string;
+  /** 答案来源；透传至批量入库，使后端写入 question.answer_source。 */
+  answerSource?: AnswerSource;
+  /** 答案置信度；仅 AI_GENERATED 题非空，透传至批量入库。 */
+  answerConfidence?: AnswerConfidence;
 };
 
 function isExpiredImportMessage(message: string | undefined) {
@@ -119,6 +149,8 @@ export function previewToEditable(
     key: `preview-${index}`,
     analysis: question.analysis ?? "",
     answers: question.answer ?? [],
+    answerConfidence: question.answerConfidence as AnswerConfidence | undefined,
+    answerSource: (question.answerSource ?? "ORIGINAL") as AnswerSource,
     options:
       questionType === "JUDGE"
         ? question.options?.length
@@ -144,6 +176,8 @@ export function editableToPreview(question: EditablePreviewQuestion): QuestionPr
   return {
     analysis: question.analysis.trim() || undefined,
     answer: question.answers,
+    answerConfidence: question.answerConfidence,
+    answerSource: question.answerSource,
     options,
     questionType: question.questionType,
     stem: question.stem.trim(),
@@ -172,6 +206,99 @@ export function isParsedReady(status: string | undefined) {
 
 export function isInProgressImportStatus(status: string | undefined) {
   return status === "SUBMITTED" || status === "PROCESSING" || status === "IMPORTING";
+}
+
+export function isAnswerTerminalStatus(status: string | undefined) {
+  return status === "IMPORTED" || status === "FAILED";
+}
+
+export function isAnswerInProgressStatus(status: string | undefined) {
+  return status === "SUBMITTED" || status === "PROCESSING";
+}
+
+export function isAnswerReadyStatus(status: string | undefined) {
+  return status === "ANSWERED" || status === "PARTIAL";
+}
+
+export function isAnswerFailedStatus(status: string | undefined) {
+  return status === "FAILED";
+}
+
+export function isLowConfidenceAiQuestion(
+  source?: string | null,
+  confidence?: string | null,
+) {
+  return (
+    normalizeAnswerSource(source) === "AI_GENERATED" &&
+    confidence?.toUpperCase() === "LOW"
+  );
+}
+
+export function normalizeAnswerSource(value: string | null | undefined): AnswerSource {
+  if (value === "MISSING" || value === "AI_GENERATED") {
+    return value;
+  }
+  return "ORIGINAL";
+}
+
+/**
+ * 是否为可被 AI 解答的客观题：题型为 SINGLE/MULTI/JUDGE 且 answerSource=MISSING。
+ * 简答题（SHORT_ANSWER）不进入解答流程。
+ */
+export function isAnswerableMissingQuestion(question: {
+  questionType?: string;
+  answerSource?: string;
+}) {
+  const qtype = question.questionType?.toUpperCase();
+  return (
+    !!qtype &&
+    ANSWERABLE_QUESTION_TYPES.has(qtype) &&
+    normalizeAnswerSource(question.answerSource) === "MISSING"
+  );
+}
+
+export function countMissingAnswerable(
+  questions: EditablePreviewQuestion[],
+): number {
+  return questions.filter(isAnswerableMissingQuestion).length;
+}
+
+/**
+ * 将 AI 解答结果合并回预览列表：按 stem + questionType 匹配并替换答案相关字段。
+ * 未匹配到的题目（非解答范围）保持不变；失败题（answerSource 仍为 MISSING）也会被回填。
+ */
+export function mergeAiAnswerResults(
+  previews: EditablePreviewQuestion[],
+  answered: QuestionPreview[],
+): EditablePreviewQuestion[] {
+  const answeredByKey = new Map<string, QuestionPreview>();
+  for (const item of answered) {
+    const key = mergeKey(item.questionType, item.stem);
+    if (!answeredByKey.has(key)) {
+      answeredByKey.set(key, item);
+    }
+  }
+
+  return previews.map((preview) => {
+    const key = mergeKey(preview.questionType, preview.stem);
+    const matched = answeredByKey.get(key);
+
+    if (!matched) {
+      return preview;
+    }
+
+    return {
+      ...preview,
+      analysis: matched.analysis ?? preview.analysis,
+      answerConfidence: matched.answerConfidence as AnswerConfidence | undefined,
+      answerSource: normalizeAnswerSource(matched.answerSource),
+      answers: matched.answer ?? preview.answers,
+    };
+  });
+}
+
+function mergeKey(questionType: string | undefined, stem: string | undefined) {
+  return `${(questionType ?? "").toUpperCase()}\u0000${(stem ?? "").trim()}`;
 }
 
 export async function fetchPreviewQuestionsForTask(
@@ -204,6 +331,7 @@ export async function fetchPreviewQuestionsForTask(
 export function createEmptyPreviewRow(): EditablePreviewQuestion {
   return {
     ...createEmptyFormState("SINGLE"),
+    answerSource: "ORIGINAL",
     key: `preview-new-${Date.now()}`,
   };
 }

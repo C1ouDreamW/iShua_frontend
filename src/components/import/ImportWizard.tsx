@@ -11,6 +11,7 @@ import {
 import { batchImportQuestions } from "@/api/bankNodes";
 import { ImportRecoveryBanner } from "@/components/import/ImportRecoveryBanner";
 import { PreviewQuestionTable } from "@/components/import/PreviewQuestionTable";
+import { AiAnswerPanel } from "@/components/import/AiAnswerPanel";
 import { Button } from "@/components/ui/button";
 import { DURATION, EASE_OUT, slideVariants } from "@/lib/motion";
 import { useAiImportRecovery } from "@/hooks/useAiImportRecovery";
@@ -597,6 +598,13 @@ export function ImportWizard({
               </Button>
             </div>
           ) : null}
+
+          <AiAnswerPanel
+            disabled={importing || resuming}
+            onMerged={setPreviewQuestions}
+            previewQuestions={previewQuestions}
+            taskId={taskId}
+          />
 
           <PreviewQuestionTable
             disabled={importing || resuming}

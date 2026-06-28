@@ -12,23 +12,23 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 根据试题 ID 获取详情
-         * @description 须 JWT，最低角色 PREMIUM；仅所属题库所有者可查看（ADMIN 可 bypass）。
-         *     失败：code=403 角色为 USER；code=404 试题不存在或无权访问。
+         * æ ¹æ®è¯é¢ ID è·åè¯¦æ
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ä»æå±é¢åºææèå¯æ¥çï¼ADMIN å¯ bypassï¼ã
+         *     å¤±è´¥ï¼code=403 è§è²ä¸º USERï¼code=404 è¯é¢ä¸å­å¨ææ æè®¿é®ã
          */
         get: operations["getById"];
         /**
-         * 全量更新试题
-         * @description 须 JWT，最低角色 PREMIUM。不可更换所属题库；仅所属题库所有者可更新（ADMIN 可 bypass）。
-         *     请求体见 QuestionUpdateDTO（optionsJson/answerJson 为 JSON 数组字符串）。
-         *     失败：code=403 角色为 USER；code=404 试题不存在或无权。
+         * å¨éæ´æ°è¯é¢
+         * @description é¡» JWTï¼æä½è§è² PREMIUMãä¸å¯æ´æ¢æå±é¢åºï¼ä»æå±é¢åºææèå¯æ´æ°ï¼ADMIN å¯ bypassï¼ã
+         *     è¯·æ±ä½è§ QuestionUpdateDTOï¼optionsJson/answerJson ä¸º JSON æ°ç»å­ç¬¦ä¸²ï¼ã
+         *     å¤±è´¥ï¼code=403 è§è²ä¸º USERï¼code=404 è¯é¢ä¸å­å¨ææ æã
          */
         put: operations["update"];
         post?: never;
         /**
-         * 删除试题
-         * @description 须 JWT，最低角色 PREMIUM。逻辑删除；仅所属题库所有者可删除（ADMIN 可 bypass）。
-         *     失败：code=403 角色为 USER；code=404 试题不存在或无权。
+         * å é¤è¯é¢
+         * @description é¡» JWTï¼æä½è§è² PREMIUMãé»è¾å é¤ï¼ä»æå±é¢åºææèå¯å é¤ï¼ADMIN å¯ bypassï¼ã
+         *     å¤±è´¥ï¼code=403 è§è²ä¸º USERï¼code=404 è¯é¢ä¸å­å¨ææ æã
          */
         delete: operations["delete"];
         options?: never;
@@ -45,16 +45,18 @@ export interface paths {
         };
         get?: never;
         /**
-         * 全量更新题库
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可 bypass 归属），仅题库所有者可改。成功 data=null。
-         *     失败：code=403 角色为 USER；code=404 题库不存在或无权。
+         * å¨éæ´æ°é¢åº
+         * @deprecated
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å¯ bypass å½å±ï¼ï¼ä»é¢åºææèå¯æ¹ãæå data=nullã
+         *     å¤±è´¥ï¼code=403 è§è²ä¸º USERï¼code=404 é¢åºä¸å­å¨ææ æã
          */
         put: operations["updateBank"];
         post?: never;
         /**
-         * 删除题库
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可 bypass 归属），逻辑删除题库并级联逻辑删除其下全部试题。
-         *     失败：code=403 角色为 USER；code=404 题库不存在或无权。
+         * å é¤é¢åº
+         * @deprecated
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å¯ bypass å½å±ï¼ï¼é»è¾å é¤é¢åºå¹¶çº§èé»è¾å é¤å¶ä¸å¨é¨è¯é¢ã
+         *     å¤±è´¥ï¼code=403 è§è²ä¸º USERï¼code=404 é¢åºä¸å­å¨ææ æã
          */
         delete: operations["deleteBank"];
         options?: never;
@@ -70,16 +72,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 查询节点详情
-         * @description 须 PREMIUM+ 且为节点所有者（ADMIN 可 bypass）。
+         * æ¥è¯¢èç¹è¯¦æ
+         * @description é¡» PREMIUM+ ä¸ä¸ºèç¹ææèï¼ADMIN å¯ bypassï¼ã
          */
         get: operations["getNode"];
-        /** 更新树节点 */
+        /** æ´æ°æ èç¹ */
         put: operations["updateNode"];
         post?: never;
         /**
-         * 删除树节点
-         * @description FOLDER 递归删除子树；LEAF 级联删除题目。
+         * å é¤æ èç¹
+         * @description FOLDER éå½å é¤å­æ ï¼LEAF çº§èå é¤é¢ç®ã
          */
         delete: operations["deleteNode"];
         options?: never;
@@ -96,9 +98,9 @@ export interface paths {
         };
         get?: never;
         /**
-         * 管理端变更用户角色
-         * @description 须 JWT，仅 ADMIN。目标角色只允许 USER 或 PREMIUM；禁止设置 ADMIN，禁止修改已有 ADMIN。
-         *     失败：code=401 未登录；code=403 非管理员或违反角色变更规则。
+         * ç®¡çç«¯åæ´ç¨æ·è§è²
+         * @description é¡» JWTï¼ä» ADMINãç®æ è§è²åªåè®¸ USER æ PREMIUMï¼ç¦æ­¢è®¾ç½® ADMINï¼ç¦æ­¢ä¿®æ¹å·²æ ADMINã
+         *     å¤±è´¥ï¼code=401 æªç»å½ï¼code=403 éç®¡çåæè¿åè§è²åæ´è§åã
          */
         put: operations["updateRole"];
         post?: never;
@@ -118,8 +120,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 用户注册
-         * @description 无需登录。先校验邮箱验证码，通过后再创建用户。
+         * ç¨æ·æ³¨å
+         * @description æ éç»å½ãåæ ¡éªé®ç®±éªè¯ç ï¼éè¿åååå»ºç¨æ·ã
          */
         post: operations["register"];
         delete?: never;
@@ -138,8 +140,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 发送注册邮箱验证码
-         * @description 无需登录。须先通过 Cloudflare Turnstile 人机验证，再向指定邮箱发送 6 位验证码。
+         * åéæ³¨åé®ç®±éªè¯ç 
+         * @description æ éç»å½ãé¡»åéè¿ Cloudflare Turnstile äººæºéªè¯ï¼ååæå®é®ç®±åé 6 ä½éªè¯ç ã
          */
         post: operations["sendRegisterEmailCode"];
         delete?: never;
@@ -158,8 +160,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 用户登录
-         * @description 无需登录。校验账号密码，成功返回 JWT 与用户信息。
+         * ç¨æ·ç»å½
+         * @description æ éç»å½ãæ ¡éªè´¦å·å¯ç ï¼æåè¿å JWT ä¸ç¨æ·ä¿¡æ¯ã
          */
         post: operations["login"];
         delete?: never;
@@ -176,16 +178,18 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 分页查询当前用户的题库列表
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可）。Query：`current`、`pageSize`（必填）。仅返回当前用户创建的题库，按更新时间倒序。
-         *     失败：code=401 未登录；code=403 角色为 USER。
+         * åé¡µæ¥è¯¢å½åç¨æ·çé¢åºåè¡¨
+         * @deprecated
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å¯ï¼ãQueryï¼`current`ã`pageSize`ï¼å¿å¡«ï¼ãä»è¿åå½åç¨æ·åå»ºçé¢åºï¼ææ´æ°æ¶é´ååºã
+         *     å¤±è´¥ï¼code=401 æªç»å½ï¼code=403 è§è²ä¸º USERã
          */
         get: operations["pageMyBanks"];
         put?: never;
         /**
-         * 创建题库
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可）。成功 data 为新题库 ID（Long）。
-         *     失败：code=401 未登录；code=403 角色为 USER。
+         * åå»ºé¢åº
+         * @deprecated
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å¯ï¼ãæå data ä¸ºæ°é¢åº IDï¼Longï¼ã
+         *     å¤±è´¥ï¼code=401 æªç»å½ï¼code=403 è§è²ä¸º USERã
          */
         post: operations["createBank"];
         delete?: never;
@@ -202,17 +206,19 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 分页查询指定题库下的试题
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可 bypass 归属）。须为题库所有者。Query：`current`、`pageSize`（必填），`keyword`（可选，题干模糊）。
-         *     失败：code=403 角色为 USER；code=404 题库不存在或无权。
+         * åé¡µæ¥è¯¢æå®é¢åºä¸çè¯é¢
+         * @deprecated
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å¯ bypass å½å±ï¼ãé¡»ä¸ºé¢åºææèãQueryï¼`current`ã`pageSize`ï¼å¿å¡«ï¼ï¼`keyword`ï¼å¯éï¼é¢å¹²æ¨¡ç³ï¼ã
+         *     å¤±è´¥ï¼code=403 è§è²ä¸º USERï¼code=404 é¢åºä¸å­å¨ææ æã
          */
         get: operations["pageQuestionsInBank"];
         put?: never;
         /**
-         * 在指定题库下新增试题
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可 bypass 归属）。请求体为 QuestionUpdateDTO（含 optionsJson、answerJson 等 JSON 字符串字段），
-         *     **勿传 questionBankId**，题库以路径 bankId 为准。
-         *     成功 data 为新试题 ID。失败：code=403 角色为 USER；code=404 题库不存在或无权。
+         * å¨æå®é¢åºä¸æ°å¢è¯é¢
+         * @deprecated
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å¯ bypass å½å±ï¼ãè¯·æ±ä½ä¸º QuestionUpdateDTOï¼å« optionsJsonãanswerJson ç­ JSON å­ç¬¦ä¸²å­æ®µï¼ï¼
+         *     **å¿ä¼  questionBankId**ï¼é¢åºä»¥è·¯å¾ bankId ä¸ºåã
+         *     æå data ä¸ºæ°è¯é¢ IDãå¤±è´¥ï¼code=403 è§è²ä¸º USERï¼code=404 é¢åºä¸å­å¨ææ æã
          */
         post: operations["createQuestionInBank"];
         delete?: never;
@@ -231,31 +237,32 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 批量确认导入 AI 解析题目（幂等）
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 可 bypass 题库归属）。前端在 `GET .../ai-import/tasks/{taskId}/status` 返回 **PARSED** 且预览确认后调用。
+         * æ¹éç¡®è®¤å¯¼å¥ AI è§£æé¢ç®ï¼å¹ç­ï¼
+         * @deprecated
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å¯ bypass é¢åºå½å±ï¼ãåç«¯å¨ `GET .../ai-import/tasks/{taskId}/status` è¿å **PARSED** ä¸é¢è§ç¡®è®¤åè°ç¨ã
          *
-         *     **路径参数**：
-         *     - **bankId**：须与任务所属题库一致（路径与任务 meta/DB 记录校验）
+         *     **è·¯å¾åæ°**ï¼
+         *     - **bankId**ï¼é¡»ä¸ä»»å¡æå±é¢åºä¸è´ï¼è·¯å¾ä¸ä»»å¡ meta/DB è®°å½æ ¡éªï¼
          *
-         *     **请求体**（`BatchImportRequestDTO`）：
-         *     - **taskId**（必填）：submit 或列表/轮询接口获得的 UUID
-         *     - **questions**（必填）：用户确认后的题目列表（QuestionPreviewVO；options/answer 为数组）
+         *     **è¯·æ±ä½**ï¼`BatchImportRequestDTO`ï¼ï¼
+         *     - **taskId**ï¼å¿å¡«ï¼ï¼submit æåè¡¨/è½®è¯¢æ¥å£è·å¾ç UUID
+         *     - **questions**ï¼å¿å¡«ï¼ï¼ç¨æ·ç¡®è®¤åçé¢ç®åè¡¨ï¼QuestionPreviewVOï¼options/answer ä¸ºæ°ç»ï¼
          *
-         *     **预览数据来源优先级**（服务端解析待落库列表时）：
-         *     1. MySQL `ai_import_task.preview_json`（权威，关页后可恢复）
+         *     **é¢è§æ°æ®æ¥æºä¼åçº§**ï¼æå¡ç«¯è§£æå¾è½åºåè¡¨æ¶ï¼ï¼
+         *     1. MySQL `ai_import_task.preview_json`ï¼æå¨ï¼å³é¡µåå¯æ¢å¤ï¼
          *     2. Redis `ishua:task:result:{taskId}`
-         *     3. 请求体 `questions`（若请求体条数明显多于缓存，以缓存为准防重复落库）
+         *     3. è¯·æ±ä½ `questions`ï¼è¥è¯·æ±ä½æ¡æ°ææ¾å¤äºç¼å­ï¼ä»¥ç¼å­ä¸ºåé²éå¤è½åºï¼
          *
-         *     **幂等与状态**：
-         *     - 已成功 IMPORTED：再次提交 code=200、data=null（幂等成功）
-         *     - 并发落库中：code=409「该任务正在导入中，请稍候再试」
-         *     - 任务 status=EXPIRED：code=400「任务已过期，请重新上传文件」
-         *     - DB 存在且 status 非 PARSED：code=400「任务当前状态不可导入：{status}」
-         *     - taskId 在 DB/Redis 均不存在：code=400「任务不存在或已过期」
+         *     **å¹ç­ä¸ç¶æ**ï¼
+         *     - å·²æå IMPORTEDï¼åæ¬¡æäº¤ code=200ãdata=nullï¼å¹ç­æåï¼
+         *     - å¹¶åè½åºä¸­ï¼code=409ãè¯¥ä»»å¡æ­£å¨å¯¼å¥ä¸­ï¼è¯·ç¨ååè¯ã
+         *     - ä»»å¡ status=EXPIREDï¼code=400ãä»»å¡å·²è¿æï¼è¯·éæ°ä¸ä¼ æä»¶ã
+         *     - DB å­å¨ä¸ status é PARSEDï¼code=400ãä»»å¡å½åç¶æä¸å¯å¯¼å¥ï¼{status}ã
+         *     - taskId å¨ DB/Redis åä¸å­å¨ï¼code=400ãä»»å¡ä¸å­å¨æå·²è¿æã
          *
-         *     **成功**：题目写入 `question` 表，任务标记 IMPORTED，清理 Redis 预览缓存。
+         *     **æå**ï¼é¢ç®åå¥ `question` è¡¨ï¼ä»»å¡æ è®° IMPORTEDï¼æ¸ç Redis é¢è§ç¼å­ã
          *
-         *     **失败**：code=401 未登录；code=403（USER 角色、题库无权、task 与 bankId/用户不匹配）；code=400/409 见上
+         *     **å¤±è´¥**ï¼code=401 æªç»å½ï¼code=403ï¼USER è§è²ãé¢åºæ æãtask ä¸ bankId/ç¨æ·ä¸å¹éï¼ï¼code=400/409 è§ä¸
          */
         post: operations["batchImportQuestions"];
         delete?: never;
@@ -274,15 +281,15 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 提交答案并获取判分结果
-         * @description 须 JWT，最低角色 USER。提交指定试题的答案，服务端判分并返回结果。
-         *     公开/私有题库访问规则同「获取刷题题目列表」。
-         *     - 客观题（SINGLE / MULTI / JUDGE）：自动判分，`correct` 为 true/false。
-         *     - 答错时自动将该题加入错题本（若已在错题本中则递增错误次数）。
-         *     - **简答题（SHORT_ANSWER）不支持本接口**，请使用 `GET .../reference`。
-         *     - 答案与解析在响应的 `answerJson`、`analysis` 字段中返回。
-         *     - 用户答案格式：单选/多选传大写字母列表如 `["A"]`、`["A","C"]`；判断题传 `["T"]` 或 `["F"]`。
-         *     失败：code=404 题库/试题不存在；code=400 试题不属于该题库；code=403 私有库无权（USER 刷私有库或非所有者）。
+         * æäº¤ç­æ¡å¹¶è·åå¤åç»æ
+         * @description é¡» JWTï¼æä½è§è² USERãæäº¤æå®è¯é¢çç­æ¡ï¼æå¡ç«¯å¤åå¹¶è¿åç»æã
+         *     å¬å¼/ç§æé¢åºè®¿é®è§ååãè·åå·é¢é¢ç®åè¡¨ãã
+         *     - å®¢è§é¢ï¼SINGLE / MULTI / JUDGEï¼ï¼èªå¨å¤åï¼`correct` ä¸º true/falseã
+         *     - ç­éæ¶èªå¨å°è¯¥é¢å å¥éé¢æ¬ï¼è¥å·²å¨éé¢æ¬ä¸­åéå¢éè¯¯æ¬¡æ°ï¼ã
+         *     - **ç®ç­é¢ï¼SHORT_ANSWERï¼ä¸æ¯ææ¬æ¥å£**ï¼è¯·ä½¿ç¨ `GET .../reference`ã
+         *     - ç­æ¡ä¸è§£æå¨ååºç `answerJson`ã`analysis` å­æ®µä¸­è¿åã
+         *     - ç¨æ·ç­æ¡æ ¼å¼ï¼åé/å¤éä¼ å¤§åå­æ¯åè¡¨å¦ `["A"]`ã`["A","C"]`ï¼å¤æ­é¢ä¼  `["T"]` æ `["F"]`ã
+         *     å¤±è´¥ï¼code=404 é¢åº/è¯é¢ä¸å­å¨ï¼code=400 è¯é¢ä¸å±äºè¯¥é¢åºï¼code=403 ç§æåºæ æï¼USER å·ç§æåºæéææèï¼ã
          */
         post: operations["submitAnswer"];
         delete?: never;
@@ -301,8 +308,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 创建树节点
-         * @description nodeKind 为 FOLDER 或 LEAF；LEAF 可挂题。
+         * åå»ºæ èç¹
+         * @description nodeKind ä¸º FOLDER æ LEAFï¼LEAF å¯æé¢ã
          */
         post: operations["createNode"];
         delete?: never;
@@ -318,10 +325,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 分页查询 LEAF 节点下的试题 */
+        /** åé¡µæ¥è¯¢ LEAF èç¹ä¸çè¯é¢ */
         get: operations["pageQuestionsInNode"];
         put?: never;
-        /** 在 LEAF 节点下新增试题 */
+        /** å¨ LEAF èç¹ä¸æ°å¢è¯é¢ */
         post: operations["createQuestionInNode"];
         delete?: never;
         options?: never;
@@ -338,8 +345,41 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 批量确认导入 AI 解析题目（幂等） */
+        /** æ¹éç¡®è®¤å¯¼å¥ AI è§£æé¢ç®ï¼å¹ç­ï¼ */
         post: operations["batchImportQuestions_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai-import/tasks/{taskId}/ai-answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * åå»º AI è§£ç­ä»»å¡
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å«ï¼ã
+         *
+         *     **åç½®æ¡ä»¶**ï¼ç¶å¯¼å¥ä»»å¡ `taskId` å¿é¡»ä¸º `PARSED` ç¶æï¼ä¸å½åç¨æ·ä¸ºæäº¤èã
+         *
+         *     **è¯·æ±ä½**ï¼`AiAnswerCreateDTO`ï¼äºéä¸ï¼ï¼
+         *     - **questionIndices**ï¼æå® preview_json ä¸­çä¸æ åè¡¨ï¼0-basedï¼
+         *     - **filter=MISSING**ï¼èªå¨ç­éææ answerSource=MISSING ä¸é¢åä¸º SINGLE/MULTI/JUDGE çé¢
+         *
+         *     ä»å®¢è§é¢ï¼SINGLE/MULTI/JUDGEï¼ç MISSING é¢è¿å¥è§£ç­æµç¨ï¼SHORT_ANSWER ä¸æ¯æã
+         *     åæ¶ç»åº questionIndices ä¸ filter æ¶ä»¥ questionIndices ä¸ºåã
+         *
+         *     **ååº**ï¼`AiAnswerSubmitVO`ï¼ï¼answerTaskIdãparentTaskIdãstatus=SUBMITTEDãquestionCountã
+         *
+         *     **å¤±è´¥**ï¼code=400ï¼åæ°éæ³/æ å¯è§£ç­é¢/ç¶ä»»å¡é PARSEDï¼ã403ï¼æ ææä½ï¼ã404ï¼ç¶ä»»å¡ä¸å­å¨ï¼ã
+         */
+        post: operations["createAnswerTask"];
         delete?: never;
         options?: never;
         head?: never;
@@ -356,17 +396,17 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 提交文件导入任务（异步）
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 含）。`multipart/form-data` 字段：
-         *     - **file**（必填）：.txt / .pdf / .docx，最大 10MB
-         *     - **bankId**（必填）：目标题库 ID（form 字段；亦可通过 query `?bankId=` 传递，二者等价）
+         * æäº¤æä»¶å¯¼å¥ä»»å¡ï¼å¼æ­¥ï¼
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å«ï¼ã`multipart/form-data` å­æ®µï¼
+         *     - **file**ï¼å¿å¡«ï¼ï¼.txt / .pdf / .docxï¼æå¤§ 10MB
+         *     - **bankId**ï¼å¿å¡«ï¼ï¼ç®æ é¢åº IDï¼form å­æ®µï¼äº¦å¯éè¿ query `?bankId=` ä¼ éï¼äºèç­ä»·ï¼
          *
-         *     成功立即返回 taskId（status=SUBMITTED），同时写入 MySQL 任务表；后台经 Redis Stream 派发至 Python Worker。
-         *     关页恢复：`GET /api/v1/ai-import/tasks` 分页列出本人任务。
-         *     轮询：`GET /api/v1/ai-import/tasks/{taskId}/status`。
-         *     预览确认入库：`POST /api/v1/question-banks/{bankId}/questions/batch`。
+         *     æåç«å³è¿å taskIdï¼status=SUBMITTEDï¼ï¼åæ¶åå¥ MySQL ä»»å¡è¡¨ï¼åå°ç» Redis Stream æ´¾åè³ Python Workerã
+         *     å³é¡µæ¢å¤ï¼`GET /api/v1/ai-import/tasks` åé¡µååºæ¬äººä»»å¡ã
+         *     è½®è¯¢ï¼`GET /api/v1/ai-import/tasks/{taskId}/status`ã
+         *     é¢è§ç¡®è®¤å¥åºï¼`POST /api/v1/question-banks/{bankId}/questions/batch`ã
          *
-         *     失败：code=400（文件/格式/大小）、401 未登录、403（角色为 USER 或题库无权）、404 题库不存在、429（默认每用户每小时 5 次，见配置 ishua.ai-import.rate-limit）。
+         *     å¤±è´¥ï¼code=400ï¼æä»¶/æ ¼å¼/å¤§å°ï¼ã401 æªç»å½ã403ï¼è§è²ä¸º USER æé¢åºæ æï¼ã404 é¢åºä¸å­å¨ã429ï¼é»è®¤æ¯ç¨æ·æ¯å°æ¶ 5 æ¬¡ï¼è§éç½® ishua.ai-import.rate-limitï¼ã
          */
         post: operations["submitImport"];
         delete?: never;
@@ -385,28 +425,28 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * 清理长时间未确认的 AI 导入任务
-         * @description 须 JWT，**仅 ADMIN**。扫描 MySQL 中 `status=PARSED` 且 `parsed_at` 早于阈值的记录。
+         * æ¸çé¿æ¶é´æªç¡®è®¤ç AI å¯¼å¥ä»»å¡
+         * @description é¡» JWTï¼**ä» ADMIN**ãæ«æ MySQL ä¸­ `status=PARSED` ä¸ `parsed_at` æ©äºéå¼çè®°å½ã
          *
-         *     **请求体**（`AdminAiImportCleanupDTO`，JSON）：
-         *     - **olderThanDays**（可选，默认 7）：清理 `parsed_at < now - N 天` 的任务；范围 1~365
-         *     - **bankId**（可选）：仅处理指定题库
-         *     - **userId**（可选）：仅处理指定提交用户
-         *     - **dryRun**（可选，**默认 true**）：true 时只统计匹配数与样例 taskId，**不写库、不删文件**
-         *     - **deleteFiles**（可选，**默认 false**）：dryRun=false 时，是否删除 `file_url` 对应的上传文件
-         *     - **maxBatch**（可选，默认 200）：单次最多处理条数，范围 1~1000
+         *     **è¯·æ±ä½**ï¼`AdminAiImportCleanupDTO`ï¼JSONï¼ï¼
+         *     - **olderThanDays**ï¼å¯éï¼é»è®¤ 7ï¼ï¼æ¸ç `parsed_at < now - N å¤©` çä»»å¡ï¼èå´ 1~365
+         *     - **bankId**ï¼å¯éï¼ï¼ä»å¤çæå®é¢åº
+         *     - **userId**ï¼å¯éï¼ï¼ä»å¤çæå®æäº¤ç¨æ·
+         *     - **dryRun**ï¼å¯éï¼**é»è®¤ true**ï¼ï¼true æ¶åªç»è®¡å¹éæ°ä¸æ ·ä¾ taskIdï¼**ä¸ååºãä¸å æä»¶**
+         *     - **deleteFiles**ï¼å¯éï¼**é»è®¤ false**ï¼ï¼dryRun=false æ¶ï¼æ¯å¦å é¤ `file_url` å¯¹åºçä¸ä¼ æä»¶
+         *     - **maxBatch**ï¼å¯éï¼é»è®¤ 200ï¼ï¼åæ¬¡æå¤å¤çæ¡æ°ï¼èå´ 1~1000
          *
-         *     **dryRun=false 时的副作用**：
-         *     - DB：`status` → `EXPIRED`，写入 `expired_at`、`error_message`，清空 `preview_json`
-         *     - Redis：删除 `ishua:task:meta/status/result/import_lock` 相关键
-         *     - 用户侧：该 taskId 再调 batch 将返回 code=400「任务已过期」
+         *     **dryRun=false æ¶çå¯ä½ç¨**ï¼
+         *     - DBï¼`status` â `EXPIRED`ï¼åå¥ `expired_at`ã`error_message`ï¼æ¸ç©º `preview_json`
+         *     - Redisï¼å é¤ `ishua:task:meta/status/result/import_lock` ç¸å³é®
+         *     - ç¨æ·ä¾§ï¼è¯¥ taskId åè° batch å°è¿å code=400ãä»»å¡å·²è¿æã
          *
-         *     **响应**（`AdminAiImportCleanupResultVO`）：
-         *     - `dryRun`、`matchedCount`、`processedCount`、`sampleTaskIds`（最多 10 条）、`message`
+         *     **ååº**ï¼`AdminAiImportCleanupResultVO`ï¼ï¼
+         *     - `dryRun`ã`matchedCount`ã`processedCount`ã`sampleTaskIds`ï¼æå¤ 10 æ¡ï¼ã`message`
          *
-         *     **运维建议**：生产环境先 `dryRun=true` 确认 `matchedCount` 与 `sampleTaskIds`，再 `dryRun=false` 实清。
+         *     **è¿ç»´å»ºè®®**ï¼çäº§ç¯å¢å `dryRun=true` ç¡®è®¤ `matchedCount` ä¸ `sampleTaskIds`ï¼å `dryRun=false` å®æ¸ã
          *
-         *     **失败**：code=401 未登录；code=403 非 ADMIN；code=400（参数校验失败，如 olderThanDays 越界）
+         *     **å¤±è´¥**ï¼code=401 æªç»å½ï¼code=403 é ADMINï¼code=400ï¼åæ°æ ¡éªå¤±è´¥ï¼å¦ olderThanDays è¶çï¼
          */
         post: operations["cleanupStaleParsedTasks"];
         delete?: never;
@@ -429,8 +469,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * 移动树节点
-         * @description 可调整父节点与同级排序；禁止形成环。
+         * ç§»å¨æ èç¹
+         * @description å¯è°æ´ç¶èç¹ä¸åçº§æåºï¼ç¦æ­¢å½¢æç¯ã
          */
         patch: operations["moveNode"];
         trace?: never;
@@ -443,11 +483,11 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 分页查询当前用户的错题本
-         * @description 须 JWT，最低角色 USER。分页返回当前用户的错题记录，包含题目摘要（不含答案）。
-         *     - 可选参数 `bankId`：按题库过滤，不传则返回全部错题。
-         *     - 按最近做错时间倒序排列。
-         *     返回 `PageResultVO<WrongQuestionVO>`，`total` 为总条数。
+         * åé¡µæ¥è¯¢å½åç¨æ·çéé¢æ¬
+         * @description é¡» JWTï¼æä½è§è² USERãåé¡µè¿åå½åç¨æ·çéé¢è®°å½ï¼åå«é¢ç®æè¦ï¼ä¸å«ç­æ¡ï¼ã
+         *     - å¯éåæ° `bankId`ï¼æé¢åºè¿æ»¤ï¼ä¸ä¼ åè¿åå¨é¨éé¢ã
+         *     - ææè¿åéæ¶é´ååºæåã
+         *     è¿å `PageResultVO<WrongQuestionVO>`ï¼`total` ä¸ºæ»æ¡æ°ã
          */
         get: operations["pageWrongQuestions"];
         put?: never;
@@ -466,11 +506,11 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 按错题本重刷（获取错题刷题列表）
-         * @description 须 JWT，最低角色 USER。返回当前用户错题本中所有题目的刷题 VO（不含答案与解析）。
-         *     - 可选参数 `bankId`：只返回指定题库的错题，不传则返回全部错题。
-         *     - 按最近做错时间倒序排列。
-         *     前端拿到题目后仍通过 `POST /api/v1/practice/banks/{bankId}/questions/{questionId}/submit` 提交答案。
+         * æéé¢æ¬éå·ï¼è·åéé¢å·é¢åè¡¨ï¼
+         * @description é¡» JWTï¼æä½è§è² USERãè¿åå½åç¨æ·éé¢æ¬ä¸­ææé¢ç®çå·é¢ VOï¼ä¸å«ç­æ¡ä¸è§£æï¼ã
+         *     - å¯éåæ° `bankId`ï¼åªè¿åæå®é¢åºçéé¢ï¼ä¸ä¼ åè¿åå¨é¨éé¢ã
+         *     - ææè¿åéæ¶é´ååºæåã
+         *     åç«¯æ¿å°é¢ç®åä»éè¿ `POST /api/v1/practice/banks/{bankId}/questions/{questionId}/submit` æäº¤ç­æ¡ã
          */
         get: operations["listWrongPractice"];
         put?: never;
@@ -489,8 +529,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 获取当前登录用户信息
-         * @description 须 JWT，最低角色 USER。
+         * è·åå½åç»å½ç¨æ·ä¿¡æ¯
+         * @description é¡» JWTï¼æä½è§è² USERã
          */
         get: operations["me"];
         put?: never;
@@ -509,9 +549,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 获取公开热点题库刷题聚合数据（Redis 缓存）
-         * @description **无需登录。** 返回题库信息 + 全量试题（QuestionBankDetailBundleVO）。
-         *     仅 is_public=1 的公开题库；失败：code=404 不存在，code=403 非公开题库。
+         * è·åå¬å¼ç­ç¹é¢åºå·é¢èåæ°æ®ï¼Redis ç¼å­ï¼
+         * @deprecated
+         * @description **æ éç»å½ã** è¿åé¢åºä¿¡æ¯ + å¨éè¯é¢ï¼QuestionBankDetailBundleVOï¼ã
+         *     ä» is_public=1 çå¬å¼é¢åºï¼å¤±è´¥ï¼code=404 ä¸å­å¨ï¼code=403 éå¬å¼é¢åºã
          */
         get: operations["getHotPracticeDetail"];
         put?: never;
@@ -530,9 +571,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 分页查询所有公开题库列表
-         * @description **无需登录。** Query：`current`、`pageSize`（必填）。
-         *     仅 is_public=1，按更新时间降序，供刷题大厅展示。
+         * åé¡µæ¥è¯¢ææå¬å¼é¢åºåè¡¨
+         * @deprecated
+         * @description **æ éç»å½ã** Queryï¼`current`ã`pageSize`ï¼å¿å¡«ï¼ã
+         *     ä» is_public=1ï¼ææ´æ°æ¶é´éåºï¼ä¾å·é¢å¤§åå±ç¤ºã
          */
         get: operations["pagePublicBanks"];
         put?: never;
@@ -551,14 +593,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 获取刷题题目列表（不含答案）
-         * @description 须 JWT，最低角色 USER。返回指定题库的全量试题，**不包含答案与解析**，防止用户提交前获取答案。
-         *     - **公开题库**（is_public=1）：任意登录用户可刷，复用 Redis 热点缓存。
-         *     - **私有题库**：仅 PREMIUM 且为题库所有者可刷；USER 刷他人或任意私有库 → code=403；ADMIN 可 bypass。
-         *     - `random=true` 时随机打乱题目顺序。
-         *     - **客观题**（SINGLE/MULTI/JUDGE）：提交后判分，见 `POST .../submit`。
-         *     - **简答题**（SHORT_ANSWER）：`optionsJson` 为 `[]`，用户在前端本地作答，点「显示答案」时调 `GET .../reference`。
-         *     失败：code=404 题库不存在；code=403 私有库无权（含 USER 访问私有库）。
+         * è·åå·é¢é¢ç®åè¡¨ï¼ä¸å«ç­æ¡ï¼
+         * @description é¡» JWTï¼æä½è§è² USERãè¿åæå®é¢åºçå¨éè¯é¢ï¼**ä¸åå«ç­æ¡ä¸è§£æ**ï¼é²æ­¢ç¨æ·æäº¤åè·åç­æ¡ã
+         *     - **å¬å¼é¢åº**ï¼is_public=1ï¼ï¼ä»»æç»å½ç¨æ·å¯å·ï¼å¤ç¨ Redis ç­ç¹ç¼å­ã
+         *     - **ç§æé¢åº**ï¼ä» PREMIUM ä¸ä¸ºé¢åºææèå¯å·ï¼USER å·ä»äººæä»»æç§æåº â code=403ï¼ADMIN å¯ bypassã
+         *     - `random=true` æ¶éæºæä¹±é¢ç®é¡ºåºã
+         *     - **å®¢è§é¢**ï¼SINGLE/MULTI/JUDGEï¼ï¼æäº¤åå¤åï¼è§ `POST .../submit`ã
+         *     - **ç®ç­é¢**ï¼SHORT_ANSWERï¼ï¼`optionsJson` ä¸º `[]`ï¼ç¨æ·å¨åç«¯æ¬å°ä½ç­ï¼ç¹ãæ¾ç¤ºç­æ¡ãæ¶è° `GET .../reference`ã
+         *     å¤±è´¥ï¼code=404 é¢åºä¸å­å¨ï¼code=403 ç§æåºæ æï¼å« USER è®¿é®ç§æåºï¼ã
          */
         get: operations["listPracticeQuestions"];
         put?: never;
@@ -577,13 +619,13 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 查看简答题参考答案
-         * @description 须 JWT，最低角色 USER。仅适用于 **SHORT_ANSWER（简答题）**。
-         *     - **不接收用户答案**，不判分，不写错题本，无副作用。
-         *     - 用户在前端本地作答后，点击「显示答案」时调用本接口。
-         *     - 返回 `answerJson`（JSON 数组字符串，每项为一个要点/段落）与 `analysis`。
-         *     - 公开/私有题库访问规则同「获取刷题题目列表」。
-         *     失败：code=404 题库/试题不存在；code=400 试题不属于该题库或非简答题；code=403 私有库无权。
+         * æ¥çç®ç­é¢åèç­æ¡
+         * @description é¡» JWTï¼æä½è§è² USERãä»éç¨äº **SHORT_ANSWERï¼ç®ç­é¢ï¼**ã
+         *     - **ä¸æ¥æ¶ç¨æ·ç­æ¡**ï¼ä¸å¤åï¼ä¸åéé¢æ¬ï¼æ å¯ä½ç¨ã
+         *     - ç¨æ·å¨åç«¯æ¬å°ä½ç­åï¼ç¹å»ãæ¾ç¤ºç­æ¡ãæ¶è°ç¨æ¬æ¥å£ã
+         *     - è¿å `answerJson`ï¼JSON æ°ç»å­ç¬¦ä¸²ï¼æ¯é¡¹ä¸ºä¸ä¸ªè¦ç¹/æ®µè½ï¼ä¸ `analysis`ã
+         *     - å¬å¼/ç§æé¢åºè®¿é®è§ååãè·åå·é¢é¢ç®åè¡¨ãã
+         *     å¤±è´¥ï¼code=404 é¢åº/è¯é¢ä¸å­å¨ï¼code=400 è¯é¢ä¸å±äºè¯¥é¢åºæéç®ç­é¢ï¼code=403 ç§æåºæ æã
          */
         get: operations["revealReferenceAnswer"];
         put?: never;
@@ -601,7 +643,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取公开 LEAF 热点刷题聚合数据（Redis 缓存） */
+        /** è·åå¬å¼ LEAF ç­ç¹å·é¢èåæ°æ®ï¼Redis ç¼å­ï¼ */
         get: operations["getHotPracticeDetail_1"];
         put?: never;
         post?: never;
@@ -611,7 +653,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/bank-nodes/tree": {
+    "/api/v1/bank-nodes/public/tree": {
         parameters: {
             query?: never;
             header?: never;
@@ -619,11 +661,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 查询扁平题库树
-         * @description 返回扁平节点列表，前端自行组树。scope=public 无需登录；scope=mine 须 PREMIUM+。
-         *     可选 rootId 限定子树。
+         * æ¥è¯¢å¬å¼æå¹³é¢åºæ 
+         * @description æ éç»å½ãè¿åæå¹³èç¹åè¡¨ï¼åç«¯èªè¡ç»æ ï¼å¯é rootId éå®å­æ ã
          */
-        get: operations["listTree"];
+        get: operations["listPublicTree"];
         put?: never;
         post?: never;
         delete?: never;
@@ -632,7 +673,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/bank-nodes/roots": {
+    "/api/v1/bank-nodes/public/roots": {
         parameters: {
             query?: never;
             header?: never;
@@ -640,10 +681,50 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 分页查询根节点
-         * @description scope=public 无需登录，返回大厅可见根节点；scope=mine 须 PREMIUM+ JWT，返回当前用户根节点。
+         * åé¡µæ¥è¯¢å¬å¼æ ¹èç¹
+         * @description æ éç»å½ï¼è¿åå¤§åå¯è§æ ¹èç¹ã
          */
-        get: operations["pageRoots"];
+        get: operations["pagePublicRoots"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bank-nodes/mine/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * æ¥è¯¢å½åç¨æ·æå¹³é¢åºæ 
+         * @description é¡» JWTï¼æä½ PREMIUMï¼ADMIN å¯ï¼ãè¿åæå¹³èç¹åè¡¨ï¼å¯é rootId éå®å­æ ã
+         */
+        get: operations["listMyTree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bank-nodes/mine/roots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * åé¡µæ¥è¯¢å½åç¨æ·æ ¹èç¹
+         * @description é¡» JWTï¼æä½ PREMIUMï¼ADMIN å¯ï¼ã
+         */
+        get: operations["pageMyRoots"];
         put?: never;
         post?: never;
         delete?: never;
@@ -660,25 +741,25 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 分页查询当前用户 AI 导入任务
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 含）。用于页面重新打开后恢复「进行中 / 待确认」任务，无需本地保存 taskId。
+         * åé¡µæ¥è¯¢å½åç¨æ· AI å¯¼å¥ä»»å¡
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å«ï¼ãç¨äºé¡µé¢éæ°æå¼åæ¢å¤ãè¿è¡ä¸­ / å¾ç¡®è®¤ãä»»å¡ï¼æ éæ¬å°ä¿å­ taskIdã
          *
-         *     **Query 参数**（`AiImportTaskPageQueryDTO`，均通过 query 传递）：
-         *     - **current**、**pageSize**（必填）：分页，pageSize 上限见全局校验（默认最大 100）
-         *     - **bankId**（可选）：仅返回指定题库下的任务
-         *     - **status**（可选）：逗号分隔多状态，如 `PARSED,PROCESSING`；合法值：
-         *       `SUBMITTED`、`PROCESSING`、`PARSED`、`IMPORTING`、`IMPORTED`、`FAILED`、`EXPIRED`
-         *     - **includePreview**（可选，默认 false）：为 true 时，`status=PARSED` 的摘要项携带 `questions[]`（QuestionPreviewVO）
+         *     **Query åæ°**ï¼`AiImportTaskPageQueryDTO`ï¼åéè¿ query ä¼ éï¼ï¼
+         *     - **current**ã**pageSize**ï¼å¿å¡«ï¼ï¼åé¡µï¼pageSize ä¸éè§å¨å±æ ¡éªï¼é»è®¤æå¤§ 100ï¼
+         *     - **bankId**ï¼å¯éï¼ï¼ä»è¿åæå®é¢åºä¸çä»»å¡
+         *     - **status**ï¼å¯éï¼ï¼éå·åéå¤ç¶æï¼å¦ `PARSED,PROCESSING`ï¼åæ³å¼ï¼
+         *       `SUBMITTED`ã`PROCESSING`ã`PARSED`ã`IMPORTING`ã`IMPORTED`ã`FAILED`ã`EXPIRED`
+         *     - **includePreview**ï¼å¯éï¼é»è®¤ falseï¼ï¼ä¸º true æ¶ï¼`status=PARSED` çæè¦é¡¹æºå¸¦ `questions[]`ï¼QuestionPreviewVOï¼
          *
-         *     **响应**：`Result<PageResultVO<AiImportTaskSummaryVO>>`
-         *     - `data.total`：总条数
-         *     - `data.records[]`：当前页摘要（taskId、bankId、fileName、status、message、questionCount、时间戳等）
+         *     **ååº**ï¼`Result<PageResultVO<AiImportTaskSummaryVO>>`
+         *     - `data.total`ï¼æ»æ¡æ°
+         *     - `data.records[]`ï¼å½åé¡µæè¦ï¼taskIdãbankIdãfileNameãstatusãmessageãquestionCountãæ¶é´æ³ç­ï¼
          *
-         *     **前端建议**：
-         *     - 导入页 onMounted 调用：`status=PARSED,PROCESSING,SUBMITTED`，展示「待确认 / 解析中」横幅
-         *     - `includePreview=true` 时响应体较大，建议 `pageSize` 不超过 10
+         *     **åç«¯å»ºè®®**ï¼
+         *     - å¯¼å¥é¡µ onMounted è°ç¨ï¼`status=PARSED,PROCESSING,SUBMITTED`ï¼å±ç¤ºãå¾ç¡®è®¤ / è§£æä¸­ãæ¨ªå¹
+         *     - `includePreview=true` æ¶ååºä½è¾å¤§ï¼å»ºè®® `pageSize` ä¸è¶è¿ 10
          *
-         *     **失败**：code=401 未登录；code=403 角色为 USER；code=400（status 含非法枚举值）
+         *     **å¤±è´¥**ï¼code=401 æªç»å½ï¼code=403 è§è²ä¸º USERï¼code=400ï¼status å«éæ³æä¸¾å¼ï¼
          */
         get: operations["pageMyTasks"];
         put?: never;
@@ -697,34 +778,98 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 轮询 AI 导入任务状态
-         * @description 须 JWT，最低角色 PREMIUM（ADMIN 含）。
+         * è½®è¯¢ AI å¯¼å¥ä»»å¡ç¶æ
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å«ï¼ã
          *
-         *     **状态流转**：SUBMITTED → PROCESSING → PARSED →（用户确认 batch）→ IMPORTED；
-         *     失败为 FAILED；长时间未确认可被管理端清理为 EXPIRED（不可再 batch）。
+         *     **ç¶ææµè½¬**ï¼SUBMITTED â PROCESSING â PARSED âï¼ç¨æ·ç¡®è®¤ batchï¼â IMPORTEDï¼
+         *     å¤±è´¥ä¸º FAILEDï¼é¿æ¶é´æªç¡®è®¤å¯è¢«ç®¡çç«¯æ¸çä¸º EXPIREDï¼ä¸å¯å batchï¼ã
          *
-         *     **数据优先级**（MySQL 持久化后）：
-         *     - 任务存在于 MySQL 时，以 DB 状态与 `preview_json` 为准
-         *     - DB 中 PARSED 但预览为空时，尝试从 Redis `ishua:task:result:{taskId}` 回填并异步同步回 DB
-         *     - 仅 Redis 存在、DB 尚未同步的极短窗口内，回退读 Redis meta/status
+         *     **æ°æ®ä¼åçº§**ï¼MySQL æä¹ååï¼ï¼
+         *     - ä»»å¡å­å¨äº MySQL æ¶ï¼ä»¥ DB ç¶æä¸ `preview_json` ä¸ºå
+         *     - DB ä¸­ PARSED ä½é¢è§ä¸ºç©ºæ¶ï¼å°è¯ä» Redis `ishua:task:result:{taskId}` åå¡«å¹¶å¼æ­¥åæ­¥å DB
+         *     - ä» Redis å­å¨ãDB å°æªåæ­¥çæç­çªå£åï¼åéè¯» Redis meta/status
          *
-         *     **响应字段**（`AiImportTaskStatusVO`）：
-         *     - **status**：见上；终态为 IMPORTED、FAILED、EXPIRED
-         *     - **message**：失败/过期原因或业务说明
-         *     - **totalCount**：解析题目数（PARSED 及之后有意义）
-         *     - **questions**：仅 status=PARSED 时填充（QuestionPreviewVO，options/answer 为数组）
+         *     **ååºå­æ®µ**ï¼`AiImportTaskStatusVO`ï¼ï¼
+         *     - **status**ï¼è§ä¸ï¼ç»æä¸º IMPORTEDãFAILEDãEXPIRED
+         *     - **message**ï¼å¤±è´¥/è¿æåå æä¸å¡è¯´æ
+         *     - **totalCount**ï¼è§£æé¢ç®æ°ï¼PARSED åä¹åææä¹ï¼
+         *     - **questions**ï¼ä» status=PARSED æ¶å¡«åï¼QuestionPreviewVOï¼options/answer ä¸ºæ°ç»ï¼
          *
-         *     **特殊响应**：
-         *     - 任务不存在或已彻底过期：code=200 且 **data=null**（非 HTTP 404）
-         *     - 无权访问他人任务：code=403
+         *     **ç¹æ®ååº**ï¼
+         *     - ä»»å¡ä¸å­å¨æå·²å½»åºè¿æï¼code=200 ä¸ **data=null**ï¼é HTTP 404ï¼
+         *     - æ æè®¿é®ä»äººä»»å¡ï¼code=403
          *
-         *     **权限**：仅任务提交者或 ADMIN 可读；USER 在类入口已拦截为 code=403。
+         *     **æé**ï¼ä»ä»»å¡æäº¤èæ ADMIN å¯è¯»ï¼USER å¨ç±»å¥å£å·²æ¦æªä¸º code=403ã
          *
-         *     **前端建议**：2~5 秒轮询；终态 IMPORTED / FAILED / EXPIRED 后停止；EXPIRED 提示用户重新上传。
+         *     **åç«¯å»ºè®®**ï¼2~5 ç§è½®è¯¢ï¼ç»æ IMPORTED / FAILED / EXPIRED ååæ­¢ï¼EXPIRED æç¤ºç¨æ·éæ°ä¸ä¼ ã
          *
-         *     **失败**：code=401 未登录；code=403 无权或角色为 USER
+         *     **å¤±è´¥**ï¼code=401 æªç»å½ï¼code=403 æ ææè§è²ä¸º USER
          */
         get: operations["getTaskStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai-import/tasks/{taskId}/ai-answer/{answerTaskId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * è½®è¯¢ AI è§£ç­ä»»å¡ç¶æ
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å«ï¼ã
+         *
+         *     **ç¶ææµè½¬**ï¼SUBMITTED â PROCESSING â ANSWEREDï¼å¨é¨æåï¼/ PARTIALï¼é¨åå¤±è´¥ï¼/ FAILEDï¼æ´ä½å¤±è´¥ï¼â IMPORTEDï¼å·²å¥åºï¼ã
+         *
+         *     **æ°æ®ä¼åçº§**ï¼MySQL ä¸ºæå¨æºï¼DB ä¸­ ANSWERED/PARTIAL ä½ answered_json ä¸ºç©ºæ¶åéè¯» Redisã
+         *
+         *     **ååºå­æ®µ**ï¼`AiAnswerTaskStatusVO`ï¼ï¼
+         *     - **status**ï¼è§ä¸ï¼ç»æä¸º IMPORTEDãFAILED
+         *     - **answeredCount**ï¼æåè§£ç­æ°
+         *     - **totalCount**ï¼å¾è§£ç­æ»æ°
+         *     - **questions**ï¼ä» ANSWERED/PARTIAL æ¶è¿åï¼æ¯é¡¹å« answerSource=AI_GENERATED ä¸ answerConfidenceï¼HIGH/MEDIUM/LOWï¼
+         *
+         *     **åç«¯å»ºè®®**ï¼2~5 ç§è½®è¯¢ï¼ANSWERED/PARTIAL åå±ç¤ºç»æä¾ç¨æ·äºæ¬¡ç¡®è®¤ï¼ç¡®è®¤åè°æ¹éå¥åºæ¥å£ã
+         *
+         *     **å¤±è´¥**ï¼code=403ï¼æ æè®¿é®ï¼ã404ï¼ä»»å¡ä¸å­å¨ï¼ã
+         */
+        get: operations["getStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai-import/tasks/{taskId}/ai-answer/{answerTaskId}/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * è·å AI è§£ç­ç»æåè¡¨
+         * @description é¡» JWTï¼æä½è§è² PREMIUMï¼ADMIN å«ï¼ã
+         *
+         *     è¿å ANSWERED/PARTIAL ç¶æä¸çè§£ç­ç»æï¼QuestionPreviewVO[]ï¼ï¼æ¯é¡¹ï¼
+         *     - **answerSource=AI_GENERATED**
+         *     - **answerConfidence**ï¼HIGH/MEDIUM/LOWï¼LOW é¢åç«¯åºé«äº®æéç¨æ·å¿ç
+         *     - **answer**ï¼æç¥¨å¾åºçç­æ¡
+         *     - **analysis**ï¼å¯è½å«ããAIè§£ç­Â·å­çããæããAIè§£ç­Â·å¤±è´¥ããåç¼
+         *
+         *     å¤±è´¥é¢ç®ä»¥ answer=[]ãanswerSource=MISSINGãanalysis æ ããAIè§£ç­Â·å¤±è´¥ããè¿åã
+         *
+         *     **å¤±è´¥**ï¼code=403ï¼æ æè®¿é®ï¼ã404ï¼ä»»å¡ä¸å­å¨ï¼ã400ï¼ä»»å¡å°æªå®æï¼ã
+         */
+        get: operations["getResult"];
         put?: never;
         post?: never;
         delete?: never;
@@ -741,9 +886,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * 管理端分页查询用户
-         * @description 须 JWT，仅 ADMIN。支持按 username 模糊查询、按 role（USER/PREMIUM/ADMIN）精确筛选。
-         *     失败：code=401 未登录；code=403 非管理员。
+         * ç®¡çç«¯åé¡µæ¥è¯¢ç¨æ·
+         * @description é¡» JWTï¼ä» ADMINãæ¯ææ username æ¨¡ç³æ¥è¯¢ãæ roleï¼USER/PREMIUM/ADMINï¼ç²¾ç¡®ç­éã
+         *     å¤±è´¥ï¼code=401 æªç»å½ï¼code=403 éç®¡çåã
          */
         get: operations["pageUsers"];
         put?: never;
@@ -762,24 +907,24 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * AI 导入任务统计看板
-         * @description 须 JWT，**仅 ADMIN**。基于 MySQL 聚合 `ai_import_task` 表，统计近 N 天导入流水线运行情况。
+         * AI å¯¼å¥ä»»å¡ç»è®¡çæ¿
+         * @description é¡» JWTï¼**ä» ADMIN**ãåºäº MySQL èå `ai_import_task` è¡¨ï¼ç»è®¡è¿ N å¤©å¯¼å¥æµæ°´çº¿è¿è¡æåµã
          *
-         *     **查询参数**：
-         *     - **days**（可选，默认 30）：统计窗口天数，范围 1~365；以 `submitted_at >= now - days` 为过滤条件
+         *     **æ¥è¯¢åæ°**ï¼
+         *     - **days**ï¼å¯éï¼é»è®¤ 30ï¼ï¼ç»è®¡çªå£å¤©æ°ï¼èå´ 1~365ï¼ä»¥ `submitted_at >= now - days` ä¸ºè¿æ»¤æ¡ä»¶
          *
-         *     **响应**（`AdminAiImportStatsVO`）：
-         *     - **periodDays / periodStart / periodEnd**：统计窗口元数据
-         *     - **totalTasks**：窗口内提交任务总数
-         *     - **statusStats[]**：各状态任务数及该状态下的平均流水线耗时（秒，Worker 实测 pipeline_duration_ms）
-         *     - **dailyAvgSubmitCount**：日均提交量（totalTasks / periodDays）
-         *     - **avgPipelineSeconds**：MinerU + LLM 平均总耗时（秒）
-         *     - **avgMineruSeconds** / **avgLlmSeconds**：分项平均耗时（秒）
-         *     - **avgParseSeconds**：同 avgPipelineSeconds（兼容字段）
-         *     - **avgQuestionCount**：平均解析题目数
-         *     - **failureRate**：失败率（FAILED / totalTasks，0~1）
+         *     **ååº**ï¼`AdminAiImportStatsVO`ï¼ï¼
+         *     - **periodDays / periodStart / periodEnd**ï¼ç»è®¡çªå£åæ°æ®
+         *     - **totalTasks**ï¼çªå£åæäº¤ä»»å¡æ»æ°
+         *     - **statusStats[]**ï¼åç¶æä»»å¡æ°åè¯¥ç¶æä¸çå¹³åæµæ°´çº¿èæ¶ï¼ç§ï¼Worker å®æµ pipeline_duration_msï¼
+         *     - **dailyAvgSubmitCount**ï¼æ¥åæäº¤éï¼totalTasks / periodDaysï¼
+         *     - **avgPipelineSeconds**ï¼MinerU + LLM å¹³åæ»èæ¶ï¼ç§ï¼
+         *     - **avgMineruSeconds** / **avgLlmSeconds**ï¼åé¡¹å¹³åèæ¶ï¼ç§ï¼
+         *     - **avgParseSeconds**ï¼å avgPipelineSecondsï¼å¼å®¹å­æ®µï¼
+         *     - **avgQuestionCount**ï¼å¹³åè§£æé¢ç®æ°
+         *     - **failureRate**ï¼å¤±è´¥çï¼FAILED / totalTasksï¼0~1ï¼
          *
-         *     **失败**：code=401 未登录；code=403 非 ADMIN；code=400（days 越界）
+         *     **å¤±è´¥**ï¼code=401 æªç»å½ï¼code=403 é ADMINï¼code=400ï¼days è¶çï¼
          */
         get: operations["getStats"];
         put?: never;
@@ -801,10 +946,10 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * 从错题本移除一条记录
-         * @description 须 JWT，最低角色 USER，且只能操作本人的错题记录（防止越权）。
-         *     执行逻辑删除（is_deleted=1），再次做错该题时会自动复活。
-         *     失败：code=404 记录不存在，code=403 无权操作他人记录。
+         * ä»éé¢æ¬ç§»é¤ä¸æ¡è®°å½
+         * @description é¡» JWTï¼æä½è§è² USERï¼ä¸åªè½æä½æ¬äººçéé¢è®°å½ï¼é²æ­¢è¶æï¼ã
+         *     æ§è¡é»è¾å é¤ï¼is_deleted=1ï¼ï¼åæ¬¡åéè¯¥é¢æ¶ä¼èªå¨å¤æ´»ã
+         *     å¤±è´¥ï¼code=404 è®°å½ä¸å­å¨ï¼code=403 æ ææä½ä»äººè®°å½ã
          */
         delete: operations["removeWrongQuestion"];
         options?: never;
@@ -816,879 +961,979 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description 全量更新试题请求 */
+        /** @description å¨éæ´æ°è¯é¢è¯·æ± */
         QuestionUpdateDTO: {
             /**
-             * @description 试题题型（接口字段为同名 string，取值见枚举）
+             * @description è¯é¢é¢åï¼æ¥å£å­æ®µä¸ºåå stringï¼åå¼è§æä¸¾ï¼
              * @example SINGLE
              * @enum {string}
              */
             questionType: "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
-            /** @description 题干纯文本 */
+            /** @description é¢å¹²çº¯ææ¬ */
             stem: string;
             /**
-             * @description 选项 JSON 数组字符串，如 ["选项A","选项B"]
+             * @description éé¡¹ JSON æ°ç»å­ç¬¦ä¸²ï¼å¦ ["éé¡¹A","éé¡¹B"]
              * @example ["TCP","UDP","IP","ICMP"]
              */
             optionsJson: string;
             /**
-             * @description 答案 JSON 数组字符串，如 ["A"]、["A","C"]；判断题 ["T"] 或 ["F"]
+             * @description ç­æ¡ JSON æ°ç»å­ç¬¦ä¸²ï¼å¦ ["A"]ã["A","C"]ï¼å¤æ­é¢ ["T"] æ ["F"]
              * @example ["A","B"]
              */
             answerJson: string;
-            /** @description 题目解析，可选 */
+            /** @description é¢ç®è§£æï¼å¯é */
             analysis?: string;
             /**
              * Format: int32
-             * @description 题库内排序号，可选；不传则由服务端默认
+             * @description é¢åºåæåºå·ï¼å¯éï¼ä¸ä¼ åç±æå¡ç«¯é»è®¤
              */
             sortNo?: number;
         };
-        /** @description 全量更新题库请求 */
+        /** @description å¨éæ´æ°é¢åºè¯·æ± */
         QuestionBankUpdateDTO: {
             /**
-             * @description 题库名称
-             * @example 2026计算机网络期末必刷题
+             * @description é¢åºåç§°
+             * @example 2026è®¡ç®æºç½ç»ææ«å¿å·é¢
              */
             title: string;
             /**
-             * @description 题库描述
-             * @example 面向期末周的重点题型整理
+             * @description é¢åºæè¿°
+             * @example é¢åææ«å¨çéç¹é¢åæ´ç
              */
             description?: string;
             /**
              * Format: int32
-             * @description 是否公开：0-否，1-是
+             * @description æ¯å¦å¬å¼ï¼0-å¦ï¼1-æ¯
              * @example 1
              */
             isPublic: number;
         };
-        /** @description 更新题库树节点请求 */
+        /** @description æ´æ°é¢åºæ èç¹è¯·æ± */
         BankNodeUpdateDTO: {
-            /** @description 节点标题 */
+            /** @description èç¹æ é¢ */
             title: string;
-            /** @description 节点描述 */
+            /** @description èç¹æè¿° */
             description?: string;
             /**
              * Format: int32
-             * @description 是否公开：0-否，1-是（LEAF 有效）
+             * @description æ¯å¦å¬å¼ï¼0-å¦ï¼1-æ¯ï¼LEAF ææï¼
              */
             isPublic?: number;
             /**
              * Format: int32
-             * @description 同级排序号
+             * @description åçº§æåºå·
              */
             sortNo?: number;
         };
-        /** @description 管理端用户角色更新请求 */
+        /** @description ç®¡çç«¯ç¨æ·è§è²æ´æ°è¯·æ± */
         AdminUserRoleUpdateDTO: {
             /**
-             * @description 目标角色，仅允许 USER 或 PREMIUM
+             * @description ç®æ è§è²ï¼ä»åè®¸ USER æ PREMIUM
              * @example PREMIUM
              */
             role: string;
         };
-        /** @description 用户注册请求 */
+        /** @description ç¨æ·æ³¨åè¯·æ± */
         UserRegisterDTO: {
             /**
-             * @description 登录账号
+             * @description ç»å½è´¦å·
              * @example zhangsan
              */
             username: string;
             /**
-             * @description 登录密码
+             * @description ç»å½å¯ç 
              * @example 123456
              */
             password: string;
             /**
-             * @description 邮箱
+             * @description é®ç®±
              * @example zhangsan@example.com
              */
             email: string;
             /**
-             * @description 邮箱验证码
+             * @description é®ç®±éªè¯ç 
              * @example 123456
              */
             code: string;
             /**
-             * @description 昵称（选填）
-             * @example 张三
+             * @description æµç§°ï¼éå¡«ï¼
+             * @example å¼ ä¸
              */
             nickname?: string;
         };
-        /** @description 注册邮箱验证码请求 */
+        /** @description æ³¨åé®ç®±éªè¯ç è¯·æ± */
         UserRegisterEmailCodeDTO: {
             /**
-             * @description 邮箱
+             * @description é®ç®±
              * @example zhangsan@example.com
              */
             email: string;
             /**
-             * @description Cloudflare Turnstile 令牌
+             * @description Cloudflare Turnstile ä»¤ç
              * @example 0.abcdefghijklmnopqrstuvwxyz
              */
             turnstileToken: string;
         };
-        /** @description 用户登录请求 */
+        /** @description ç¨æ·ç»å½è¯·æ± */
         UserLoginDTO: {
             /**
-             * @description 登录账号
+             * @description ç»å½è´¦å·
              * @example zhangsan
              */
             username: string;
             /**
-             * @description 登录密码
+             * @description ç»å½å¯ç 
              * @example 123456
              */
             password: string;
         };
-        /** @description 用户登录响应 */
+        /** @description ç¨æ·ç»å½ååº */
         UserLoginVO: {
             /**
-             * @description JWT 访问令牌
+             * @description JWT è®¿é®ä»¤ç
              * @example eyJhbGciOiJIUzI1NiJ9...
              */
             token?: string;
             /**
              * Format: int64
-             * @description 用户 ID
+             * @description ç¨æ· ID
              * @example 1
              */
             userId?: number;
             /**
-             * @description 登录账号
+             * @description ç»å½è´¦å·
              * @example zhangsan
              */
             username?: string;
             /**
-             * @description 昵称
-             * @example 张三
+             * @description æµç§°
+             * @example å¼ ä¸
              */
             nickname?: string;
             /**
-             * @description 用户角色：USER-普通用户，PREMIUM-高级用户，ADMIN-管理员
+             * @description ç¨æ·è§è²ï¼USER-æ®éç¨æ·ï¼PREMIUM-é«çº§ç¨æ·ï¼ADMIN-ç®¡çå
              * @example USER
              */
             role?: string;
         };
-        /** @description 创建题库请求 */
+        /** @description åå»ºé¢åºè¯·æ± */
         QuestionBankCreateDTO: {
             /**
-             * @description 题库名称
-             * @example 2026计算机网络期末必刷题
+             * @description é¢åºåç§°
+             * @example 2026è®¡ç®æºç½ç»ææ«å¿å·é¢
              */
             title: string;
             /**
-             * @description 题库描述
-             * @example 面向期末周的重点题型整理
+             * @description é¢åºæè¿°
+             * @example é¢åææ«å¨çéç¹é¢åæ´ç
              */
             description?: string;
             /**
              * Format: int32
-             * @description 是否公开：0-否，1-是
+             * @description æ¯å¦å¬å¼ï¼0-å¦ï¼1-æ¯
              * @example 1
              */
             isPublic: number;
         };
-        /** @description 批量确认导入请求（JSON）。须在任务 status=PARSED 时提交；服务端优先使用 DB/Redis 中的预览缓存落库。 */
+        /** @description æ¹éç¡®è®¤å¯¼å¥è¯·æ±ï¼JSONï¼ãé¡»å¨ä»»å¡ status=PARSED æ¶æäº¤ï¼æå¡ç«¯ä¼åä½¿ç¨ DB/Redis ä¸­çé¢è§ç¼å­è½åºã */
         BatchImportRequestDTO: {
             /**
-             * @description AI 导入任务 ID（UUID），来自 submit 响应、GET /ai-import/tasks 或 GET .../tasks/{taskId}/status
+             * @description AI å¯¼å¥ä»»å¡ IDï¼UUIDï¼ï¼æ¥èª submit ååºãGET /ai-import/tasks æ GET .../tasks/{taskId}/status
              * @example a1b2c3d4e5f67890abcdef1234567890
              */
             taskId: string;
-            /** @description 经用户预览页确认/编辑后的题目列表；结构与轮询接口 QuestionPreviewVO 一致 */
+            /** @description ç»ç¨æ·é¢è§é¡µç¡®è®¤/ç¼è¾åçé¢ç®åè¡¨ï¼ç»æä¸è½®è¯¢æ¥å£ QuestionPreviewVO ä¸è´ */
             questions: components["schemas"]["QuestionPreviewVO"][];
         };
         /**
-         * @description AI 预览/批量确认题目（确认导入前可编辑）。
-         *     与 QuestionVO 不同：此处 options、answer 为数组；入库后读接口为 optionsJson、answerJson 字符串。
+         * @description AI é¢è§/æ¹éç¡®è®¤é¢ç®ï¼ç¡®è®¤å¯¼å¥åå¯ç¼è¾ï¼ã
+         *     ä¸ QuestionVO ä¸åï¼æ­¤å¤ optionsãanswer ä¸ºæ°ç»ï¼å¥åºåè¯»æ¥å£ä¸º optionsJsonãanswerJson å­ç¬¦ä¸²ã
          */
         QuestionPreviewVO: {
             /**
-             * @description 试题题型（接口字段为同名 string，取值见枚举）
+             * @description è¯é¢é¢åï¼æ¥å£å­æ®µä¸ºåå stringï¼åå¼è§æä¸¾ï¼
              * @example SINGLE
              * @enum {string}
              */
             questionType?: "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
             /**
-             * @description 题干文本
-             * @example 理想气体状态方程 PV=nRT 中，R 的数值是？
+             * @description é¢å¹²ææ¬
+             * @example çæ³æ°ä½ç¶ææ¹ç¨ PV=nRT ä¸­ï¼R çæ°å¼æ¯ï¼
              */
             stem?: string;
-            /** @description 选项文案列表（判断题固定 ["正确","错误"]） */
+            /** @description éé¡¹ææ¡åè¡¨ï¼å¤æ­é¢åºå® ["æ­£ç¡®","éè¯¯"]ï¼ */
             options?: string[];
-            /** @description 正确答案：单选 ["B"]；多选 ["A","C"]；判断题 ["T"] 或 ["F"] */
+            /** @description æ­£ç¡®ç­æ¡ï¼åé ["B"]ï¼å¤é ["A","C"]ï¼å¤æ­é¢ ["T"] æ ["F"] */
             answer?: string[];
-            /** @description 题目解析 */
+            /** @description é¢ç®è§£æ */
             analysis?: string;
+            /**
+             * @description ç­æ¡æ¥æºï¼ORIGINAL/MISSING/AI_GENERATED
+             * @example ORIGINAL
+             */
+            answerSource?: string;
+            /** @description ç­æ¡ç½®ä¿¡åº¦ï¼HIGH/MEDIUM/LOWï¼ä» AI è§£ç­åå¥ï¼ */
+            answerConfidence?: string;
         };
-        /** @description 提交答案请求 */
+        /** @description æäº¤ç­æ¡è¯·æ± */
         AnswerSubmitDTO: {
-            /** @description 用户选择的答案列表。单选/多选传大写字母；判断题传 T/F */
+            /** @description ç¨æ·éæ©çç­æ¡åè¡¨ãåé/å¤éä¼ å¤§åå­æ¯ï¼å¤æ­é¢ä¼  T/F */
             userAnswer: string[];
         };
-        /** @description 提交答案判分结果 */
+        /** @description æäº¤ç­æ¡å¤åç»æ */
         AnswerSubmitResultVO: {
             /**
              * Format: int64
-             * @description 试题 ID
+             * @description è¯é¢ ID
              * @example 50001
              */
             questionId?: number;
             /**
-             * @description 是否正确；主观题时为 null
+             * @description æ¯å¦æ­£ç¡®ï¼ä¸»è§é¢æ¶ä¸º null
              * @example true
              */
             correct?: boolean;
             /**
-             * @description 是否需要人工判分（主观题或未知题型）
+             * @description æ¯å¦éè¦äººå·¥å¤åï¼ä¸»è§é¢ææªç¥é¢åï¼
              * @example false
              */
             needsManualGrading?: boolean;
             /**
-             * @description 标准答案 JSON 数组字符串，如 ["A"]、["T"]
+             * @description æ åç­æ¡ JSON æ°ç»å­ç¬¦ä¸²ï¼å¦ ["A"]ã["T"]
              * @example ["A","C"]
              */
             answerJson?: string;
-            /** @description 题目解析（可为空） */
+            /** @description é¢ç®è§£æï¼å¯ä¸ºç©ºï¼ */
             analysis?: string;
         };
-        /** @description 创建题库树节点请求 */
+        /** @description åå»ºé¢åºæ èç¹è¯·æ± */
         BankNodeCreateDTO: {
             /**
              * Format: int64
-             * @description 父节点 ID，NULL 表示根节点
+             * @description ç¶èç¹ IDï¼NULL è¡¨ç¤ºæ ¹èç¹
              * @example 1
              */
             parentId?: number;
             /**
-             * @description 节点类型：FOLDER-文件夹，LEAF-可挂题题库
+             * @description èç¹ç±»åï¼FOLDER-æä»¶å¤¹ï¼LEAF-å¯æé¢é¢åº
              * @example LEAF
              */
             nodeKind: string;
             /**
-             * @description 节点标题
-             * @example 高等数学
+             * @description èç¹æ é¢
+             * @example é«ç­æ°å­¦
              */
             title: string;
-            /** @description 节点描述 */
+            /** @description èç¹æè¿° */
             description?: string;
             /**
              * Format: int32
-             * @description 是否公开：0-否，1-是（LEAF 有效）
+             * @description æ¯å¦å¬å¼ï¼0-å¦ï¼1-æ¯ï¼LEAF ææï¼
              * @example 0
              */
             isPublic?: number;
             /**
              * Format: int32
-             * @description 同级排序号，越小越前
+             * @description åçº§æåºå·ï¼è¶å°è¶å
              * @example 0
              */
             sortNo?: number;
         };
-        /** @description AI 导入提交响应 */
+        /** @description AI è§£ç­ä»»å¡åå»ºè¯·æ± */
+        AiAnswerCreateDTO: {
+            /**
+             * @description æå®å¾è§£ç­é¢ç®å¨ preview_json ä¸­çä¸æ åè¡¨ï¼0-basedï¼ã
+             *     ä¸ filter äºéä¸ï¼åæ¶ç»åºæ¶ä»¥æ­¤ä¸ºåã
+             * @example [
+             *       0,
+             *       3,
+             *       5
+             *     ]
+             */
+            questionIndices?: number[];
+            /**
+             * @description è¿æ»¤æ¨¡å¼ï¼MISSING è¡¨ç¤ºèªå¨ç­éææ answerSource=MISSING ä¸é¢åä¸º SINGLE/MULTI/JUDGE çé¢ç®ã
+             *     ä¸ questionIndices äºéä¸ã
+             * @example MISSING
+             */
+            filter?: string;
+        };
+        /** @description AI è§£ç­ä»»å¡æäº¤ååº */
+        AiAnswerSubmitVO: {
+            /**
+             * @description è§£ç­ä»»å¡ IDï¼UUIDï¼
+             * @example a1b2c3d4e5f67890abcdef1234567890
+             */
+            answerTaskId?: string;
+            /** @description å³èç ai_import_task.task_id */
+            parentTaskId?: string;
+            /**
+             * @description åå§ç¶æ
+             * @example SUBMITTED
+             */
+            status?: string;
+            /**
+             * Format: int32
+             * @description å¾è§£ç­é¢ç®æ°
+             * @example 20
+             */
+            questionCount?: number;
+        };
+        /** @description AI å¯¼å¥æäº¤ååº */
         AiImportSubmitVO: {
             /**
-             * @description 任务 ID（UUID）
+             * @description ä»»å¡ IDï¼UUIDï¼
              * @example a1b2c3d4e5f67890abcdef1234567890
              */
             taskId?: string;
             /**
-             * @description 初始状态
+             * @description åå§ç¶æ
              * @example SUBMITTED
              */
             status?: string;
         };
         /**
-         * @description 管理端 AI 导入任务清理请求（JSON）。仅匹配 status=PARSED 且 parsed_at 早于阈值的记录。
-         *     生产环境建议先 dryRun=true 预检，确认 sampleTaskIds 后再 dryRun=false 实清。
+         * @description ç®¡çç«¯ AI å¯¼å¥ä»»å¡æ¸çè¯·æ±ï¼JSONï¼ãä»å¹é status=PARSED ä¸ parsed_at æ©äºéå¼çè®°å½ã
+         *     çäº§ç¯å¢å»ºè®®å dryRun=true é¢æ£ï¼ç¡®è®¤ sampleTaskIds åå dryRun=false å®æ¸ã
          */
         AdminAiImportCleanupDTO: {
             /**
              * Format: int32
-             * @description parsed_at 早于「当前时间 − olderThanDays 天」的 PARSED 任务纳入清理范围；不传时服务端默认 7（见配置 ishua.ai-import.cleanup-default-older-than-days）
+             * @description parsed_at æ©äºãå½åæ¶é´ â olderThanDays å¤©ãç PARSED ä»»å¡çº³å¥æ¸çèå´ï¼ä¸ä¼ æ¶æå¡ç«¯é»è®¤ 7ï¼è§éç½® ishua.ai-import.cleanup-default-older-than-daysï¼
              * @example 7
              */
             olderThanDays?: number;
             /**
              * Format: int64
-             * @description 可选：仅清理指定题库下的任务
+             * @description å¯éï¼ä»æ¸çæå®é¢åºä¸çä»»å¡
              * @example 1001
              */
             bankId?: number;
             /**
              * Format: int64
-             * @description 可选：仅清理指定用户提交的任务
+             * @description å¯éï¼ä»æ¸çæå®ç¨æ·æäº¤çä»»å¡
              * @example 1
              */
             userId?: number;
             /**
-             * @description 是否仅预检：true 只返回 matchedCount 与 sampleTaskIds，不写库；false 执行 EXPIRED 标记与 Redis 清理。不传时视为 true
+             * @description æ¯å¦ä»é¢æ£ï¼true åªè¿å matchedCount ä¸ sampleTaskIdsï¼ä¸ååºï¼false æ§è¡ EXPIRED æ è®°ä¸ Redis æ¸çãä¸ä¼ æ¶è§ä¸º true
              * @default true
              * @example true
              */
             dryRun: boolean;
             /**
-             * @description 实清（dryRun=false）时是否删除 file_url 指向的上传文件；默认 false，仅清任务与缓存
+             * @description å®æ¸ï¼dryRun=falseï¼æ¶æ¯å¦å é¤ file_url æåçä¸ä¼ æä»¶ï¼é»è®¤ falseï¼ä»æ¸ä»»å¡ä¸ç¼å­
              * @default false
              * @example false
              */
             deleteFiles: boolean;
             /**
              * Format: int32
-             * @description 单次请求最多处理的任务条数，防止长事务；不传时默认 200
+             * @description åæ¬¡è¯·æ±æå¤å¤ççä»»å¡æ¡æ°ï¼é²æ­¢é¿äºå¡ï¼ä¸ä¼ æ¶é»è®¤ 200
              * @default 200
              * @example 200
              */
             maxBatch: number;
         };
-        /** @description 管理端 AI 导入任务清理结果（POST /api/v1/admin/ai-import/tasks/cleanup 的 data） */
+        /** @description ç®¡çç«¯ AI å¯¼å¥ä»»å¡æ¸çç»æï¼POST /api/v1/admin/ai-import/tasks/cleanup ç dataï¼ */
         AdminAiImportCleanupResultVO: {
             /**
-             * @description 本次请求是否为预检（与请求体 dryRun 一致）
+             * @description æ¬æ¬¡è¯·æ±æ¯å¦ä¸ºé¢æ£ï¼ä¸è¯·æ±ä½ dryRun ä¸è´ï¼
              * @example true
              */
             dryRun?: boolean;
             /**
              * Format: int64
-             * @description 符合清理条件（PARSED 且 parsed_at 早于阈值）的任务总数，可能大于 processedCount
+             * @description ç¬¦åæ¸çæ¡ä»¶ï¼PARSED ä¸ parsed_at æ©äºéå¼ï¼çä»»å¡æ»æ°ï¼å¯è½å¤§äº processedCount
              * @example 12
              */
             matchedCount?: number;
             /**
              * Format: int32
-             * @description 实际处理条数：dryRun=true 时为 0；dryRun=false 时为成功标记 EXPIRED 的条数
+             * @description å®éå¤çæ¡æ°ï¼dryRun=true æ¶ä¸º 0ï¼dryRun=false æ¶ä¸ºæåæ è®° EXPIRED çæ¡æ°
              * @example 0
              */
             processedCount?: number;
-            /** @description 样例 taskId 列表（最多 10 条），便于运维核对后再实清 */
+            /** @description æ ·ä¾ taskId åè¡¨ï¼æå¤ 10 æ¡ï¼ï¼ä¾¿äºè¿ç»´æ ¸å¯¹ååå®æ¸ */
             sampleTaskIds?: string[];
             /**
-             * @description 结果说明，如「dryRun：未执行写操作」或「已清理 N 个长时间未确认任务」
-             * @example dryRun：未执行写操作
+             * @description ç»æè¯´æï¼å¦ãdryRunï¼æªæ§è¡åæä½ãæãå·²æ¸ç N ä¸ªé¿æ¶é´æªç¡®è®¤ä»»å¡ã
+             * @example dryRunï¼æªæ§è¡åæä½
              */
             message?: string;
         };
-        /** @description 移动题库树节点请求 */
+        /** @description ç§»å¨é¢åºæ èç¹è¯·æ± */
         BankNodeMoveDTO: {
             /**
              * Format: int64
-             * @description 新父节点 ID，NULL 表示移到根
+             * @description æ°ç¶èç¹ IDï¼NULL è¡¨ç¤ºç§»å°æ ¹
              * @example 5
              */
             newParentId?: number;
             /**
              * Format: int32
-             * @description 在新父节点下的排序号
+             * @description å¨æ°ç¶èç¹ä¸çæåºå·
              * @example 0
              */
             newSortNo?: number;
         };
-        /** @description 错题本记录 */
+        /** @description éé¢æ¬è®°å½ */
         WrongQuestionVO: {
             /**
              * Format: int64
-             * @description 错题本记录 ID（用于移除操作）
+             * @description éé¢æ¬è®°å½ IDï¼ç¨äºç§»é¤æä½ï¼
              * @example 1
              */
             id?: number;
             /**
              * Format: int64
-             * @description 试题 ID
+             * @description è¯é¢ ID
              * @example 50001
              */
             questionId?: number;
             /**
              * Format: int64
-             * @description 所属题库 ID
+             * @description æå±é¢åº ID
              * @example 1001
              */
             questionBankId?: number;
             /**
-             * @description 试题题型（接口字段为同名 string，取值见枚举）
+             * @description è¯é¢é¢åï¼æ¥å£å­æ®µä¸ºåå stringï¼åå¼è§æä¸¾ï¼
              * @example SINGLE
              * @enum {string}
              */
             questionType?: "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
-            /** @description 题干纯文本 */
+            /** @description é¢å¹²çº¯ææ¬ */
             stem?: string;
             /**
-             * @description 选项 JSON 数组字符串
+             * @description éé¡¹ JSON æ°ç»å­ç¬¦ä¸²
              * @example ["TCP","UDP","IP","ICMP"]
              */
             optionsJson?: string;
             /**
              * Format: int32
-             * @description 累计做错次数
+             * @description ç´¯è®¡åéæ¬¡æ°
              * @example 3
              */
             wrongCount?: number;
             /**
              * Format: date-time
-             * @description 最近一次做错时间
+             * @description æè¿ä¸æ¬¡åéæ¶é´
              */
             lastWrongTime?: string;
         };
-        /** @description 刷题模式试题（不含答案与解析） */
+        /** @description å·é¢æ¨¡å¼è¯é¢ï¼ä¸å«ç­æ¡ä¸è§£æï¼ */
         PracticeQuestionVO: {
             /**
              * Format: int64
-             * @description 试题主键
+             * @description è¯é¢ä¸»é®
              * @example 50001
              */
             id?: number;
             /**
              * Format: int64
-             * @description 所属题库 ID
+             * @description æå±é¢åº ID
              * @example 1001
              */
             questionBankId?: number;
             /**
-             * @description 试题题型（接口字段为同名 string，取值见枚举）
+             * @description è¯é¢é¢åï¼æ¥å£å­æ®µä¸ºåå stringï¼åå¼è§æä¸¾ï¼
              * @example SINGLE
              * @enum {string}
              */
             questionType?: "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
-            /** @description 题干纯文本 */
+            /** @description é¢å¹²çº¯ææ¬ */
             stem?: string;
             /**
-             * @description 选项 JSON 数组字符串，如 ["TCP","UDP"]；简答题（SHORT_ANSWER）为 []
+             * @description éé¡¹ JSON æ°ç»å­ç¬¦ä¸²ï¼å¦ ["TCP","UDP"]ï¼ç®ç­é¢ï¼SHORT_ANSWERï¼ä¸º []
              * @example ["TCP","UDP","IP","ICMP"]
              */
             optionsJson?: string;
             /**
              * Format: int32
-             * @description 题库内排序号
+             * @description é¢åºåæåºå·
              * @example 1
              */
             sortNo?: number;
         };
-        /** @description 当前登录用户信息 */
+        /** @description å½åç»å½ç¨æ·ä¿¡æ¯ */
         UserMeVO: {
             /**
              * Format: int64
-             * @description 用户 ID
+             * @description ç¨æ· ID
              * @example 1
              */
             userId?: number;
             /**
-             * @description 登录账号
+             * @description ç»å½è´¦å·
              * @example zhangsan
              */
             username?: string;
             /**
-             * @description 昵称
-             * @example 张三
+             * @description æµç§°
+             * @example å¼ ä¸
              */
             nickname?: string;
             /**
-             * @description 用户角色：USER-普通用户，PREMIUM-高级用户，ADMIN-管理员
+             * @description ç¨æ·è§è²ï¼USER-æ®éç¨æ·ï¼PREMIUM-é«çº§ç¨æ·ï¼ADMIN-ç®¡çå
              * @example USER
              */
             role?: string;
         };
-        /** @description 试题信息 */
+        /** @description è¯é¢ä¿¡æ¯ */
         QuestionVO: {
             /**
              * Format: int64
-             * @description 试题主键
+             * @description è¯é¢ä¸»é®
              * @example 50001
              */
             id?: number;
             /**
              * Format: int64
-             * @description 所属题库 ID
+             * @description æå±é¢åº ID
              * @example 1001
              */
             questionBankId?: number;
             /**
-             * @description 试题题型（接口字段为同名 string，取值见枚举）
+             * @description è¯é¢é¢åï¼æ¥å£å­æ®µä¸ºåå stringï¼åå¼è§æä¸¾ï¼
              * @example SINGLE
              * @enum {string}
              */
             questionType?: "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
-            /** @description 题干纯文本 */
+            /** @description é¢å¹²çº¯ææ¬ */
             stem?: string;
             /**
-             * @description 选项 JSON 数组字符串。单选/多选为选项文案列表；简答题（SHORT_ANSWER）为 []
-             * @example ["8.31 J/(mol·K)","8.31 kJ/(mol·K)","0.0821 L·atm/(mol·K)"]
+             * @description éé¡¹ JSON æ°ç»å­ç¬¦ä¸²ãåé/å¤éä¸ºéé¡¹ææ¡åè¡¨ï¼ç®ç­é¢ï¼SHORT_ANSWERï¼ä¸º []
+             * @example ["8.31 J/(molÂ·K)","8.31 kJ/(molÂ·K)","0.0821 LÂ·atm/(molÂ·K)"]
              */
             optionsJson?: string;
             /**
-             * @description 答案 JSON 数组字符串。单选/多选为字母；判断题为 ["T"]/["F"]；简答题为文本要点数组
+             * @description ç­æ¡ JSON æ°ç»å­ç¬¦ä¸²ãåé/å¤éä¸ºå­æ¯ï¼å¤æ­é¢ä¸º ["T"]/["F"]ï¼ç®ç­é¢ä¸ºææ¬è¦ç¹æ°ç»
              * @example ["C"]
              */
             answerJson?: string;
-            /** @description 题目解析 */
+            /**
+             * @description ç­æ¡æ¥æºï¼ORIGINAL/MISSING/AI_GENERATED
+             * @example ORIGINAL
+             */
+            answerSource?: string;
+            /** @description ç­æ¡ç½®ä¿¡åº¦ï¼HIGH/MEDIUM/LOWï¼ä» AI è§£ç­åå¥ï¼ */
+            answerConfidence?: string;
+            /** @description é¢ç®è§£æ */
             analysis?: string;
             /**
              * Format: int32
-             * @description 题库内排序号
+             * @description é¢åºåæåºå·
              * @example 1
              */
             sortNo?: number;
             /**
              * Format: date-time
-             * @description 创建时间
+             * @description åå»ºæ¶é´
              */
             createTime?: string;
             /**
              * Format: date-time
-             * @description 更新时间
+             * @description æ´æ°æ¶é´
              */
             updateTime?: string;
         };
-        /** @description 题库信息 */
+        /** @description é¢åºä¿¡æ¯ */
         QuestionBankVO: {
             /**
              * Format: int64
-             * @description 题库主键
+             * @description é¢åºä¸»é®
              * @example 1001
              */
             id?: number;
             /**
              * Format: int64
-             * @description 创建者用户 ID
+             * @description åå»ºèç¨æ· ID
              * @example 20
              */
             userId?: number;
             /**
-             * @description 题库名称
-             * @example 2026计算机网络期末必刷题
+             * @description é¢åºåç§°
+             * @example 2026è®¡ç®æºç½ç»ææ«å¿å·é¢
              */
             title?: string;
-            /** @description 题库描述 */
+            /** @description é¢åºæè¿° */
             description?: string;
             /**
              * Format: int32
-             * @description 是否公开：0=私有，1=公开（公开题库可出现在大厅与热点刷题接口）
+             * @description æ¯å¦å¬å¼ï¼0=ç§æï¼1=å¬å¼ï¼å¬å¼é¢åºå¯åºç°å¨å¤§åä¸ç­ç¹å·é¢æ¥å£ï¼
              * @example 1
              */
             isPublic?: number;
             /**
              * Format: date-time
-             * @description 创建时间
+             * @description åå»ºæ¶é´
              */
             createTime?: string;
             /**
              * Format: date-time
-             * @description 更新时间
+             * @description æ´æ°æ¶é´
              */
             updateTime?: string;
         };
-        /** @description 热点题库详情（含全量试题） */
+        /** @description ç­ç¹é¢åºè¯¦æï¼å«å¨éè¯é¢ï¼ */
         QuestionBankDetailBundleVO: {
             bank?: components["schemas"]["QuestionBankVO"];
-            /** @description 该题库下全部试题（按 sortNo 有序；含答案与解析） */
+            /** @description è¯¥é¢åºä¸å¨é¨è¯é¢ï¼æ sortNo æåºï¼å«ç­æ¡ä¸è§£æï¼ */
             questions?: components["schemas"]["QuestionVO"][];
         };
-        /** @description 简答题参考答案（不含用户作答，不判分） */
+        /** @description ç®ç­é¢åèç­æ¡ï¼ä¸å«ç¨æ·ä½ç­ï¼ä¸å¤åï¼ */
         PracticeReferenceAnswerVO: {
             /**
              * Format: int64
-             * @description 试题 ID
+             * @description è¯é¢ ID
              * @example 50001
              */
             questionId?: number;
             /**
-             * @description 试题题型（接口字段为同名 string，取值见枚举）
+             * @description è¯é¢é¢åï¼æ¥å£å­æ®µä¸ºåå stringï¼åå¼è§æä¸¾ï¼
              * @example SHORT_ANSWER
              * @enum {string}
              */
             questionType?: "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
             /**
-             * @description 参考答案 JSON 数组字符串，每项为一个要点或段落，如 ["要点一","要点二"]
-             * @example ["客户端发 SYN，服务端回 SYN+ACK，客户端再发 ACK"]
+             * @description åèç­æ¡ JSON æ°ç»å­ç¬¦ä¸²ï¼æ¯é¡¹ä¸ºä¸ä¸ªè¦ç¹ææ®µè½ï¼å¦ ["è¦ç¹ä¸","è¦ç¹äº"]
+             * @example ["å®¢æ·ç«¯å SYNï¼æå¡ç«¯å SYN+ACKï¼å®¢æ·ç«¯åå ACK"]
              */
             answerJson?: string;
-            /** @description 题目解析（可为空） */
+            /** @description é¢ç®è§£æï¼å¯ä¸ºç©ºï¼ */
             analysis?: string;
         };
-        /** @description 题库树节点 */
+        /** @description é¢åºæ èç¹ */
         BankNodeVO: {
             /**
              * Format: int64
-             * @description 节点 ID
+             * @description èç¹ ID
              */
             id?: number;
             /**
              * Format: int64
-             * @description 所有者用户 ID
+             * @description ææèç¨æ· ID
              */
             userId?: number;
             /**
              * Format: int64
-             * @description 父节点 ID，根节点为 null
+             * @description ç¶èç¹ IDï¼æ ¹èç¹ä¸º null
              */
             parentId?: number;
-            /** @description 节点类型：FOLDER | LEAF */
+            /** @description èç¹ç±»åï¼FOLDER | LEAF */
             nodeKind?: string;
-            /** @description 标题 */
+            /** @description æ é¢ */
             title?: string;
-            /** @description 描述 */
+            /** @description æè¿° */
             description?: string;
             /**
              * Format: int32
-             * @description 是否公开：0-否，1-是
+             * @description æ¯å¦å¬å¼ï¼0-å¦ï¼1-æ¯
              */
             isPublic?: number;
             /**
              * Format: int32
-             * @description 同级排序号
+             * @description åçº§æåºå·
              */
             sortNo?: number;
             /**
              * Format: int32
-             * @description 题目数量（LEAF 冗余字段）
+             * @description é¢ç®æ°éï¼LEAF åä½å­æ®µï¼
              */
             questionCount?: number;
             /**
              * Format: int32
-             * @description 直接子节点数量
+             * @description ç´æ¥å­èç¹æ°é
              */
             childCount?: number;
             /**
              * Format: int32
-             * @description 子树内 LEAF 节点总数
+             * @description å­æ å LEAF èç¹æ»æ°
              */
             descendantLeafCount?: number;
-            /** @description 子树是否含公开 LEAF */
+            /** @description å­æ æ¯å¦å«å¬å¼ LEAF */
             hasPublicDescendant?: boolean;
             /**
              * Format: date-time
-             * @description 创建时间
+             * @description åå»ºæ¶é´
              */
             createTime?: string;
             /**
              * Format: date-time
-             * @description 更新时间
+             * @description æ´æ°æ¶é´
              */
             updateTime?: string;
         };
-        /** @description AI 导入任务列表单条摘要（用于 GET /api/v1/ai-import/tasks 的 data.records[]） */
+        /** @description AI å¯¼å¥ä»»å¡åè¡¨åæ¡æè¦ï¼ç¨äº GET /api/v1/ai-import/tasks ç data.records[]ï¼ */
         AiImportTaskSummaryVO: {
             /**
-             * @description 业务任务 ID（UUID），与轮询、batch 接口一致
+             * @description ä¸å¡ä»»å¡ IDï¼UUIDï¼ï¼ä¸è½®è¯¢ãbatch æ¥å£ä¸è´
              * @example a1b2c3d4e5f67890abcdef1234567890
              */
             taskId?: string;
             /**
              * Format: int64
-             * @description 目标题库 ID
+             * @description ç®æ é¢åº ID
              * @example 1001
              */
             bankId?: number;
             /**
-             * @description 用户上传时的原始文件名
-             * @example 期末复习.pdf
+             * @description ç¨æ·ä¸ä¼ æ¶çåå§æä»¶å
+             * @example ææ«å¤ä¹ .pdf
              */
             fileName?: string;
             /**
-             * @description 任务状态：SUBMITTED、PROCESSING、PARSED、IMPORTING、IMPORTED、FAILED、EXPIRED。
-             *     PARSED 表示可进入预览确认；EXPIRED 表示已过期清理，需重新 submit。
+             * @description ä»»å¡ç¶æï¼SUBMITTEDãPROCESSINGãPARSEDãIMPORTINGãIMPORTEDãFAILEDãEXPIREDã
+             *     PARSED è¡¨ç¤ºå¯è¿å¥é¢è§ç¡®è®¤ï¼EXPIRED è¡¨ç¤ºå·²è¿ææ¸çï¼ééæ° submitã
              * @example PARSED
              */
             status?: string;
             /**
-             * @description FAILED/EXPIRED 时的原因摘要，或成功态业务说明；可为空
-             * @example 解析完成，待确认导入
+             * @description FAILED/EXPIRED æ¶çåå æè¦ï¼ææåæä¸å¡è¯´æï¼å¯ä¸ºç©º
+             * @example è§£æå®æï¼å¾ç¡®è®¤å¯¼å¥
              */
             message?: string;
             /**
              * Format: int32
-             * @description 解析出的题目数量；PARSED 及之后有意义
+             * @description è§£æåºçé¢ç®æ°éï¼PARSED åä¹åææä¹
              * @example 42
              */
             questionCount?: number;
             /**
              * Format: date-time
-             * @description 任务提交时间
+             * @description ä»»å¡æäº¤æ¶é´
              */
             submittedAt?: string;
             /**
              * Format: date-time
-             * @description 进入 PARSED 的时间；未解析完成时为 null
+             * @description è¿å¥ PARSED çæ¶é´ï¼æªè§£æå®ææ¶ä¸º null
              */
             parsedAt?: string;
             /**
              * Format: date-time
-             * @description 确认 batch 落库完成时间；未导入时为 null
+             * @description ç¡®è®¤ batch è½åºå®ææ¶é´ï¼æªå¯¼å¥æ¶ä¸º null
              */
             importedAt?: string;
             /**
              * Format: date-time
-             * @description 被管理端清理为 EXPIRED 的时间；未过期时为 null
+             * @description è¢«ç®¡çç«¯æ¸çä¸º EXPIRED çæ¶é´ï¼æªè¿ææ¶ä¸º null
              */
             expiredAt?: string;
-            /** @description 预览题目列表；仅查询参数 includePreview=true 且本条 status=PARSED 时非空 */
+            /** @description é¢è§é¢ç®åè¡¨ï¼ä»æ¥è¯¢åæ° includePreview=true ä¸æ¬æ¡ status=PARSED æ¶éç©º */
             questions?: components["schemas"]["QuestionPreviewVO"][];
         };
-        /** @description AI 导入 Worker 实测耗时（毫秒），经 Redis 同步至 MySQL */
+        /** @description AI å¯¼å¥ Worker å®æµèæ¶ï¼æ¯«ç§ï¼ï¼ç» Redis åæ­¥è³ MySQL */
         AiImportTaskPipelineMetricsVO: {
             /**
              * Format: int32
-             * @description MinerU 文档解析耗时（毫秒）
+             * @description MinerU ææ¡£è§£æèæ¶ï¼æ¯«ç§ï¼
              * @example 120000
              */
             mineruMs?: number;
             /**
              * Format: int32
-             * @description LLM 题目抽取耗时（毫秒）
+             * @description LLM é¢ç®æ½åèæ¶ï¼æ¯«ç§ï¼
              * @example 8500
              */
             llmMs?: number;
             /**
              * Format: int32
-             * @description MinerU + LLM 总耗时（毫秒）
+             * @description MinerU + LLM æ»èæ¶ï¼æ¯«ç§ï¼
              * @example 128500
              */
             pipelineMs?: number;
         };
-        /** @description AI 导入任务状态快照 */
+        /** @description AI å¯¼å¥ä»»å¡ç¶æå¿«ç§ */
         AiImportTaskStatusVO: {
-            /** @description 任务 ID（UUID） */
+            /** @description ä»»å¡ IDï¼UUIDï¼ */
             taskId?: string;
             /**
-             * @description 任务状态：SUBMITTED（已入队）→ PROCESSING（解析中）→ PARSED（可预览）→
-             *     IMPORTING（落库中，可选）→ IMPORTED（完成）、FAILED（失败）或 EXPIRED（长时间未确认已过期）
+             * @description ä»»å¡ç¶æï¼SUBMITTEDï¼å·²å¥éï¼â PROCESSINGï¼è§£æä¸­ï¼â PARSEDï¼å¯é¢è§ï¼â
+             *     IMPORTINGï¼è½åºä¸­ï¼å¯éï¼â IMPORTEDï¼å®æï¼ãFAILEDï¼å¤±è´¥ï¼æ EXPIREDï¼é¿æ¶é´æªç¡®è®¤å·²è¿æï¼
              * @example PARSED
              */
             status?: string;
-            /** @description FAILED/EXPIRED 时的错误摘要，或业务说明；成功流转中常为空 */
+            /** @description FAILED/EXPIRED æ¶çéè¯¯æè¦ï¼æä¸å¡è¯´æï¼æåæµè½¬ä¸­å¸¸ä¸ºç©º */
             message?: string;
             /**
              * Format: int32
-             * @description 解析出的题目总数；status=PARSED 时通常等于 questions.length
+             * @description è§£æåºçé¢ç®æ»æ°ï¼status=PARSED æ¶éå¸¸ç­äº questions.length
              * @example 42
              */
             totalCount?: number;
             /**
-             * @description 预览题目列表。status=PARSED 时返回（优先 MySQL preview_json，其次 Redis result）。
-             *     终态 IMPORTED/FAILED/EXPIRED 时不返回或为空。
+             * @description é¢è§é¢ç®åè¡¨ãstatus=PARSED æ¶è¿åï¼ä¼å MySQL preview_jsonï¼å¶æ¬¡ Redis resultï¼ã
+             *     ç»æ IMPORTED/FAILED/EXPIRED æ¶ä¸è¿åæä¸ºç©ºã
              */
             questions?: components["schemas"]["QuestionPreviewVO"][];
             metrics?: components["schemas"]["AiImportTaskPipelineMetricsVO"];
         };
-        /** @description 管理端用户列表项 */
+        /** @description AI è§£ç­ Worker å®æµèæ¶ä¸è°ç¨æ¬¡æ° */
+        AiAnswerMetricsVO: {
+            /**
+             * Format: int32
+             * @description LLM æ»èæ¶ï¼æ¯«ç§ï¼
+             * @example 45000
+             */
+            llmMs?: number;
+            /**
+             * Format: int32
+             * @description æ» LLM è°ç¨æ¬¡æ°ï¼åçÃæç¥¨ï¼
+             * @example 6
+             */
+            totalCalls?: number;
+        };
+        /** @description AI è§£ç­ä»»å¡ç¶æå¿«ç§ */
+        AiAnswerTaskStatusVO: {
+            /** @description è§£ç­ä»»å¡ IDï¼UUIDï¼ */
+            answerTaskId?: string;
+            /**
+             * @description ä»»å¡ç¶æï¼SUBMITTEDï¼å·²å¥éï¼â PROCESSINGï¼è§£ç­ä¸­ï¼â
+             *     ANSWEREDï¼å¨é¨æåï¼/ PARTIALï¼é¨åå¤±è´¥ï¼/ FAILEDï¼æ´ä½å¤±è´¥ï¼â IMPORTEDï¼å·²å¥åºï¼
+             * @example ANSWERED
+             */
+            status?: string;
+            /** @description FAILED/PARTIAL æ¶çéè¯¯æè¦ï¼æä¸å¡è¯´æ */
+            message?: string;
+            /**
+             * Format: int32
+             * @description å¾è§£ç­é¢ç®æ»æ°
+             * @example 20
+             */
+            totalCount?: number;
+            /**
+             * Format: int32
+             * @description æåè§£ç­æ°
+             * @example 18
+             */
+            answeredCount?: number;
+            /**
+             * @description è§£ç­ç»æåè¡¨ãstatus=ANSWERED/PARTIAL æ¶è¿åã
+             *     æ¯é¡¹ä¸º QuestionPreviewVOï¼å« answerSource=AI_GENERATED ä¸ answerConfidenceã
+             */
+            questions?: components["schemas"]["QuestionPreviewVO"][];
+            metrics?: components["schemas"]["AiAnswerMetricsVO"];
+        };
+        /** @description ç®¡çç«¯ç¨æ·åè¡¨é¡¹ */
         AdminUserVO: {
             /**
              * Format: int64
-             * @description 用户 ID
+             * @description ç¨æ· ID
              * @example 1
              */
             userId?: number;
             /**
-             * @description 登录账号
+             * @description ç»å½è´¦å·
              * @example zhangsan
              */
             username?: string;
             /**
-             * @description 昵称
-             * @example 张三
+             * @description æµç§°
+             * @example å¼ ä¸
              */
             nickname?: string;
             /**
-             * @description 用户角色：USER-普通用户，PREMIUM-高级用户，ADMIN-管理员
+             * @description ç¨æ·è§è²ï¼USER-æ®éç¨æ·ï¼PREMIUM-é«çº§ç¨æ·ï¼ADMIN-ç®¡çå
              * @example USER
              */
             role?: string;
             /**
              * Format: date-time
-             * @description 创建时间
+             * @description åå»ºæ¶é´
              */
             createTime?: string;
             /**
              * Format: date-time
-             * @description 更新时间
+             * @description æ´æ°æ¶é´
              */
             updateTime?: string;
         };
-        /** @description 管理端 AI 导入任务统计看板（GET /api/v1/admin/ai-import/stats 的 data） */
+        /** @description ç®¡çç«¯ AI å¯¼å¥ä»»å¡ç»è®¡çæ¿ï¼GET /api/v1/admin/ai-import/stats ç dataï¼ */
         AdminAiImportStatsVO: {
             /**
              * Format: int32
-             * @description 统计窗口天数（与请求参数 days 一致）
+             * @description ç»è®¡çªå£å¤©æ°ï¼ä¸è¯·æ±åæ° days ä¸è´ï¼
              * @example 30
              */
             periodDays?: number;
             /**
              * Format: date-time
-             * @description 统计起始时间（含）：submitted_at >= periodStart
+             * @description ç»è®¡èµ·å§æ¶é´ï¼å«ï¼ï¼submitted_at >= periodStart
              */
             periodStart?: string;
             /**
              * Format: date-time
-             * @description 统计截止时间（不含，通常为接口调用时刻）
+             * @description ç»è®¡æªæ­¢æ¶é´ï¼ä¸å«ï¼éå¸¸ä¸ºæ¥å£è°ç¨æ¶å»ï¼
              */
             periodEnd?: string;
             /**
              * Format: int64
-             * @description 窗口内提交的任务总数
+             * @description çªå£åæäº¤çä»»å¡æ»æ°
              * @example 120
              */
             totalTasks?: number;
-            /** @description 各状态任务数及该状态下的平均解析耗时 */
+            /** @description åç¶æä»»å¡æ°åè¯¥ç¶æä¸çå¹³åè§£æèæ¶ */
             statusStats?: components["schemas"]["AdminAiImportStatusStatVO"][];
             /**
              * Format: double
-             * @description 日均提交量（totalTasks / periodDays）
+             * @description æ¥åæäº¤éï¼totalTasks / periodDaysï¼
              * @example 4
              */
             dailyAvgSubmitCount?: number;
             /**
              * Format: double
-             * @description Worker 实测流水线平均耗时（秒，MinerU + LLM）；无 pipeline_duration_ms 的历史任务不参与
+             * @description Worker å®æµæµæ°´çº¿å¹³åèæ¶ï¼ç§ï¼MinerU + LLMï¼ï¼æ  pipeline_duration_ms çåå²ä»»å¡ä¸åä¸
              * @example 128.5
              */
             avgPipelineSeconds?: number;
             /**
              * Format: double
-             * @description MinerU 平均耗时（秒）
+             * @description MinerU å¹³åèæ¶ï¼ç§ï¼
              * @example 120
              */
             avgMineruSeconds?: number;
             /**
              * Format: double
-             * @description LLM 平均耗时（秒）
+             * @description LLM å¹³åèæ¶ï¼ç§ï¼
              * @example 8.5
              */
             avgLlmSeconds?: number;
             /**
              * Format: double
-             * @description 同 avgPipelineSeconds，保留兼容
+             * @description å avgPipelineSecondsï¼ä¿çå¼å®¹
              * @example 128.5
              */
             avgParseSeconds?: number;
             /**
              * Format: double
-             * @description 平均解析题目数（question_count 非空记录的平均值）
+             * @description å¹³åè§£æé¢ç®æ°ï¼question_count éç©ºè®°å½çå¹³åå¼ï¼
              * @example 15.6
              */
             avgQuestionCount?: number;
             /**
              * Format: double
-             * @description 失败率（status=FAILED 占 totalTasks 的比例，0~1，如 0.08 表示 8%）
+             * @description å¤±è´¥çï¼status=FAILED å  totalTasks çæ¯ä¾ï¼0~1ï¼å¦ 0.08 è¡¨ç¤º 8%ï¼
              * @example 0.08
              */
             failureRate?: number;
         };
-        /** @description AI 导入任务按 status 聚合的单项统计 */
+        /** @description AI å¯¼å¥ä»»å¡æ status èåçåé¡¹ç»è®¡ */
         AdminAiImportStatusStatVO: {
             /**
-             * @description 任务状态
+             * @description ä»»å¡ç¶æ
              * @example IMPORTED
              */
             status?: string;
             /**
              * Format: int64
-             * @description 该状态任务数
+             * @description è¯¥ç¶æä»»å¡æ°
              * @example 42
              */
             count?: number;
             /**
              * Format: double
-             * @description 该状态下任务的平均流水线耗时（秒，pipeline_duration_ms）；无实测数据时不参与计算
+             * @description è¯¥ç¶æä¸ä»»å¡çå¹³åæµæ°´çº¿èæ¶ï¼ç§ï¼pipeline_duration_msï¼ï¼æ å®æµæ°æ®æ¶ä¸åä¸è®¡ç®
              * @example 18.5
              */
             avgParseSeconds?: number;
@@ -1708,7 +1953,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 试题主键
+                 * @description è¯é¢ä¸»é®
                  * @example 50001
                  */
                 id: number;
@@ -1718,9 +1963,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -1730,12 +1975,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -1751,7 +1996,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 试题主键
+                 * @description è¯é¢ä¸»é®
                  * @example 50001
                  */
                 id: number;
@@ -1765,9 +2010,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -1777,16 +2022,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -1799,7 +2044,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 试题主键
+                 * @description è¯é¢ä¸»é®
                  * @example 50001
                  */
                 id: number;
@@ -1809,9 +2054,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -1821,16 +2066,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -1843,7 +2088,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1001
                  */
                 bankId: number;
@@ -1857,9 +2102,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -1869,16 +2114,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -1891,7 +2136,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1001
                  */
                 bankId: number;
@@ -1901,9 +2146,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -1913,16 +2158,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -1934,7 +2179,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 节点 ID */
+                /** @description èç¹ ID */
                 nodeId: number;
             };
             cookie?: never;
@@ -1942,9 +2187,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -1954,12 +2199,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -1985,9 +2230,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -1997,16 +2242,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -2025,9 +2270,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2037,16 +2282,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -2059,7 +2304,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 目标用户 ID
+                 * @description ç®æ ç¨æ· ID
                  * @example 2
                  */
                 userId: number;
@@ -2073,9 +2318,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2085,16 +2330,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -2115,9 +2360,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2127,16 +2372,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -2157,9 +2402,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2169,16 +2414,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -2199,9 +2444,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2211,12 +2456,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -2230,12 +2475,12 @@ export interface operations {
         parameters: {
             query: {
                 /**
-                 * @description 当前页码，从 1 开始
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
                  * @example 1
                  */
                 current: number;
                 /**
-                 * @description 每页条数
+                 * @description æ¯é¡µæ¡æ°
                  * @example 10
                  */
                 pageSize: number;
@@ -2247,9 +2492,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2259,24 +2504,24 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
                         data?: {
                             /**
                              * Format: int64
-                             * @description 总记录数
+                             * @description æ»è®°å½æ°
                              * @example 100
                              */
                             total?: number;
-                            /** @description 当前页数据列表 */
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
                             records?: components["schemas"]["QuestionBankVO"][];
                         } | null;
                     };
@@ -2298,9 +2543,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2310,18 +2555,18 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
                         /**
                          * Format: int64
-                         * @description 新建资源主键 ID
+                         * @description æ°å»ºèµæºä¸»é® ID
                          * @example 1001
                          */
                         data?: number | null;
@@ -2333,15 +2578,15 @@ export interface operations {
     pageQuestionsInBank: {
         parameters: {
             query: {
-                /** @description 题干关键词模糊检索，可选 */
+                /** @description é¢å¹²å³é®è¯æ¨¡ç³æ£ç´¢ï¼å¯é */
                 keyword?: string;
                 /**
-                 * @description 当前页码，从 1 开始
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
                  * @example 1
                  */
                 current: number;
                 /**
-                 * @description 每页条数
+                 * @description æ¯é¡µæ¡æ°
                  * @example 10
                  */
                 pageSize: number;
@@ -2349,7 +2594,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1001
                  */
                 bankId: number;
@@ -2359,9 +2604,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2371,24 +2616,24 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
                         data?: {
                             /**
                              * Format: int64
-                             * @description 总记录数
+                             * @description æ»è®°å½æ°
                              * @example 100
                              */
                             total?: number;
-                            /** @description 当前页数据列表 */
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
                             records?: components["schemas"]["QuestionVO"][];
                         } | null;
                     };
@@ -2402,7 +2647,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1001
                  */
                 bankId: number;
@@ -2416,9 +2661,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2428,18 +2673,18 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
                         /**
                          * Format: int64
-                         * @description 新建资源主键 ID
+                         * @description æ°å»ºèµæºä¸»é® ID
                          * @example 1001
                          */
                         data?: number | null;
@@ -2454,7 +2699,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1001
                  */
                 bankId: number;
@@ -2468,9 +2713,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2480,16 +2725,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -2502,12 +2747,12 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1001
                  */
                 bankId: number;
                 /**
-                 * @description 试题 ID
+                 * @description è¯é¢ ID
                  * @example 50001
                  */
                 questionId: number;
@@ -2521,9 +2766,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2533,12 +2778,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -2562,9 +2807,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2574,18 +2819,18 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
                         /**
                          * Format: int64
-                         * @description 新建资源主键 ID
+                         * @description æ°å»ºèµæºä¸»é® ID
                          * @example 1001
                          */
                         data?: number | null;
@@ -2597,15 +2842,15 @@ export interface operations {
     pageQuestionsInNode: {
         parameters: {
             query: {
-                /** @description 题干关键词模糊检索，可选 */
+                /** @description é¢å¹²å³é®è¯æ¨¡ç³æ£ç´¢ï¼å¯é */
                 keyword?: string;
                 /**
-                 * @description 当前页码，从 1 开始
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
                  * @example 1
                  */
                 current: number;
                 /**
-                 * @description 每页条数
+                 * @description æ¯é¡µæ¡æ°
                  * @example 10
                  */
                 pageSize: number;
@@ -2619,9 +2864,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2631,24 +2876,24 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
                         data?: {
                             /**
                              * Format: int64
-                             * @description 总记录数
+                             * @description æ»è®°å½æ°
                              * @example 100
                              */
                             total?: number;
-                            /** @description 当前页数据列表 */
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
                             records?: components["schemas"]["QuestionVO"][];
                         } | null;
                     };
@@ -2672,9 +2917,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2684,18 +2929,18 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
                         /**
                          * Format: int64
-                         * @description 新建资源主键 ID
+                         * @description æ°å»ºèµæºä¸»é® ID
                          * @example 1001
                          */
                         data?: number | null;
@@ -2720,9 +2965,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2732,17 +2977,61 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
+                    };
+                };
+            };
+        };
+    };
+    createAnswerTask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ç¶å¯¼å¥ä»»å¡ IDï¼ai_import_task.task_idï¼ */
+                taskId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiAnswerCreateDTO"];
+            };
+        };
+        responses: {
+            /**
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description æç¤ºä¿¡æ¯
+                         * @example success
+                         */
+                        message?: string;
+                        data?: components["schemas"]["AiAnswerSubmitVO"];
                     };
                 };
             };
@@ -2752,7 +3041,7 @@ export interface operations {
         parameters: {
             query: {
                 /**
-                 * @description 目标题库 ID（须为当前用户所属题库）
+                 * @description ç®æ é¢åº IDï¼é¡»ä¸ºå½åç¨æ·æå±é¢åºï¼
                  * @example 1001
                  */
                 bankId: number;
@@ -2764,9 +3053,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2776,12 +3065,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -2805,9 +3094,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2817,12 +3106,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -2848,9 +3137,9 @@ export interface operations {
         };
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2860,16 +3149,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
@@ -2880,17 +3169,17 @@ export interface operations {
         parameters: {
             query: {
                 /**
-                 * @description 按题库 ID 过滤，不传则查询全部错题
+                 * @description æé¢åº ID è¿æ»¤ï¼ä¸ä¼ åæ¥è¯¢å¨é¨éé¢
                  * @example 1001
                  */
                 bankId?: number;
                 /**
-                 * @description 当前页码，从 1 开始
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
                  * @example 1
                  */
                 current: number;
                 /**
-                 * @description 每页条数
+                 * @description æ¯é¡µæ¡æ°
                  * @example 10
                  */
                 pageSize: number;
@@ -2902,9 +3191,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2914,24 +3203,24 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
                         data?: {
                             /**
                              * Format: int64
-                             * @description 总记录数
+                             * @description æ»è®°å½æ°
                              * @example 100
                              */
                             total?: number;
-                            /** @description 当前页数据列表 */
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
                             records?: components["schemas"]["WrongQuestionVO"][];
                         } | null;
                     };
@@ -2943,7 +3232,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description 按题库 ID 过滤，不传则返回全部错题
+                 * @description æé¢åº ID è¿æ»¤ï¼ä¸ä¼ åè¿åå¨é¨éé¢
                  * @example 1001
                  */
                 bankId?: number;
@@ -2955,9 +3244,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -2967,16 +3256,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 列表数据 */
+                        /** @description åè¡¨æ°æ® */
                         data?: components["schemas"]["PracticeQuestionVO"][] | null;
                     };
                 };
@@ -2993,9 +3282,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3005,12 +3294,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -3026,7 +3315,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1
                  */
                 bankId: number;
@@ -3036,9 +3325,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3048,12 +3337,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -3067,12 +3356,12 @@ export interface operations {
         parameters: {
             query: {
                 /**
-                 * @description 当前页码，从 1 开始
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
                  * @example 1
                  */
                 current: number;
                 /**
-                 * @description 每页条数
+                 * @description æ¯é¡µæ¡æ°
                  * @example 10
                  */
                 pageSize: number;
@@ -3084,9 +3373,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3096,24 +3385,24 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
                         data?: {
                             /**
                              * Format: int64
-                             * @description 总记录数
+                             * @description æ»è®°å½æ°
                              * @example 100
                              */
                             total?: number;
-                            /** @description 当前页数据列表 */
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
                             records?: components["schemas"]["QuestionBankVO"][];
                         } | null;
                     };
@@ -3125,7 +3414,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description 是否随机打乱题目顺序，默认 false（按 sortNo 顺序）
+                 * @description æ¯å¦éæºæä¹±é¢ç®é¡ºåºï¼é»è®¤ falseï¼æ sortNo é¡ºåºï¼
                  * @example false
                  */
                 random?: boolean;
@@ -3133,7 +3422,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1001
                  */
                 bankId: number;
@@ -3143,9 +3432,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3155,16 +3444,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 列表数据 */
+                        /** @description åè¡¨æ°æ® */
                         data?: components["schemas"]["PracticeQuestionVO"][] | null;
                     };
                 };
@@ -3177,12 +3466,12 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 题库 ID
+                 * @description é¢åº ID
                  * @example 1001
                  */
                 bankId: number;
                 /**
-                 * @description 试题 ID
+                 * @description è¯é¢ ID
                  * @example 50001
                  */
                 questionId: number;
@@ -3192,9 +3481,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3204,12 +3493,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -3231,9 +3520,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3243,12 +3532,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -3258,16 +3547,11 @@ export interface operations {
             };
         };
     };
-    listTree: {
+    listPublicTree: {
         parameters: {
-            query: {
+            query?: {
                 /**
-                 * @description 查询范围：mine-我的树，public-公开可见树
-                 * @example public
-                 */
-                scope: string;
-                /**
-                 * @description 子树根节点 ID，为空则返回整棵森林
+                 * @description å­æ æ ¹èç¹ IDï¼ä¸ºç©ºåè¿åæ´æ£µæ£®æ
                  * @example 1
                  */
                 rootId?: number;
@@ -3279,9 +3563,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3291,37 +3575,32 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 列表数据 */
+                        /** @description åè¡¨æ°æ® */
                         data?: components["schemas"]["BankNodeVO"][] | null;
                     };
                 };
             };
         };
     };
-    pageRoots: {
+    pagePublicRoots: {
         parameters: {
             query: {
                 /**
-                 * @description 查询范围：mine-我的根节点，public-公开根节点
-                 * @example public
-                 */
-                scope: string;
-                /**
-                 * @description 当前页码，从 1 开始
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
                  * @example 1
                  */
                 current: number;
                 /**
-                 * @description 每页条数
+                 * @description æ¯é¡µæ¡æ°
                  * @example 10
                  */
                 pageSize: number;
@@ -3333,9 +3612,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3345,24 +3624,126 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
                         data?: {
                             /**
                              * Format: int64
-                             * @description 总记录数
+                             * @description æ»è®°å½æ°
                              * @example 100
                              */
                             total?: number;
-                            /** @description 当前页数据列表 */
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
+                            records?: components["schemas"]["BankNodeVO"][];
+                        } | null;
+                    };
+                };
+            };
+        };
+    };
+    listMyTree: {
+        parameters: {
+            query?: {
+                /**
+                 * @description å­æ æ ¹èç¹ IDï¼ä¸ºç©ºåè¿åæ´æ£µæ£®æ
+                 * @example 1
+                 */
+                rootId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description æç¤ºä¿¡æ¯
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description åè¡¨æ°æ® */
+                        data?: components["schemas"]["BankNodeVO"][] | null;
+                    };
+                };
+            };
+        };
+    };
+    pageMyRoots: {
+        parameters: {
+            query: {
+                /**
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
+                 * @example 1
+                 */
+                current: number;
+                /**
+                 * @description æ¯é¡µæ¡æ°
+                 * @example 10
+                 */
+                pageSize: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description æç¤ºä¿¡æ¯
+                         * @example success
+                         */
+                        message?: string;
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
+                        data?: {
+                            /**
+                             * Format: int64
+                             * @description æ»è®°å½æ°
+                             * @example 100
+                             */
+                            total?: number;
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
                             records?: components["schemas"]["BankNodeVO"][];
                         } | null;
                     };
@@ -3374,29 +3755,29 @@ export interface operations {
         parameters: {
             query: {
                 /**
-                 * @description 目标题库 ID；不传则返回用户全部题库下的任务
+                 * @description ç®æ é¢åº IDï¼ä¸ä¼ åè¿åç¨æ·å¨é¨é¢åºä¸çä»»å¡
                  * @example 1001
                  */
                 bankId?: number;
                 /**
-                 * @description 任务状态筛选，逗号分隔多值。合法值：SUBMITTED、PROCESSING、PARSED、IMPORTING、IMPORTED、FAILED、EXPIRED。
-                 *     不传则不过滤状态。前端恢复场景常用：PARSED,PROCESSING,SUBMITTED
+                 * @description ä»»å¡ç¶æç­éï¼éå·åéå¤å¼ãåæ³å¼ï¼SUBMITTEDãPROCESSINGãPARSEDãIMPORTINGãIMPORTEDãFAILEDãEXPIREDã
+                 *     ä¸ä¼ åä¸è¿æ»¤ç¶æãåç«¯æ¢å¤åºæ¯å¸¸ç¨ï¼PARSED,PROCESSING,SUBMITTED
                  * @example PARSED,PROCESSING
                  */
                 status?: string;
                 /**
-                 * @description 是否在列表项中携带预览题目（questions[]）。默认 false。
-                 *     仅对 status=PARSED 的记录填充；响应体较大，建议 pageSize≤10。
+                 * @description æ¯å¦å¨åè¡¨é¡¹ä¸­æºå¸¦é¢è§é¢ç®ï¼questions[]ï¼ãé»è®¤ falseã
+                 *     ä»å¯¹ status=PARSED çè®°å½å¡«åï¼ååºä½è¾å¤§ï¼å»ºè®® pageSizeâ¤10ã
                  * @example false
                  */
                 includePreview?: boolean;
                 /**
-                 * @description 当前页码，从 1 开始
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
                  * @example 1
                  */
                 current: number;
                 /**
-                 * @description 每页条数
+                 * @description æ¯é¡µæ¡æ°
                  * @example 10
                  */
                 pageSize: number;
@@ -3408,9 +3789,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3420,24 +3801,24 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
                         data?: {
                             /**
                              * Format: int64
-                             * @description 总记录数
+                             * @description æ»è®°å½æ°
                              * @example 100
                              */
                             total?: number;
-                            /** @description 当前页数据列表 */
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
                             records?: components["schemas"]["AiImportTaskSummaryVO"][];
                         } | null;
                     };
@@ -3450,7 +3831,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 提交接口返回的任务 ID（UUID） */
+                /** @description æäº¤æ¥å£è¿åçä»»å¡ IDï¼UUIDï¼ */
                 taskId: string;
             };
             cookie?: never;
@@ -3458,9 +3839,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3470,12 +3851,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -3485,26 +3866,110 @@ export interface operations {
             };
         };
     };
+    getStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ç¶å¯¼å¥ä»»å¡ ID */
+                taskId: string;
+                /** @description è§£ç­ä»»å¡ ID */
+                answerTaskId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description æç¤ºä¿¡æ¯
+                         * @example success
+                         */
+                        message?: string;
+                        data?: components["schemas"]["AiAnswerTaskStatusVO"];
+                    };
+                };
+            };
+        };
+    };
+    getResult: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ç¶å¯¼å¥ä»»å¡ ID */
+                taskId: string;
+                /** @description è§£ç­ä»»å¡ ID */
+                answerTaskId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /**
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
+             */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: int32
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
+                         * @example 200
+                         */
+                        code?: number;
+                        /**
+                         * @description æç¤ºä¿¡æ¯
+                         * @example success
+                         */
+                        message?: string;
+                        data?: components["schemas"]["AiAnswerTaskStatusVO"];
+                    };
+                };
+            };
+        };
+    };
     pageUsers: {
         parameters: {
             query: {
                 /**
-                 * @description 用户名关键字（可选）
+                 * @description ç¨æ·åå³é®å­ï¼å¯éï¼
                  * @example zhang
                  */
                 username?: string;
                 /**
-                 * @description 角色筛选：USER/PREMIUM/ADMIN（可选）
+                 * @description è§è²ç­éï¼USER/PREMIUM/ADMINï¼å¯éï¼
                  * @example USER
                  */
                 role?: string;
                 /**
-                 * @description 当前页码，从 1 开始
+                 * @description å½åé¡µç ï¼ä» 1 å¼å§
                  * @example 1
                  */
                 current: number;
                 /**
-                 * @description 每页条数
+                 * @description æ¯é¡µæ¡æ°
                  * @example 10
                  */
                 pageSize: number;
@@ -3516,9 +3981,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3528,24 +3993,24 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 分页响应：total + records（字段名固定为 records） */
+                        /** @description åé¡µååºï¼total + recordsï¼å­æ®µååºå®ä¸º recordsï¼ */
                         data?: {
                             /**
                              * Format: int64
-                             * @description 总记录数
+                             * @description æ»è®°å½æ°
                              * @example 100
                              */
                             total?: number;
-                            /** @description 当前页数据列表 */
+                            /** @description å½åé¡µæ°æ®åè¡¨ */
                             records?: components["schemas"]["AdminUserVO"][];
                         } | null;
                     };
@@ -3557,7 +4022,7 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description 统计窗口天数，默认 30
+                 * @description ç»è®¡çªå£å¤©æ°ï¼é»è®¤ 30
                  * @example 30
                  */
                 days?: number;
@@ -3569,9 +4034,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3581,12 +4046,12 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
@@ -3602,7 +4067,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description 错题本记录 ID
+                 * @description éé¢æ¬è®°å½ ID
                  * @example 1
                  */
                 id: number;
@@ -3612,9 +4077,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             /**
-             * @description HTTP 200。成功时 body.code=200 且 data 有值（Void 接口 data 为 null）。
-             *     业务失败时 HTTP 仍为 200，body.code 见接口说明（常见 400/401/403/404/409/429/500），data 多为 null。
-             *     响应 body 的 data 字段结构见本接口 Schema 示例（已按泛型展开）。
+             * @description HTTP 200ãæåæ¶ body.code=200 ä¸ data æå¼ï¼Void æ¥å£ data ä¸º nullï¼ã
+             *     ä¸å¡å¤±è´¥æ¶ HTTP ä»ä¸º 200ï¼body.code è§æ¥å£è¯´æï¼å¸¸è§ 400/401/403/404/409/429/500ï¼ï¼data å¤ä¸º nullã
+             *     ååº body ç data å­æ®µç»æè§æ¬æ¥å£ Schema ç¤ºä¾ï¼å·²ææ³åå±å¼ï¼ã
              */
             200: {
                 headers: {
@@ -3624,16 +4089,16 @@ export interface operations {
                     "application/json": {
                         /**
                          * Format: int32
-                         * @description 业务状态码：200 成功；4xx/5xx 为业务失败（HTTP 仍多为 200）
+                         * @description ä¸å¡ç¶æç ï¼200 æåï¼4xx/5xx ä¸ºä¸å¡å¤±è´¥ï¼HTTP ä»å¤ä¸º 200ï¼
                          * @example 200
                          */
                         code?: number;
                         /**
-                         * @description 提示信息
+                         * @description æç¤ºä¿¡æ¯
                          * @example success
                          */
                         message?: string;
-                        /** @description 无业务数据（成功时亦为 null） */
+                        /** @description æ ä¸å¡æ°æ®ï¼æåæ¶äº¦ä¸º nullï¼ */
                         data?: unknown;
                     };
                 };
