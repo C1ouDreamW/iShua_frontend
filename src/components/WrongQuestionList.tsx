@@ -25,6 +25,7 @@ const QUESTION_TYPE_LABEL: Record<string, string> = {
   SINGLE: "单选",
   MULTI: "多选",
   JUDGE: "判断",
+  SHORT_ANSWER: "简答",
 };
 
 export function WrongQuestionList({

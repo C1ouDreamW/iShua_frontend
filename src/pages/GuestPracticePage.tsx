@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { getHotPracticeDetail } from "@/api/bankNodes";
@@ -15,6 +15,10 @@ import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { buildLoginRedirect, buildRecitePath } from "@/lib/navigation";
 import { gradeAnswer } from "@/lib/gradeAnswer";
 import { parseOptionsJson } from "@/lib/parseOptionsJson";
+import {
+  isObjectiveQuestionType,
+  parseAnswerPoints,
+} from "@/lib/practiceQuestion";
 import {
   paperSheetClasses,
   practiceAnalysisClasses,
@@ -157,6 +161,14 @@ export function GuestPracticePage() {
     () => (question ? getQuestionOptions(question) : []),
     [question],
   );
+  const isManualGrading = question
+    ? !isObjectiveQuestionType(question.questionType)
+    : false;
+  const shortAnswerValue = record?.answer[0] ?? "";
+  const answerPoints = useMemo(
+    () => (question ? parseAnswerPoints(question.answerJson) : []),
+    [question],
+  );
   const stats = useMemo(() => {
     const correctCount = answers.filter((item) => item.correct === true).length;
     const wrongCount = answers.filter((item) => item.correct === false).length;
@@ -191,8 +203,33 @@ export function GuestPracticePage() {
     );
   }
 
+  function updateShortAnswer(text: string) {
+    if (!question || record?.submitted) {
+      return;
+    }
+
+    setAnswers((items) =>
+      items.map((item, index) =>
+        index === currentIndex ? { ...item, answer: [text] } : item,
+      ),
+    );
+  }
+
   function submitCurrentAnswer() {
-    if (!question || !record || record.answer.length === 0) {
+    if (!question || !record) {
+      return;
+    }
+
+    if (isManualGrading) {
+      setAnswers((items) =>
+        items.map((item, index) =>
+          index === currentIndex ? { ...item, submitted: true } : item,
+        ),
+      );
+      return;
+    }
+
+    if (record.answer.length === 0) {
       return;
     }
 
@@ -343,14 +380,22 @@ export function GuestPracticePage() {
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className={practiceTypeBadgeClasses()}>
-              {question.questionType === "MULTI"
-                ? "多选"
-                : question.questionType === "JUDGE"
-                  ? "判断"
-                  : "单选"}
+              {isManualGrading
+                ? "简答"
+                : question.questionType === "MULTI"
+                  ? "多选"
+                  : question.questionType === "JUDGE"
+                    ? "判断"
+                    : "单选"}
             </span>
             <span className="text-sm text-text-muted">
-              {record?.submitted ? "已提交" : "选择后提交查看解析"}
+              {record?.submitted
+                ? isManualGrading
+                  ? "已显示参考答案"
+                  : "已提交"
+                : isManualGrading
+                  ? "输入答案后查看参考答案"
+                  : "选择后提交查看解析"}
             </span>
           </div>
 
@@ -358,48 +403,89 @@ export function GuestPracticePage() {
             {question.stem}
           </h2>
 
-          <div
-            aria-label="答案选项"
-            className="mt-8 flex flex-col gap-3"
-            role={isMultiple ? "group" : "radiogroup"}
-          >
-            {options.map((option) => {
-              const selected = record?.answer.includes(option.value) ?? false;
+          {isManualGrading ? (
+            <div className="mt-8 flex flex-col gap-3">
+              <label
+                className="text-sm font-medium text-text-secondary"
+                htmlFor={`guest-sa-${question.id ?? currentIndex}`}
+              >
+                我的答案
+              </label>
+              <textarea
+                className="min-h-36 rounded-md border border-border bg-bg-canvas px-4 py-3 text-sm leading-7 text-text-primary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-70"
+                disabled={record?.submitted}
+                id={`guest-sa-${question.id ?? currentIndex}`}
+                onChange={(event) => updateShortAnswer(event.target.value)}
+                placeholder="在这里写下你的答案要点，再查看参考答案。"
+                value={shortAnswerValue}
+              />
+            </div>
+          ) : (
+            <div
+              aria-label="答案选项"
+              className="mt-8 flex flex-col gap-3"
+              role={isMultiple ? "group" : "radiogroup"}
+            >
+              {options.map((option) => {
+                const selected = record?.answer.includes(option.value) ?? false;
 
-              return (
-                <button
-                  aria-checked={selected}
-                  className={practiceOptionClasses(selected)}
-                  disabled={record?.submitted}
-                  key={option.value}
-                  onClick={() => updateCurrentAnswer(option.value)}
-                  role={isMultiple ? "checkbox" : "radio"}
-                  type="button"
-                >
-                  <span className={practiceOptionMarkerClasses(selected)}>
-                    {option.value}
-                  </span>
-                  <span className="leading-7 text-text-primary">
-                    {option.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                return (
+                  <button
+                    aria-checked={selected}
+                    className={practiceOptionClasses(selected)}
+                    disabled={record?.submitted}
+                    key={option.value}
+                    onClick={() => updateCurrentAnswer(option.value)}
+                    role={isMultiple ? "checkbox" : "radio"}
+                    type="button"
+                  >
+                    <span className={practiceOptionMarkerClasses(selected)}>
+                      {option.value}
+                    </span>
+                    <span className="leading-7 text-text-primary">
+                      {option.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {record?.submitted ? (
             <Reveal as="section" className={practiceAnalysisClasses()}>
               <p
                 className={cn(
                   "font-medium",
-                  record.correct ? "text-success" : "text-error",
+                  isManualGrading
+                    ? "text-text-primary"
+                    : record.correct
+                      ? "text-success"
+                      : "text-error",
                 )}
               >
-                {record.correct ? "✓ 回答正确" : "✗ 回答错误"}
+                {isManualGrading
+                  ? "已显示参考答案"
+                  : record.correct
+                    ? "✓ 回答正确"
+                    : "✗ 回答错误"}
               </p>
-              <p className="mt-2 text-sm text-text-secondary">
-                正确答案：{formatAnswer(question.answerJson)}
-              </p>
+              {isManualGrading ? (
+                answerPoints.length > 0 ? (
+                  <ul className="mt-2 space-y-1.5 text-sm leading-7 text-text-secondary">
+                    {answerPoints.map((point, idx) => (
+                      <li className="whitespace-pre-wrap" key={idx}>
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-text-muted">暂无参考答案。</p>
+                )
+              ) : (
+                <p className="mt-2 text-sm text-text-secondary">
+                  正确答案：{formatAnswer(question.answerJson)}
+                </p>
+              )}
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-text-secondary">
                 解析：{question.analysis || "暂无解析。"}
               </p>
@@ -418,10 +504,16 @@ export function GuestPracticePage() {
             上一题
           </Button>
           <Button
-            disabled={!record || record.answer.length === 0 || record.submitted}
+            disabled={
+              !record ||
+              record.submitted ||
+              (isManualGrading
+                ? shortAnswerValue.trim().length === 0
+                : record.answer.length === 0)
+            }
             onClick={submitCurrentAnswer}
           >
-            提交
+            {isManualGrading ? "显示答案" : "提交"}
           </Button>
           <Button
             onClick={() => {

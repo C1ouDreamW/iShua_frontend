@@ -84,6 +84,15 @@ export function QuestionFormPage() {
 
   function updateQuestionType(nextType: QuestionType) {
     setForm((prev) => {
+      if (nextType === "SHORT_ANSWER") {
+        return {
+          ...prev,
+          answers: [""],
+          options: [],
+          questionType: nextType,
+        };
+      }
+
       if (nextType === "JUDGE") {
         return {
           ...prev,
@@ -221,6 +230,7 @@ export function QuestionFormPage() {
               <option value="SINGLE">单选</option>
               <option value="MULTI">多选</option>
               <option value="JUDGE">判断</option>
+              <option value="SHORT_ANSWER">简答</option>
             </select>
           </label>
 
@@ -238,82 +248,105 @@ export function QuestionFormPage() {
             />
           </label>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-text-primary">选项</span>
-              {form.questionType !== "JUDGE" ? (
-                <Button
-                  disabled={saving}
-                  onClick={addOption}
-                  size="sm"
-                  type="button"
-                  variant="outline"
-                >
-                  添加选项
-                </Button>
-              ) : null}
-            </div>
-
+          {form.questionType === "SHORT_ANSWER" ? (
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="font-medium text-text-primary">
+                参考答案要点 <span className="text-error">*</span>
+              </span>
+              <textarea
+                className="min-h-40 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                disabled={saving}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    answers: event.target.value.split("\n"),
+                  }))
+                }
+                placeholder="每行一个答案要点"
+                value={form.answers.join("\n")}
+              />
+              <span className="text-xs text-text-muted">
+                每行一个参考答案要点，用于刷题作答后展示。
+              </span>
+            </label>
+          ) : (
             <div className="space-y-3">
-              {form.options.map((option, index) => {
-                const letter = optionLetters[index] ?? String(index + 1);
-                const selected = form.answers.includes(letter);
-                const isJudge = form.questionType === "JUDGE";
-
-                return (
-                  <div
-                    className="rounded-lg border p-3"
-                    key={`${letter}-${index}`}
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-medium text-text-primary">选项</span>
+                {form.questionType !== "JUDGE" ? (
+                  <Button
+                    disabled={saving}
+                    onClick={addOption}
+                    size="sm"
+                    type="button"
+                    variant="outline"
                   >
-                    <div className="flex items-start gap-3">
-                      <button
-                        aria-checked={selected}
-                        className={cn(
-                          "mt-2 flex size-7 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
-                          selected
-                            ? "border-brand bg-brand-muted text-brand"
-                            : "text-text-muted",
-                        )}
-                        disabled={saving}
-                        onClick={() => toggleAnswer(letter)}
-                        role={form.questionType === "MULTI" ? "checkbox" : "radio"}
-                        type="button"
-                      >
-                        {letter}
-                      </button>
-                      <div className="min-w-0 flex-1">
-                        <Input
-                          disabled={saving || isJudge}
-                          onChange={(event) =>
-                            updateOption(index, event.target.value)
-                          }
-                          placeholder={
-                            isJudge
-                              ? index === 0
-                                ? "正确"
-                                : "错误"
-                              : `选项 ${letter}`
-                          }
-                          value={option}
-                        />
-                      </div>
-                      {!isJudge && form.options.length > 2 ? (
-                        <Button
+                    添加选项
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="space-y-3">
+                {form.options.map((option, index) => {
+                  const letter = optionLetters[index] ?? String(index + 1);
+                  const selected = form.answers.includes(letter);
+                  const isJudge = form.questionType === "JUDGE";
+
+                  return (
+                    <div
+                      className="rounded-lg border p-3"
+                      key={`${letter}-${index}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <button
+                          aria-checked={selected}
+                          className={cn(
+                            "mt-2 flex size-7 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
+                            selected
+                              ? "border-brand bg-brand-muted text-brand"
+                              : "text-text-muted",
+                          )}
                           disabled={saving}
-                          onClick={() => removeOption(index)}
-                          size="sm"
+                          onClick={() => toggleAnswer(letter)}
+                          role={form.questionType === "MULTI" ? "checkbox" : "radio"}
                           type="button"
-                          variant="ghost"
                         >
-                          删除
-                        </Button>
-                      ) : null}
+                          {letter}
+                        </button>
+                        <div className="min-w-0 flex-1">
+                          <Input
+                            disabled={saving || isJudge}
+                            onChange={(event) =>
+                              updateOption(index, event.target.value)
+                            }
+                            placeholder={
+                              isJudge
+                                ? index === 0
+                                  ? "正确"
+                                  : "错误"
+                                : `选项 ${letter}`
+                            }
+                            value={option}
+                          />
+                        </div>
+                        {!isJudge && form.options.length > 2 ? (
+                          <Button
+                            disabled={saving}
+                            onClick={() => removeOption(index)}
+                            size="sm"
+                            type="button"
+                            variant="ghost"
+                          >
+                            删除
+                          </Button>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           <label className="flex flex-col gap-2 text-sm">
             <span className="font-medium text-text-primary">解析</span>

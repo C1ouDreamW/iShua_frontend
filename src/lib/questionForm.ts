@@ -1,7 +1,7 @@
 import type { Question, QuestionPayload } from "@/api/questions";
 import { parseOptionsJson } from "@/lib/parseOptionsJson";
 
-export type QuestionType = "SINGLE" | "MULTI" | "JUDGE";
+export type QuestionType = "SINGLE" | "MULTI" | "JUDGE" | "SHORT_ANSWER";
 
 export type QuestionFormState = {
   questionType: QuestionType;
@@ -16,6 +16,7 @@ const OPTION_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const JUDGE_OPTIONS = ["正确", "错误"];
 
 export const QUESTION_TYPE_LABEL: Record<QuestionType, string> = {
+  SHORT_ANSWER: "简答",
   SINGLE: "单选",
   MULTI: "多选",
   JUDGE: "判断",
@@ -24,6 +25,17 @@ export const QUESTION_TYPE_LABEL: Record<QuestionType, string> = {
 export function createEmptyFormState(
   questionType: QuestionType = "SINGLE",
 ): QuestionFormState {
+  if (questionType === "SHORT_ANSWER") {
+    return {
+      analysis: "",
+      answers: [""],
+      options: [],
+      questionType,
+      sortNo: "",
+      stem: "",
+    };
+  }
+
   return {
     analysis: "",
     answers: [],
@@ -51,6 +63,18 @@ function parseAnswerJson(answerJson: string | null | undefined) {
 
 export function questionToFormState(question: Question): QuestionFormState {
   const questionType = (question.questionType ?? "SINGLE") as QuestionType;
+
+  if (questionType === "SHORT_ANSWER") {
+    return {
+      analysis: question.analysis ?? "",
+      answers: parseAnswerJson(question.answerJson),
+      options: [],
+      questionType,
+      sortNo: question.sortNo != null ? String(question.sortNo) : "",
+      stem: question.stem ?? "",
+    };
+  }
+
   const parsedOptions = parseOptionsJson(question.optionsJson);
   const options =
     questionType === "JUDGE"
@@ -76,6 +100,19 @@ export function getOptionLetters(options: string[]) {
 }
 
 export function formToPayload(form: QuestionFormState): QuestionPayload {
+  if (form.questionType === "SHORT_ANSWER") {
+    return {
+      analysis: form.analysis.trim() || undefined,
+      answerJson: JSON.stringify(
+        form.answers.map((item) => item.trim()).filter(Boolean),
+      ),
+      optionsJson: "[]",
+      questionType: form.questionType,
+      sortNo: form.sortNo.trim() ? Number(form.sortNo) : undefined,
+      stem: form.stem.trim(),
+    };
+  }
+
   const options =
     form.questionType === "JUDGE"
       ? form.options.length > 0
@@ -96,6 +133,18 @@ export function formToPayload(form: QuestionFormState): QuestionPayload {
 export function validateQuestionForm(form: QuestionFormState) {
   if (!form.stem.trim()) {
     return "请填写题干。";
+  }
+
+  if (form.questionType === "SHORT_ANSWER") {
+    const filledAnswers = form.answers
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (filledAnswers.length === 0) {
+      return "请填写参考答案要点。";
+    }
+
+    return null;
   }
 
   if (form.questionType === "JUDGE") {
