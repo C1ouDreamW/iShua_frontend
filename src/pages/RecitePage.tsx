@@ -3,42 +3,40 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
-import { PracticeComplete } from "@/components/PracticeComplete";
-import { PracticePlayer } from "@/components/PracticePlayer";
+import { PageTransition } from "@/components/motion/PageTransition";
+import { ReciteComplete } from "@/components/ReciteComplete";
+import { RecitePlayer } from "@/components/RecitePlayer";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
-import { usePracticeSession } from "@/hooks/usePracticeSession";
+import { useAuth } from "@/hooks/useAuth";
+import { useReciteSession } from "@/hooks/useReciteSession";
 
-export function PracticePage() {
+export function RecitePage() {
   const { bankId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const numericBankId = Number(bankId);
-  const session = usePracticeSession(numericBankId);
+  const session = useReciteSession(numericBankId, isAuthenticated);
   const { error: showError } = useAppToast();
 
   useEffect(() => {
-    if (session.submitError) {
-      showError(session.submitError);
+    if (session.error) {
+      showError(session.error);
     }
-  }, [session.submitError, showError]);
+  }, [session.error, showError]);
 
   if (session.status === "complete") {
     return (
-      <PracticeComplete
-        correctCount={session.stats.correctCount}
-        onPrimary={() => {
-          // 判断是否为登录用户（通过 localStorage 判断）
-          if (localStorage.getItem("ishua_user") === null || localStorage.getItem("ishua_user") === undefined) {
-            navigate("/");
-          } else {
-            navigate("/app/banks");
-          }
-        }}
-
-        onRetry={session.restart}
-        title="本次练习完成"
+      <ReciteComplete
+        knownCount={session.stats.knownCount}
+        onPrimary={() => navigate(isAuthenticated ? "/app/banks" : "/")}
+        onRetryAll={() => session.restart()}
+        onRetryReview={() => session.restart("review")}
+        primaryLabel={isAuthenticated ? "返回题库" : "返回大厅"}
+        reviewCount={session.stats.reviewCount}
+        title="本次背题完成"
+        total={session.stats.total}
         unansweredCount={session.stats.unansweredCount}
-        wrongCount={session.stats.wrongCount}
       />
     );
   }
@@ -59,13 +57,14 @@ export function PracticePage() {
       <main className="min-h-screen px-6 py-12">
         <div className="mx-auto max-w-3xl space-y-4">
           <ErrorState
-            backHref="/"
+            backHref={isAuthenticated ? "/app/banks" : "/"}
+            backLabel={isAuthenticated ? "返回题库" : "返回大厅"}
             message={session.error}
             onRetry={() => void session.reload()}
           />
           <div className="flex justify-center">
             <Button asChild variant="outline">
-              <Link to="/">返回大厅</Link>
+              <Link to={isAuthenticated ? "/app/banks" : "/"}>返回</Link>
             </Button>
           </div>
         </div>
@@ -78,12 +77,12 @@ export function PracticePage() {
       <main className="min-h-screen px-6 py-12">
         <div className="mx-auto max-w-3xl space-y-4">
           <EmptyState
-            description="这个题库暂时没有可练习的题目。"
+            description="这个题库暂时没有可背诵的题目。"
             title="暂无题目"
           />
           <div className="flex justify-center">
             <Button asChild variant="outline">
-              <Link to="/app/banks">返回</Link>
+              <Link to={isAuthenticated ? "/app/banks" : "/"}>返回</Link>
             </Button>
           </div>
         </div>
@@ -92,18 +91,15 @@ export function PracticePage() {
   }
 
   return (
-    <PracticePlayer
-      bankId={numericBankId}
-      bankTitle={session.bankTitle}
-      currentIndex={session.currentIndex}
-      onAnswerChange={session.updateAnswer}
-      onComplete={session.complete}
-      onDismissWrongToast={session.dismissWrongToast}
-      onIndexChange={session.setCurrentIndex}
-      onSubmit={() => void session.submitCurrent()}
-      questions={session.questions}
-      record={session.records[session.currentIndex]}
-      showWrongToast={session.showWrongToast}
-    />
+    <PageTransition>
+      <RecitePlayer
+        bankId={numericBankId}
+        bankTitle={session.bankTitle}
+        currentIndex={session.workingIndex}
+        onMark={session.markCurrent}
+        onPrev={session.goPrev}
+        questions={session.questions}
+      />
+    </PageTransition>
   );
 }

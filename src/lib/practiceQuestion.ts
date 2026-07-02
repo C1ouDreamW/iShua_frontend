@@ -41,3 +41,40 @@ export function formatAnswerJson(answerJson: string | null | undefined) {
     return "暂无";
   }
 }
+
+/** 解析客观题标准答案为归一化大写值集合，用于高亮正确选项。 */
+export function getCorrectAnswerValues(
+  answerJson: string | null | undefined,
+): string[] {
+  try {
+    const parsed = JSON.parse(answerJson ?? "[]");
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => item.trim().toUpperCase())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+/** 解析简答/参考答案要点为原始字符串数组，保留大小写与换行。 */
+export function parseAnswerPoints(
+  answerJson: string | null | undefined,
+): string[] {
+  try {
+    const parsed = JSON.parse(answerJson ?? "[]");
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter(
+      (item): item is string => typeof item === "string" && item.trim().length > 0,
+    );
+  } catch {
+    return [];
+  }
+}

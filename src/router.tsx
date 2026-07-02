@@ -18,6 +18,7 @@ import { ManageBanksLayout } from "@/pages/ManageBanksLayout";
 import { PracticeBanksPage } from "@/pages/PracticeBanksPage";
 import { PracticePage } from "@/pages/PracticePage";
 import { QuestionFormPage } from "@/pages/QuestionFormPage";
+import { RecitePage } from "@/pages/RecitePage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { WrongPracticePage } from "@/pages/WrongPracticePage";
 import { WrongQuestionsPage } from "@/pages/WrongQuestionsPage";
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
   {
     path: "/practice/guest/:bankId",
     element: <GuestPracticePage />,
+  },
+  {
+    path: "/recite/guest/:bankId",
+    element: <RecitePage />,
   },
   {
     path: "/login",
@@ -95,6 +100,11 @@ export const router = createBrowserRouter([
         path: "practice/:bankId",
         handle: { immersive: true },
         element: <PracticePage />,
+      },
+      {
+        path: "recite/:bankId",
+        handle: { immersive: true },
+        element: <RecitePage />,
       },
       {
         path: "wrong-questions",

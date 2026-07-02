@@ -6,6 +6,8 @@ import { QuestionTransition } from "@/components/motion/QuestionTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { PracticeToast } from "@/components/PracticeToast";
 import type { PracticeAnswerRecord } from "@/hooks/usePracticeSession";
+import { useAuth } from "@/hooks/useAuth";
+import { buildRecitePath } from "@/lib/navigation";
 import {
   formatAnswerJson,
   getQuestionOptions,
@@ -24,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type PracticePlayerProps = {
+  bankId: number;
   bankTitle: string;
   questions: PracticeQuestion[];
   currentIndex: number;
@@ -37,6 +40,7 @@ type PracticePlayerProps = {
 };
 
 export function PracticePlayer({
+  bankId,
   bankTitle,
   questions,
   currentIndex,
@@ -48,6 +52,7 @@ export function PracticePlayer({
   showWrongToast,
   onDismissWrongToast,
 }: PracticePlayerProps) {
+  const { isAuthenticated } = useAuth();
   const question = questions[currentIndex];
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const focusedOptionIndex = useRef(0);
@@ -131,14 +136,22 @@ export function PracticePlayer({
               {bankTitle}
             </h1>
           </div>
-          <p
-            aria-live="polite"
-            className="shrink-0 font-medium tabular-nums text-text-primary"
-          >
-            <span className="text-text-muted">第 </span>
-            {currentIndex + 1}
-            <span className="text-text-muted"> / {questions.length} 题</span>
-          </p>
+          <div className="shrink-0 text-right">
+            <p
+              aria-live="polite"
+              className="font-medium tabular-nums text-text-primary"
+            >
+              <span className="text-text-muted">第 </span>
+              {currentIndex + 1}
+              <span className="text-text-muted"> / {questions.length} 题</span>
+            </p>
+            <Link
+              className="text-xs text-brand underline-offset-4 hover:underline"
+              to={buildRecitePath(bankId, isAuthenticated)}
+            >
+              切换背题模式
+            </Link>
+          </div>
         </div>
       </header>
 

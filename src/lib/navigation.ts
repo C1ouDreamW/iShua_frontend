@@ -39,3 +39,12 @@ export function buildPracticePath(
     ? `/app/practice/${nodeId}`
     : `/practice/guest/${nodeId}`;
 }
+
+export function buildRecitePath(
+  nodeId: number,
+  isAuthenticated: boolean,
+): string {
+  return isAuthenticated
+    ? `/app/recite/${nodeId}`
+    : `/recite/guest/${nodeId}`;
+}

@@ -12,7 +12,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { Button } from "@/components/ui/button";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
-import { buildLoginRedirect } from "@/lib/navigation";
+import { buildLoginRedirect, buildRecitePath } from "@/lib/navigation";
 import { gradeAnswer } from "@/lib/gradeAnswer";
 import { parseOptionsJson } from "@/lib/parseOptionsJson";
 import {
@@ -286,12 +286,20 @@ export function GuestPracticePage() {
             >
               {currentIndex + 1} / {state.questions.length}
             </p>
-            <Link
-              className="text-xs text-brand underline-offset-4 hover:underline"
-              to={buildLoginRedirect(`/practice/guest/${numericBankId}`)}
-            >
-              登录以同步错题
-            </Link>
+            <div className="flex flex-col items-end gap-0.5">
+              <Link
+                className="text-xs text-brand underline-offset-4 hover:underline"
+                to={buildRecitePath(numericBankId, false)}
+              >
+                切换背题模式
+              </Link>
+              <Link
+                className="text-xs text-text-muted underline-offset-4 hover:underline"
+                to={buildLoginRedirect(`/practice/guest/${numericBankId}`)}
+              >
+                登录以同步错题
+              </Link>
+            </div>
           </div>
         </div>
       </header>

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { isFolderNode, isLeafNode, type BankNode } from "@/api/bankNodes";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { buildPracticePath } from "@/lib/navigation";
+import { buildPracticePath, buildRecitePath } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 type RootNodeCardProps = {
@@ -87,15 +87,26 @@ export function RootNodeCard({ node }: RootNodeCardProps) {
             </Link>
           </Button>
         ) : (
-          <Button asChild className="w-full" disabled={!nodeId}>
-            <Link
-              to={
-                nodeId ? buildPracticePath(nodeId, isAuthenticated) : "#"
-              }
-            >
-              开始刷题
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild className="flex-1" disabled={!nodeId}>
+              <Link
+                to={
+                  nodeId ? buildPracticePath(nodeId, isAuthenticated) : "#"
+                }
+              >
+                开始刷题
+              </Link>
+            </Button>
+            <Button asChild className="flex-1" disabled={!nodeId} variant="outline">
+              <Link
+                to={
+                  nodeId ? buildRecitePath(nodeId, isAuthenticated) : "#"
+                }
+              >
+                背题模式
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
     </article>

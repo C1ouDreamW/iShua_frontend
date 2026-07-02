@@ -53,3 +53,34 @@ export function practiceFooterInnerClasses() {
     "[&_button]:min-w-0 [&_button]:px-2 sm:[&_button]:px-4",
   );
 }
+
+/** 背题模式选项：正确选项高亮成功色，错误选项弱化。 */
+export function reciteOptionClasses(correct: boolean) {
+  return cn(
+    "flex w-full items-start gap-3 rounded-md border bg-bg-sheet p-4 text-left border-l-[3px]",
+    "transition-[border-color,background-color,opacity] duration-100",
+    correct
+      ? "border-success border-l-success bg-success-bg"
+      : "border-border border-l-border opacity-55",
+  );
+}
+
+export function reciteOptionMarkerClasses(correct: boolean) {
+  return cn(
+    "flex size-7 shrink-0 items-center justify-center rounded-md border text-sm font-semibold tabular-nums",
+    correct
+      ? "border-success bg-success text-primary-foreground"
+      : "border-border bg-bg-surface text-text-muted",
+  );
+}
+
+export function reciteProgressBarClasses() {
+  return cn("h-1 w-full bg-bg-canvas");
+}
+
+export function reciteProgressFillClasses() {
+  return cn(
+    "h-full bg-brand transition-[width] duration-200 ease-out",
+    "motion-safe:transition-[width]",
+  );
+}
