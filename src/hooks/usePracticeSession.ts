@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getHotPracticeDetail } from "@/api/bankNodes";
 import { ApiError } from "@/api/client";
@@ -54,6 +54,9 @@ export function usePracticeSession(bankId: number) {
   const [records, setRecords] = useState<PracticeAnswerRecord[]>([]);
   const [showWrongToast, setShowWrongToast] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [autoNext, setAutoNext] = useState(false);
+  const autoNextRef = useRef(autoNext);
+  autoNextRef.current = autoNext;
 
   const reload = useCallback(async () => {
     if (!Number.isFinite(bankId)) {
@@ -195,6 +198,12 @@ export function usePracticeSession(bankId: number) {
       if (result.correct === false && !result.needsManualGrading) {
         setShowWrongToast(true);
       }
+
+      if (result.correct === true && autoNextRef.current && currentIndex < questions.length - 1) {
+        setTimeout(() => setCurrentIndex(currentIndex + 1), 600);
+      } else if (result.correct === true && autoNextRef.current && currentIndex >= questions.length - 1) {
+        setTimeout(() => setStatus("complete"), 600);
+      }
     } catch (error) {
       setRecords((items) =>
         items.map((item, index) =>
@@ -225,6 +234,7 @@ export function usePracticeSession(bankId: number) {
   }, []);
 
   return {
+    autoNext,
     bankTitle,
     complete,
     currentIndex,
@@ -234,6 +244,7 @@ export function usePracticeSession(bankId: number) {
     records,
     reload,
     restart,
+    setAutoNext,
     setCurrentIndex,
     showWrongToast,
     stats,

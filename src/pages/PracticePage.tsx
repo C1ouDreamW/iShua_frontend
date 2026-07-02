@@ -93,6 +93,7 @@ export function PracticePage() {
 
   return (
     <PracticePlayer
+      autoNext={session.autoNext}
       bankId={numericBankId}
       bankTitle={session.bankTitle}
       currentIndex={session.currentIndex}
@@ -101,6 +102,7 @@ export function PracticePage() {
       onDismissWrongToast={session.dismissWrongToast}
       onIndexChange={session.setCurrentIndex}
       onSubmit={() => void session.submitCurrent()}
+      onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
       questions={session.questions}
       record={session.records[session.currentIndex]}
       showWrongToast={session.showWrongToast}

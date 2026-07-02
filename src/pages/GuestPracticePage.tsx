@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { getHotPracticeDetail } from "@/api/bankNodes";
@@ -94,6 +94,9 @@ export function GuestPracticePage() {
     loading: true,
     questions: [],
   });
+  const [autoNext, setAutoNext] = useState(false);
+  const autoNextRef = useRef(autoNext);
+  autoNextRef.current = autoNext;
 
   useEffect(() => {
     let ignore = false;
@@ -204,6 +207,14 @@ export function GuestPracticePage() {
         index === currentIndex ? { ...item, correct, submitted: true } : item,
       ),
     );
+
+    if (correct && autoNextRef.current) {
+      if (currentIndex >= state.questions.length - 1) {
+        setTimeout(() => setCompleted(true), 600);
+      } else {
+        setTimeout(() => setCurrentIndex((index) => index + 1), 600);
+      }
+    }
   }
 
   function restart() {
@@ -287,6 +298,26 @@ export function GuestPracticePage() {
               {currentIndex + 1} / {state.questions.length}
             </p>
             <div className="flex flex-col items-end gap-0.5">
+              <div className="flex items-center justify-end gap-1.5">
+                <span className="text-xs text-text-muted">自动下一题</span>
+                <button
+                  aria-checked={autoNext}
+                  className={cn(
+                    "relative h-5 w-9 rounded-full transition-colors",
+                    autoNext ? "bg-brand" : "bg-border",
+                  )}
+                  onClick={() => setAutoNext((prev) => !prev)}
+                  role="switch"
+                  type="button"
+                >
+                  <span
+                    className={cn(
+                      "absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-transform",
+                      autoNext ? "left-[17px]" : "left-0.5",
+                    )}
+                  />
+                </button>
+              </div>
               <Link
                 className="text-xs text-brand underline-offset-4 hover:underline"
                 to={buildRecitePath(numericBankId, false)}

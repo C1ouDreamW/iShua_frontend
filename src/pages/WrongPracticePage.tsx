@@ -91,11 +91,13 @@ export function WrongPracticePage() {
 
   return (
     <WrongPracticePlayer
+      autoNext={session.autoNext}
       currentIndex={session.currentIndex}
       onAnswerChange={session.updateAnswer}
       onComplete={session.complete}
       onIndexChange={session.setCurrentIndex}
       onSubmit={() => void session.submitCurrent()}
+      onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
       questions={session.questions}
       record={session.records[session.currentIndex]}
     />

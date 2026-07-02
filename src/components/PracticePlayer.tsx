@@ -37,6 +37,8 @@ type PracticePlayerProps = {
   onComplete: () => void;
   showWrongToast: boolean;
   onDismissWrongToast: () => void;
+  autoNext: boolean;
+  onToggleAutoNext: () => void;
 };
 
 export function PracticePlayer({
@@ -51,6 +53,8 @@ export function PracticePlayer({
   onComplete,
   showWrongToast,
   onDismissWrongToast,
+  autoNext,
+  onToggleAutoNext,
 }: PracticePlayerProps) {
   const { isAuthenticated } = useAuth();
   const question = questions[currentIndex];
@@ -145,6 +149,26 @@ export function PracticePlayer({
               {currentIndex + 1}
               <span className="text-text-muted"> / {questions.length} 题</span>
             </p>
+            <div className="mt-1 flex items-center justify-end gap-1.5">
+              <span className="text-xs text-text-muted">自动下一题</span>
+              <button
+                aria-checked={autoNext}
+                className={cn(
+                  "relative h-5 w-9 rounded-full transition-colors",
+                  autoNext ? "bg-brand" : "bg-border",
+                )}
+                onClick={onToggleAutoNext}
+                role="switch"
+                type="button"
+              >
+                <span
+                  className={cn(
+                    "absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-transform",
+                    autoNext ? "left-[17px]" : "left-0.5",
+                  )}
+                />
+              </button>
+            </div>
             <Link
               className="text-xs text-brand underline-offset-4 hover:underline"
               to={buildRecitePath(bankId, isAuthenticated)}

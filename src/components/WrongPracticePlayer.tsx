@@ -30,6 +30,8 @@ type WrongPracticePlayerProps = {
   onAnswerChange: (value: string) => void;
   onSubmit: () => void;
   onComplete: () => void;
+  autoNext: boolean;
+  onToggleAutoNext: () => void;
 };
 
 export function WrongPracticePlayer({
@@ -40,6 +42,8 @@ export function WrongPracticePlayer({
   onAnswerChange,
   onSubmit,
   onComplete,
+  autoNext,
+  onToggleAutoNext,
 }: WrongPracticePlayerProps) {
   const question = questions[currentIndex];
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -126,6 +130,26 @@ export function WrongPracticePlayer({
             {currentIndex + 1}
             <span className="text-text-muted"> / {questions.length} 题</span>
           </p>
+          <div className="mt-1 flex items-center justify-end gap-1.5">
+            <span className="text-xs text-text-muted">自动下一题</span>
+            <button
+              aria-checked={autoNext}
+              className={cn(
+                "relative h-5 w-9 rounded-full transition-colors",
+                autoNext ? "bg-brand" : "bg-border",
+              )}
+              onClick={onToggleAutoNext}
+              role="switch"
+              type="button"
+            >
+              <span
+                className={cn(
+                  "absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-transform",
+                  autoNext ? "left-[17px]" : "left-0.5",
+                )}
+              />
+            </button>
+          </div>
         </div>
       </header>
 

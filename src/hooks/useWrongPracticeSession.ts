@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   revealReferenceAnswer,
@@ -31,6 +31,9 @@ export function useWrongPracticeSession(filterBankId?: number) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [records, setRecords] = useState<PracticeAnswerRecord[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [autoNext, setAutoNext] = useState(false);
+  const autoNextRef = useRef(autoNext);
+  autoNextRef.current = autoNext;
 
   const reload = useCallback(async () => {
     setStatus("loading");
@@ -162,6 +165,12 @@ export function useWrongPracticeSession(filterBankId?: number) {
             : item,
         ),
       );
+
+      if (result.correct === true && autoNextRef.current && currentIndex < questions.length - 1) {
+        setTimeout(() => setCurrentIndex(currentIndex + 1), 600);
+      } else if (result.correct === true && autoNextRef.current && currentIndex >= questions.length - 1) {
+        setTimeout(() => setStatus("complete"), 600);
+      }
     } catch (error) {
       setRecords((items) =>
         items.map((item, index) =>
@@ -182,6 +191,7 @@ export function useWrongPracticeSession(filterBankId?: number) {
   }, []);
 
   return {
+    autoNext,
     complete,
     currentIndex,
     error,
@@ -189,6 +199,7 @@ export function useWrongPracticeSession(filterBankId?: number) {
     records,
     reload,
     restart,
+    setAutoNext,
     setCurrentIndex,
     stats,
     status,
