@@ -6,7 +6,7 @@ import sharp from "sharp";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
-const sourcePath = path.join(rootDir, "assets/logo/logo.png");
+const sourcePath = path.join(rootDir, "assets/logo/iShua_1透明底.png");
 const outputPath = path.join(rootDir, "assets/logo/logo.webp");
 const size = 256;
 
