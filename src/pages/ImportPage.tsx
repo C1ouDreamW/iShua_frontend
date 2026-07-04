@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { getBankNode, isLeafNode } from "@/api/bankNodes";
@@ -15,6 +15,7 @@ export function ImportPage() {
   const [bankTitle, setBankTitle] = useState("题库");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const loadedOnce = useRef(false);
 
   useEffect(() => {
     if (!Number.isFinite(numericBankId)) {
@@ -37,6 +38,7 @@ export function ImportPage() {
             setError("仅题库节点支持 AI 导入。");
           } else {
             setBankTitle(bank.title ?? "题库");
+            loadedOnce.current = true;
           }
         }
       } catch (loadError) {
@@ -57,7 +59,7 @@ export function ImportPage() {
     };
   }, [numericBankId]);
 
-  if (loading) {
+  if (loading && !loadedOnce.current) {
     return (
       <section className="mx-auto max-w-4xl px-6 py-10">
         <div className="paper-panel h-64 animate-pulse" />

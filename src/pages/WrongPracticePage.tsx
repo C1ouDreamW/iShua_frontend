@@ -45,7 +45,7 @@ export function WrongPracticePage() {
     );
   }
 
-  if (session.status === "loading") {
+  if (session.status === "loading" && session.questions.length === 0) {
     return (
       <main className="min-h-screen px-6 py-8">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">

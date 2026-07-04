@@ -203,7 +203,7 @@ export function BankDetailPage() {
     }
   }
 
-  if (bankLoading) {
+  if (bankLoading && !bank) {
     return (
       <section className="mx-auto max-w-4xl px-6 py-10">
         <div className="paper-panel h-64 animate-pulse" />
@@ -308,7 +308,7 @@ export function BankDetailPage() {
           value={keyword}
         />
 
-        {listLoading ? (
+        {listLoading && questions.length === 0 ? (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, index) => (
               <div

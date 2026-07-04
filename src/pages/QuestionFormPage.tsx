@@ -183,7 +183,7 @@ export function QuestionFormPage() {
     }
   }
 
-  if (loading) {
+  if (loading && !form.stem && !form.options.length) {
     return (
       <main className="min-h-screen px-6 py-10">
         <div className="mx-auto max-w-3xl space-y-4">

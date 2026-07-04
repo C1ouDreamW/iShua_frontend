@@ -274,7 +274,7 @@ export function GuestPracticePage() {
     );
   }
 
-  if (state.loading) {
+  if (state.loading && !state.bank) {
     return (
       <main className="min-h-screen px-6 py-8">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">
