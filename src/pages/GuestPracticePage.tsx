@@ -9,6 +9,7 @@ import { ErrorState } from "@/components/ErrorState";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { QuestionTransition } from "@/components/motion/QuestionTransition";
 import { Reveal } from "@/components/motion/Reveal";
+import { MathRenderer } from "@/components/MathRenderer";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { Button } from "@/components/ui/button";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
@@ -400,7 +401,7 @@ export function GuestPracticePage() {
           </div>
 
           <h2 className="mt-6 whitespace-pre-wrap text-[17px] leading-8 text-text-primary">
-            {question.stem}
+            <MathRenderer text={question.stem} />
           </h2>
 
           {isManualGrading ? (
@@ -443,7 +444,7 @@ export function GuestPracticePage() {
                       {option.value}
                     </span>
                     <span className="leading-7 text-text-primary">
-                      {option.label}
+                      <MathRenderer text={option.label} />
                     </span>
                   </button>
                 );
@@ -474,7 +475,7 @@ export function GuestPracticePage() {
                   <ul className="mt-2 space-y-1.5 text-sm leading-7 text-text-secondary">
                     {answerPoints.map((point, idx) => (
                       <li className="whitespace-pre-wrap" key={idx}>
-                        {point}
+                        <MathRenderer text={point} />
                       </li>
                     ))}
                   </ul>
@@ -487,7 +488,7 @@ export function GuestPracticePage() {
                 </p>
               )}
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-text-secondary">
-                解析：{question.analysis || "暂无解析。"}
+                解析：<MathRenderer text={question.analysis || "暂无解析。"} />
               </p>
             </Reveal>
           ) : null}

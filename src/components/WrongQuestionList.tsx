@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import type { WrongQuestion } from "@/api/wrong";
+import { MathRenderer } from "@/components/MathRenderer";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
 import { RemoveWrongQuestionDialog } from "@/components/RemoveWrongQuestionDialog";
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,7 @@ export function WrongQuestionList({
                   <span>{formatRelativeTime(item.lastWrongTime)}</span>
                 </div>
                 <p className="mt-2 line-clamp-1 text-[15px] leading-7 text-text-primary">
-                  {item.stem || "（无题干）"}
+                  <MathRenderer text={item.stem || "（无题干）"} />
                 </p>
               </div>
               <div className="flex shrink-0 gap-2">

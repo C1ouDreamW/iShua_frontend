@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import type { PracticeQuestion } from "@/api/practice";
+import { MathRenderer } from "@/components/MathRenderer";
 import { QuestionTransition } from "@/components/motion/QuestionTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { PracticeToast } from "@/components/PracticeToast";
@@ -207,7 +208,7 @@ export function PracticePlayer({
           </div>
 
           <h2 className="mt-6 whitespace-pre-wrap text-[17px] leading-8 text-text-primary">
-            {question.stem}
+            <MathRenderer text={question.stem} />
           </h2>
 
           {isManualGrading ? (
@@ -253,7 +254,7 @@ export function PracticePlayer({
                       {option.value}
                     </span>
                     <span className="leading-7 text-text-primary">
-                      {option.label}
+                      <MathRenderer text={option.label} />
                     </span>
                   </button>
                 );
@@ -284,7 +285,7 @@ export function PracticePlayer({
                 {formatAnswerJson(record.answerJson)}
               </p>
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-text-secondary">
-                解析：{record.analysis || "暂无解析。"}
+                解析：<MathRenderer text={record.analysis || "暂无解析。"} />
               </p>
             </Reveal>
           ) : null}

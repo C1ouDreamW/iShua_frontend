@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 
 import type { Question } from "@/api/questions";
+import { MathRenderer } from "@/components/MathRenderer";
 import { QuestionTransition } from "@/components/motion/QuestionTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
@@ -167,7 +168,7 @@ export function RecitePlayer({
           </div>
 
           <h2 className="mt-6 whitespace-pre-wrap text-[17px] leading-8 text-text-primary">
-            {question.stem}
+            <MathRenderer text={question.stem} />
           </h2>
 
           {isManualGrading ? null : (
@@ -189,7 +190,7 @@ export function RecitePlayer({
                       {option.value}
                     </span>
                     <span className="flex-1 leading-7 text-text-primary">
-                      {option.label}
+                      <MathRenderer text={option.label} />
                     </span>
                     {correct ? (
                       <Check
@@ -211,9 +212,9 @@ export function RecitePlayer({
               answerPoints.length > 0 ? (
                 <ul className="mt-2 space-y-1.5 text-sm leading-7 text-text-secondary">
                   {answerPoints.map((point, index) => (
-                    <li className="whitespace-pre-wrap" key={index}>
-                      {point}
-                    </li>
+                      <li className="whitespace-pre-wrap" key={index}>
+                        <MathRenderer text={point} />
+                      </li>
                   ))}
                 </ul>
               ) : (
@@ -227,7 +228,7 @@ export function RecitePlayer({
             {hasAnalysis ? (
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-text-secondary">
                 <span className={cn("font-medium", "text-text-primary")}>解析：</span>
-                {question.analysis}
+                <MathRenderer text={question.analysis} />
               </p>
             ) : null}
           </Reveal>

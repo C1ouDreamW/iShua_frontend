@@ -8,6 +8,7 @@ import { AppToastProvider } from "@/hooks/useAppToast";
 import { AuthProvider } from "@/hooks/useAuth";
 import { router } from "@/router";
 
+import "katex/dist/katex.min.css";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(

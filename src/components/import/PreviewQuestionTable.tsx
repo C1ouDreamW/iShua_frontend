@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
+import { MathRenderer } from "@/components/MathRenderer";
 import { TagAnswerSource } from "@/components/question/TagAnswerSource";
 import { TagQuestionType } from "@/components/question/TagQuestionType";
 import { Button } from "@/components/ui/button";
@@ -103,7 +104,7 @@ export function PreviewQuestionTable({
                   </td>
                   <td className="max-w-xs px-4 py-3">
                     <p className="line-clamp-1 text-text-primary">
-                      {question.stem || "（无题干）"}
+                      <MathRenderer text={question.stem || "（无题干）"} />
                     </p>
                     <TagAnswerSource
                       className="mt-1"
