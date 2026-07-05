@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Outlet,
   useLocation,
@@ -54,6 +54,7 @@ export function ManageBanksLayout() {
   const [formFixedKind, setFormFixedKind] = useState<BankNodeKind>("LEAF");
   const [editingNode, setEditingNode] = useState<BankNode | null>(null);
   const [deletingNode, setDeletingNode] = useState<BankNode | null>(null);
+  const [pendingScrollToId, setPendingScrollToId] = useState<number | null>(null);
 
   const previewNode = useMemo(() => {
     if (folderPreviewId == null) {
@@ -114,6 +115,7 @@ export function ManageBanksLayout() {
       try {
         await moveBankNode(activeId, move);
         refresh();
+        setPendingScrollToId(activeId);
         success("已移动节点");
       } catch (caught) {
         showError(resolveApiErrorMessage(caught, "移动失败，请重试。"));
@@ -121,6 +123,21 @@ export function ManageBanksLayout() {
     },
     [flatNodes, refresh, show, showError, success],
   );
+
+  // 移动完成后，等树刷新渲染再滚动到被移动的节点，方便用户定位
+  useEffect(() => {
+    if (pendingScrollToId == null || loading) {
+      return;
+    }
+    const raf = requestAnimationFrame(() => {
+      const element = document.querySelector(
+        `[data-node-id="${pendingScrollToId}"]`,
+      );
+      element?.scrollIntoView({ block: "nearest" });
+      setPendingScrollToId(null);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pendingScrollToId, loading, flatNodes]);
 
   const handleMoveWrapper = useCallback(
     (activeId: number, overId: number) => {

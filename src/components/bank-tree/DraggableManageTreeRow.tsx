@@ -1,13 +1,14 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronRight, FileText, Folder, GripVertical } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronRight, FileText, Folder, FolderOpen, GripVertical } from "lucide-react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { isFolderNode } from "@/api/bankNodes";
 import { EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
+import { DragPointerContext } from "./DragPointerContext";
 import type { TreeBankNode } from "./buildBankTree";
 
 function nodeContainsId(node: TreeBankNode, id: number | null | undefined): boolean {
@@ -19,6 +20,8 @@ function nodeContainsId(node: TreeBankNode, id: number | null | undefined): bool
   }
   return node.children.some((child) => nodeContainsId(child, id));
 }
+
+type DropPosition = "before" | "after" | "inside";
 
 type DraggableManageTreeRowProps = {
   depth?: number;
@@ -42,6 +45,8 @@ export function DraggableManageTreeRow({
   const isSelected = selectedId != null && nodeId === selectedId;
   const fallbackKey = `node-${depth}-${index}`;
   const rowRef = useRef<HTMLLIElement | null>(null);
+  const dropElRef = useRef<HTMLDivElement | null>(null);
+  const dragPointer = useContext(DragPointerContext);
 
   const containsSelected = useMemo(
     () =>
@@ -80,36 +85,83 @@ export function DraggableManageTreeRow({
     id: nodeId ?? fallbackKey,
   });
 
-  const setNodeRef = useCallback(
-    (element: HTMLElement | null) => {
+  // draggable ref 挂在 <li> 上，使 transform 应用到整行（含子树），子节点跟随父节点拖拽；
+  // droppable ref 保留在内部 <div> 上，仅标题行作为放置目标，避免整棵子树都可放置。
+  const setLiRef = useCallback(
+    (element: HTMLLIElement | null) => {
+      rowRef.current = element;
       setDragRef(element);
-      setDropRef(element);
     },
-    [setDragRef, setDropRef],
+    [setDragRef],
   );
 
-  const style = {
+  const setDropElRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      dropElRef.current = element;
+      setDropRef(element);
+    },
+    [setDropRef],
+  );
+
+  // 根据鼠标 clientY 与本行 droppable rect 判断落点：
+  // folder → "inside"（成为子节点）；leaf → 上半 "before" / 下半 "after"（同级前插/后插）
+  // 必须在 effect 中做：DOM 测量依赖真实元素，且 dragPointer 变化时需重算并触发渲染
+  const [dropPosition, setDropPosition] = useState<DropPosition | null>(null);
+  useEffect(() => {
+    if (!isOver || !dragPointer || !dropElRef.current) {
+      if (dropPosition != null) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- dragPointer 变化时需基于 DOM 测量重算落点
+        setDropPosition(null);
+      }
+      return;
+    }
+    const rect = dropElRef.current.getBoundingClientRect();
+    const relY = dragPointer.y - rect.top;
+    const next: DropPosition = isFolder
+      ? "inside"
+      : relY < rect.height / 2
+        ? "before"
+        : "after";
+    if (dropPosition !== next) {
+      setDropPosition(next);
+    }
+  }, [dragPointer, isOver, isFolder, dropPosition]);
+
+  const dragStyle = {
     transform: CSS.Translate.toString(transform),
   };
+
+  const showInside = dropPosition === "inside";
+  const showBefore = dropPosition === "before";
+  const showAfter = dropPosition === "after";
 
   return (
     <li
       aria-expanded={hasChildren ? expanded : undefined}
-      ref={rowRef}
+      data-node-id={nodeId ?? undefined}
+      ref={setLiRef}
       role="treeitem"
+      style={dragStyle}
     >
       <div
         className={cn(
-          "flex w-full items-center gap-1 rounded-md pr-2 transition-colors",
+          "relative flex w-full items-center gap-1 rounded-md pr-2 transition-colors",
           isSelected
             ? "bg-brand-muted text-brand"
             : "text-text-primary hover:bg-bg-sheet",
-          isOver && !isDragging && "ring-1 ring-brand/40",
+          showInside && "bg-brand-muted ring-1 ring-brand/60",
+          !showInside && isOver && !isDragging && "ring-1 ring-brand/40",
           isDragging && "opacity-60",
         )}
-        ref={setNodeRef}
-        style={style}
+        ref={setDropElRef}
       >
+        {showBefore && (
+          <span className="pointer-events-none absolute inset-x-0 -top-px z-10 h-0.5 rounded-full bg-brand" />
+        )}
+        {showAfter && (
+          <span className="pointer-events-none absolute inset-x-0 -bottom-px z-10 h-0.5 rounded-full bg-brand" />
+        )}
+
         <button
           aria-label="拖拽排序"
           className="flex size-7 shrink-0 cursor-grab items-center justify-center rounded-sm text-text-muted hover:bg-bg-canvas active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-bg-canvas"
@@ -147,13 +199,23 @@ export function DraggableManageTreeRow({
           type="button"
         >
           {isFolder ? (
-            <Folder
-              aria-hidden="true"
-              className={cn(
-                "size-4 shrink-0",
-                isSelected ? "text-brand" : "text-text-muted",
-              )}
-            />
+            showInside ? (
+              <FolderOpen
+                aria-hidden="true"
+                className={cn(
+                  "size-4 shrink-0",
+                  isSelected ? "text-brand" : "text-text-muted",
+                )}
+              />
+            ) : (
+              <Folder
+                aria-hidden="true"
+                className={cn(
+                  "size-4 shrink-0",
+                  isSelected ? "text-brand" : "text-text-muted",
+                )}
+              />
+            )
           ) : (
             <FileText
               aria-hidden="true"

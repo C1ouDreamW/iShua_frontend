@@ -9,10 +9,12 @@ import {
   type CollisionDetection,
   type DragEndEvent,
 } from "@dnd-kit/core";
+import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { cn } from "@/lib/utils";
 
+import { DragPointerContext } from "./DragPointerContext";
 import type { TreeBankNode } from "./buildBankTree";
 import { DraggableManageTreeRow } from "./DraggableManageTreeRow";
 
@@ -61,7 +63,24 @@ export function DraggableManageTree({
     useSensor(KeyboardSensor),
   );
 
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPointer, setDragPointer] = useState<{ y: number } | null>(null);
+
+  // 拖拽期间监听全局 pointermove，记录鼠标 clientY 供 rows 计算落点位置
+  useEffect(() => {
+    if (!isDragging) {
+      return;
+    }
+    const handler = (event: PointerEvent) => {
+      setDragPointer({ y: event.clientY });
+    };
+    window.addEventListener("pointermove", handler);
+    return () => window.removeEventListener("pointermove", handler);
+  }, [isDragging]);
+
   function handleDragEnd(event: DragEndEvent) {
+    setIsDragging(false);
+    setDragPointer(null);
     const activeId = Number(event.active.id);
     const overId = event.over ? Number(event.over.id) : NaN;
 
@@ -74,6 +93,11 @@ export function DraggableManageTree({
     }
 
     onMove(activeId, overId);
+  }
+
+  function handleDragCancel() {
+    setIsDragging(false);
+    setDragPointer(null);
   }
 
   if (loading) {
@@ -111,23 +135,27 @@ export function DraggableManageTree({
   return (
     <DndContext
       collisionDetection={treeCollisionDetection}
+      onDragCancel={handleDragCancel}
       onDragEnd={handleDragEnd}
+      onDragStart={() => setIsDragging(true)}
       sensors={sensors}
     >
-      <ul className={cn("space-y-0.5", className)} role="tree">
-        {tree.map((node, index) => (
-          <DraggableManageTreeRow
-            index={index}
-            key={node.id ?? `node-${index}`}
-            node={node}
-            onSelect={onSelect}
-            selectedId={selectedId}
-          />
-        ))}
-      </ul>
-      <p className="mt-3 px-1 text-xs leading-5 text-text-muted">
-        拖拽手柄可调整层级与排序；拖到文件夹上将成为其子节点。
-      </p>
+      <DragPointerContext.Provider value={dragPointer}>
+        <ul className={cn("space-y-0.5", className)} role="tree">
+          {tree.map((node, index) => (
+            <DraggableManageTreeRow
+              index={index}
+              key={node.id ?? `node-${index}`}
+              node={node}
+              onSelect={onSelect}
+              selectedId={selectedId}
+            />
+          ))}
+        </ul>
+        <p className="mt-3 px-1 text-xs leading-5 text-text-muted">
+          拖拽手柄可调整层级与排序；拖到文件夹上将成为其子节点，拖到题库行上下边缘可上插/下插。
+        </p>
+      </DragPointerContext.Provider>
     </DndContext>
   );
 }
