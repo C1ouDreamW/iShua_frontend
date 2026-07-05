@@ -335,3 +335,46 @@ export function createEmptyPreviewRow(): EditablePreviewQuestion {
     key: `preview-new-${Date.now()}`,
   };
 }
+
+const SHORT_ANSWER_PLACEHOLDER = "暂无参考答案";
+
+export const SHORT_ANSWER_PLACEHOLDER_TEXT = SHORT_ANSWER_PLACEHOLDER;
+
+/**
+ * 触发条件：所有 MISSING 题都是简答题，且至少存在一道未填答案要点的 MISSING 简答题。
+ * 返回需要填占位的题目 key 列表（answers 为空、answerSource=MISSING、题型=SHORT_ANSWER）。
+ * 若存在任何 MISSING 客观题，返回空数组（让用户走 AI 解答）。
+ */
+export function findPlaceholderShortAnswerKeys(
+  questions: EditablePreviewQuestion[],
+): string[] {
+  const missingQuestions = questions.filter(
+    (q) => normalizeAnswerSource(q.answerSource) === "MISSING",
+  );
+
+  if (missingQuestions.length === 0) {
+    return [];
+  }
+
+  const allMissingAreShortAnswer = missingQuestions.every(
+    (q) => q.questionType === "SHORT_ANSWER",
+  );
+
+  if (!allMissingAreShortAnswer) {
+    return [];
+  }
+
+  return missingQuestions
+    .filter((q) => q.answers.every((a) => !a.trim()))
+    .map((q) => q.key);
+}
+
+/** 给指定 key 的题目填入占位答案要点；answerSource 保留 MISSING。 */
+export function applyShortAnswerPlaceholder(
+  questions: EditablePreviewQuestion[],
+  keys: Set<string>,
+): EditablePreviewQuestion[] {
+  return questions.map((q) =>
+    keys.has(q.key) ? { ...q, answers: [SHORT_ANSWER_PLACEHOLDER] } : q,
+  );
+}

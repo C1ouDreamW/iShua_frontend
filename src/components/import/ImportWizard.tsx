@@ -13,13 +13,23 @@ import { ImportRecoveryBanner } from "@/components/import/ImportRecoveryBanner";
 import { PreviewQuestionTable } from "@/components/import/PreviewQuestionTable";
 import { AiAnswerPanel } from "@/components/import/AiAnswerPanel";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { DURATION, EASE_OUT, slideVariants } from "@/lib/motion";
 import { useAiImportRecovery } from "@/hooks/useAiImportRecovery";
 import {
+  applyShortAnswerPlaceholder,
   clearImportSessionTaskId,
   createEditableList,
   editableToPreview,
   fetchPreviewQuestionsForTask,
+  findPlaceholderShortAnswerKeys,
   IMPORT_EXPIRED_MESSAGE,
   IMPORT_TASK_MISSING_MESSAGE,
   isInProgressImportStatus,
@@ -27,6 +37,7 @@ import {
   isTerminalImportStatus,
   resolveImportError,
   setImportSessionTaskId,
+  SHORT_ANSWER_PLACEHOLDER_TEXT,
   validateImportFile,
   type EditablePreviewQuestion,
   type ImportWizardStep,
@@ -75,6 +86,8 @@ export function ImportWizard({
   const [stepDirection, setStepDirection] = useState<1 | -1>(1);
   const [parseElapsedMs, setParseElapsedMs] = useState(0);
   const parseStartRef = useRef<number | null>(null);
+  const [placeholderKeys, setPlaceholderKeys] = useState<string[]>([]);
+  const [placeholderOpen, setPlaceholderOpen] = useState(false);
 
   const {
     parsedTasks,
@@ -394,16 +407,34 @@ export function ImportWizard({
       }
     }
 
+    const keys = findPlaceholderShortAnswerKeys(previewQuestions);
+
+    if (keys.length > 0) {
+      setPlaceholderKeys(keys);
+      setPlaceholderOpen(true);
+      return;
+    }
+
+    await runImport(previewQuestions);
+  }
+
+  async function runImport(questions: EditablePreviewQuestion[]) {
+    if (!taskId) {
+      setError("缺少任务 ID，请重新上传。");
+      setStep("upload");
+      return;
+    }
+
     setImporting(true);
     setError(null);
 
     try {
       await batchImportQuestions(bankId, {
-        questions: previewQuestions.map(editableToPreview),
+        questions: questions.map(editableToPreview),
         taskId,
       });
 
-      setImportedCount(previewQuestions.length);
+      setImportedCount(questions.length);
       setStep("complete");
       clearImportSessionTaskId(bankId);
       void refreshTasks();
@@ -419,6 +450,20 @@ export function ImportWizard({
     } finally {
       setImporting(false);
     }
+  }
+
+  async function handleConfirmPlaceholder() {
+    const keys = new Set(placeholderKeys);
+    const next = applyShortAnswerPlaceholder(previewQuestions, keys);
+    setPreviewQuestions(next);
+    setPlaceholderOpen(false);
+    setPlaceholderKeys([]);
+    await runImport(next);
+  }
+
+  function handleCancelPlaceholder() {
+    setPlaceholderOpen(false);
+    setPlaceholderKeys([]);
   }
 
   function resetToUpload() {
@@ -685,6 +730,35 @@ export function ImportWizard({
       ) : null}
         </motion.div>
       </AnimatePresence>
+
+      <Dialog
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCancelPlaceholder();
+          }
+        }}
+        open={placeholderOpen}
+      >
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>
+              检测到 {placeholderKeys.length} 道无答案简答题
+            </DialogTitle>
+            <DialogDescription>
+              AI 解答暂不支持简答题。是否为其填入占位答案「
+              {SHORT_ANSWER_PLACEHOLDER_TEXT}」并继续导入？你也可以取消，返回预览页手动填写。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={handleCancelPlaceholder} variant="outline">
+              取消，返回手动填写
+            </Button>
+            <Button onClick={() => void handleConfirmPlaceholder()}>
+              填入占位并导入
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
