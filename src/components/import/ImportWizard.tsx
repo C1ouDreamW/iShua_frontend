@@ -73,6 +73,8 @@ export function ImportWizard({
   const [dragOver, setDragOver] = useState(false);
   const [prevStepIndex, setPrevStepIndex] = useState(0);
   const [stepDirection, setStepDirection] = useState<1 | -1>(1);
+  const [parseElapsedMs, setParseElapsedMs] = useState(0);
+  const parseStartRef = useRef<number | null>(null);
 
   const {
     parsedTasks,
@@ -238,6 +240,25 @@ export function ImportWizard({
     initialResumeDoneRef.current = true;
     void resumeFromTaskId(initialTaskId);
   }, [initialTaskId, recoveryLoading, resumeFromTaskId]);
+
+  useEffect(() => {
+    if (step !== "parsing") {
+      parseStartRef.current = null;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 离开解析步时重置计时显示
+      setParseElapsedMs(0);
+      return;
+    }
+    parseStartRef.current = performance.now();
+    setParseElapsedMs(0);
+    const id = window.setInterval(() => {
+      if (parseStartRef.current != null) {
+        setParseElapsedMs(performance.now() - parseStartRef.current);
+      }
+    }, 100);
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [step]);
 
   useEffect(() => {
     if (step !== "parsing" || !taskId) {
@@ -547,6 +568,12 @@ export function ImportWizard({
       {step === "parsing" ? (
         <section className="paper-panel flex flex-col items-center gap-4 px-6 py-16 text-center">
           <Loader2 aria-hidden="true" className="size-10 animate-spin text-brand" />
+          <p
+            aria-live="off"
+            className="text-sm font-medium tabular-nums text-text-secondary"
+          >
+            {(parseElapsedMs / 1000).toFixed(1)} s
+          </p>
           <div>
             <h2 className="font-serif text-xl font-semibold text-text-primary">
               正在解析，请稍候…

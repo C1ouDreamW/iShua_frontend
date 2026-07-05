@@ -102,4 +102,11 @@
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* 保留功能性动画：spinner 属于必要状态反馈，
+     停止会让用户误以为应用卡死（WCAG 2.2.2 允许此类必要动画）。 */
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
