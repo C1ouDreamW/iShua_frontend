@@ -5,7 +5,6 @@ import { Check } from "lucide-react";
 import type { Question } from "@/api/questions";
 import { MathRenderer } from "@/components/MathRenderer";
 import { QuestionTransition } from "@/components/motion/QuestionTransition";
-import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import type { ReciteMark } from "@/hooks/useReciteSession";
@@ -78,7 +77,10 @@ export function RecitePlayer({
       const target = event.target;
       if (
         target instanceof HTMLElement &&
-        (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "BUTTON" ||
+          target.tagName === "A")
       ) {
         return;
       }
@@ -204,7 +206,7 @@ export function RecitePlayer({
             </div>
           )}
 
-          <Reveal as="section" className={practiceAnalysisClasses()}>
+          <section className={practiceAnalysisClasses()}>
             <p className="text-sm font-medium text-brand">
               {isManualGrading ? "参考答案" : "正确答案"}
             </p>
@@ -231,7 +233,7 @@ export function RecitePlayer({
                 <MathRenderer text={question.analysis} />
               </p>
             ) : null}
-          </Reveal>
+          </section>
         </QuestionTransition>
       </section>
 

@@ -1,5 +1,6 @@
 import {
   DndContext,
+  KeyboardSensor,
   PointerSensor,
   closestCenter,
   pointerWithin,
@@ -57,6 +58,7 @@ export function DraggableManageTree({
     useSensor(PointerSensor, {
       activationConstraint: { distance: 6 },
     }),
+    useSensor(KeyboardSensor),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -113,9 +115,10 @@ export function DraggableManageTree({
       sensors={sensors}
     >
       <ul className={cn("space-y-0.5", className)} role="tree">
-        {tree.map((node) => (
+        {tree.map((node, index) => (
           <DraggableManageTreeRow
-            key={node.id ?? node.title}
+            index={index}
+            key={node.id ?? `node-${index}`}
             node={node}
             onSelect={onSelect}
             selectedId={selectedId}

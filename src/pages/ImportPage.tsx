@@ -29,6 +29,7 @@ export function ImportPage() {
     async function loadBank() {
       setLoading(true);
       setError(null);
+      loadedOnce.current = false;
 
       try {
         const bank = await getBankNode(numericBankId);

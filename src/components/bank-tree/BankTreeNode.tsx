@@ -25,7 +25,7 @@ export function BankTreeNode({
   const isSelected = selectedId != null && node.id === selectedId;
 
   return (
-    <li>
+    <li aria-expanded={hasChildren ? expanded : undefined} role="treeitem">
       <div
         className={cn(
           "group flex w-full items-center gap-1 rounded-md pr-2 transition-colors",
@@ -37,9 +37,8 @@ export function BankTreeNode({
       >
         {hasChildren ? (
           <button
-            aria-expanded={expanded}
             aria-label={expanded ? "折叠" : "展开"}
-            className="flex size-7 shrink-0 items-center justify-center rounded-sm text-text-muted hover:bg-bg-canvas"
+            className="flex size-7 shrink-0 items-center justify-center rounded-sm text-text-muted hover:bg-bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-bg-canvas"
             onClick={() => setExpanded((value) => !value)}
             type="button"
           >
@@ -56,7 +55,8 @@ export function BankTreeNode({
         )}
 
         <button
-          className="flex min-w-0 flex-1 items-center gap-1.5 py-1.5 text-left text-sm"
+          aria-selected={isSelected || undefined}
+          className="flex min-w-0 flex-1 items-center gap-1.5 py-1.5 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
           onClick={() => onSelect(node)}
           type="button"
         >
@@ -91,11 +91,11 @@ export function BankTreeNode({
       </div>
 
       {hasChildren && expanded ? (
-        <ul className="space-y-0.5">
-          {node.children.map((child) => (
+        <ul className="space-y-0.5" role="group">
+          {node.children.map((child, childIndex) => (
             <BankTreeNode
               depth={depth + 1}
-              key={child.id ?? child.title}
+              key={child.id ?? `node-${depth + 1}-${childIndex}`}
               node={child}
               onSelect={onSelect}
               selectedId={selectedId}

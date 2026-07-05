@@ -57,6 +57,18 @@ export function usePracticeSession(bankId: number) {
   const [autoNext, setAutoNext] = useState(false);
   const autoNextRef = useRef(autoNext);
   autoNextRef.current = autoNext;
+  const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearAutoNextTimer = useCallback(() => {
+    if (autoNextTimerRef.current != null) {
+      clearTimeout(autoNextTimerRef.current);
+      autoNextTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return clearAutoNextTimer;
+  }, [clearAutoNextTimer]);
 
   const reload = useCallback(async () => {
     if (!Number.isFinite(bankId)) {
@@ -200,9 +212,14 @@ export function usePracticeSession(bankId: number) {
       }
 
       if (result.correct === true && autoNextRef.current && currentIndex < questions.length - 1) {
-        setTimeout(() => setCurrentIndex(currentIndex + 1), 600);
+        clearAutoNextTimer();
+        autoNextTimerRef.current = setTimeout(
+          () => setCurrentIndex((index) => index + 1),
+          600,
+        );
       } else if (result.correct === true && autoNextRef.current && currentIndex >= questions.length - 1) {
-        setTimeout(() => setStatus("complete"), 600);
+        clearAutoNextTimer();
+        autoNextTimerRef.current = setTimeout(() => setStatus("complete"), 600);
       }
     } catch (error) {
       setRecords((items) =>
@@ -213,7 +230,7 @@ export function usePracticeSession(bankId: number) {
 
       setSubmitError(resolveApiErrorMessage(error, "提交失败，请重试。"));
     }
-  }, [bankId, currentIndex, questions, records]);
+  }, [bankId, clearAutoNextTimer, currentIndex, questions, records]);
 
   const restart = useCallback(() => {
     setRecords(createEmptyRecords(questions));

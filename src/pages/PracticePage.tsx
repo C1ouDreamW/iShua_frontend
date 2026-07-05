@@ -5,13 +5,16 @@ import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { PracticePlayer } from "@/components/PracticePlayer";
+import { PageTransition } from "@/components/motion/PageTransition";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
+import { useAuth } from "@/hooks/useAuth";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 
 export function PracticePage() {
   const { bankId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const numericBankId = Number(bankId);
   const session = usePracticeSession(numericBankId);
   const { error: showError } = useAppToast();
@@ -27,14 +30,8 @@ export function PracticePage() {
       <PracticeComplete
         correctCount={session.stats.correctCount}
         onPrimary={() => {
-          // 判断是否为登录用户（通过 localStorage 判断）
-          if (localStorage.getItem("ishua_user") === null || localStorage.getItem("ishua_user") === undefined) {
-            navigate("/");
-          } else {
-            navigate("/app/banks");
-          }
+          navigate(isAuthenticated ? "/app/banks" : "/");
         }}
-
         onRetry={session.restart}
         title="本次练习完成"
         unansweredCount={session.stats.unansweredCount}
@@ -92,20 +89,22 @@ export function PracticePage() {
   }
 
   return (
-    <PracticePlayer
-      autoNext={session.autoNext}
-      bankId={numericBankId}
-      bankTitle={session.bankTitle}
-      currentIndex={session.currentIndex}
-      onAnswerChange={session.updateAnswer}
-      onComplete={session.complete}
-      onDismissWrongToast={session.dismissWrongToast}
-      onIndexChange={session.setCurrentIndex}
-      onSubmit={() => void session.submitCurrent()}
-      onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
-      questions={session.questions}
-      record={session.records[session.currentIndex]}
-      showWrongToast={session.showWrongToast}
-    />
+    <PageTransition>
+      <PracticePlayer
+        autoNext={session.autoNext}
+        bankId={numericBankId}
+        bankTitle={session.bankTitle}
+        currentIndex={session.currentIndex}
+        onAnswerChange={session.updateAnswer}
+        onComplete={session.complete}
+        onDismissWrongToast={session.dismissWrongToast}
+        onIndexChange={session.setCurrentIndex}
+        onSubmit={() => void session.submitCurrent()}
+        onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
+        questions={session.questions}
+        record={session.records[session.currentIndex]}
+        showWrongToast={session.showWrongToast}
+      />
+    </PageTransition>
   );
 }

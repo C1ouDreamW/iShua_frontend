@@ -1,5 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Link,
+  useBlocker,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
 import {
   createQuestionInBank,
@@ -7,6 +12,14 @@ import {
   updateQuestion,
 } from "@/api/questions";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import { setPageFlash } from "@/lib/pageFlash";
 import { Input } from "@/components/ui/input";
@@ -38,6 +51,41 @@ export function QuestionFormPage() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+
+  const updateForm = useCallback(
+    (updater: (prev: QuestionFormState) => QuestionFormState) => {
+      setForm(updater);
+      setDirty(true);
+    },
+    [],
+  );
+
+  const blocker = useBlocker(
+    useCallback(
+      ({
+        currentLocation,
+        nextLocation,
+      }: {
+        currentLocation: { pathname: string };
+        nextLocation: { pathname: string };
+      }) =>
+        dirty && currentLocation.pathname !== nextLocation.pathname,
+      [dirty],
+    ),
+  );
+
+  useEffect(() => {
+    if (!dirty) {
+      return;
+    }
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [dirty]);
 
   const optionLetters = useMemo(
     () =>
@@ -83,7 +131,7 @@ export function QuestionFormPage() {
   }, [isEdit, numericQuestionId]);
 
   function updateQuestionType(nextType: QuestionType) {
-    setForm((prev) => {
+    updateForm((prev) => {
       if (nextType === "SHORT_ANSWER") {
         return {
           ...prev,
@@ -112,7 +160,7 @@ export function QuestionFormPage() {
   }
 
   function updateOption(index: number, value: string) {
-    setForm((prev) => ({
+    updateForm((prev) => ({
       ...prev,
       options: prev.options.map((item, itemIndex) =>
         itemIndex === index ? value : item,
@@ -121,12 +169,12 @@ export function QuestionFormPage() {
   }
 
   function addOption() {
-    setForm((prev) => ({ ...prev, options: [...prev.options, ""] }));
+    updateForm((prev) => ({ ...prev, options: [...prev.options, ""] }));
   }
 
   function removeOption(index: number) {
     const letter = optionLetters[index];
-    setForm((prev) => ({
+    updateForm((prev) => ({
       ...prev,
       answers: prev.answers.filter((item) => item !== letter),
       options: prev.options.filter((_, itemIndex) => itemIndex !== index),
@@ -134,7 +182,7 @@ export function QuestionFormPage() {
   }
 
   function toggleAnswer(letter: string) {
-    setForm((prev) => {
+    updateForm((prev) => {
       if (prev.questionType === "MULTI") {
         return {
           ...prev,
@@ -174,6 +222,7 @@ export function QuestionFormPage() {
         await createQuestionInBank(numericBankId, payload);
       }
 
+      setDirty(false);
       setPageFlash("保存成功");
       navigate(detailPath);
     } catch (caught) {
@@ -242,7 +291,7 @@ export function QuestionFormPage() {
               className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               disabled={saving}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, stem: event.target.value }))
+                updateForm((prev) => ({ ...prev, stem: event.target.value }))
               }
               value={form.stem}
             />
@@ -257,7 +306,7 @@ export function QuestionFormPage() {
                 className="min-h-40 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 disabled={saving}
                 onChange={(event) =>
-                  setForm((prev) => ({
+                  updateForm((prev) => ({
                     ...prev,
                     answers: event.target.value.split("\n"),
                   }))
@@ -354,7 +403,7 @@ export function QuestionFormPage() {
               className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
               disabled={saving}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, analysis: event.target.value }))
+                updateForm((prev) => ({ ...prev, analysis: event.target.value }))
               }
               value={form.analysis}
             />
@@ -366,7 +415,7 @@ export function QuestionFormPage() {
               disabled={saving}
               inputMode="numeric"
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, sortNo: event.target.value }))
+                updateForm((prev) => ({ ...prev, sortNo: event.target.value }))
               }
               placeholder="例如：1"
               value={form.sortNo}
@@ -395,6 +444,38 @@ export function QuestionFormPage() {
           </Button>
         </div>
       </footer>
+
+      <Dialog
+        onOpenChange={(open) => {
+          if (!open && blocker.state === "blocked") {
+            blocker.reset?.();
+          }
+        }}
+        open={blocker.state === "blocked"}
+      >
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>放弃未保存的修改？</DialogTitle>
+            <DialogDescription>
+              当前试题尚未保存，离开将丢失已填写的内容。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => blocker.reset?.()}
+              variant="outline"
+            >
+              继续编辑
+            </Button>
+            <Button
+              onClick={() => blocker.proceed?.()}
+              variant="destructive"
+            >
+              放弃修改
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Link,
   Navigate,
@@ -10,8 +10,6 @@ import {
   useOutlet,
 } from "react-router-dom";
 import { User } from "lucide-react";
-
-import { fadeSlideUp } from "@/lib/motion";
 
 import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
 import {
@@ -28,6 +26,7 @@ import {
   getVisibleSidebarNav,
   isNavItemActive,
 } from "@/lib/appNavigation";
+import { fadeSlideUp } from "@/lib/motion";
 import { buildLoginRedirect } from "@/lib/navigation";
 import { ROLE_LABEL } from "@/lib/rbac";
 import { cn } from "@/lib/utils";
@@ -35,6 +34,16 @@ import { cn } from "@/lib/utils";
 type RouteHandle = {
   immersive?: boolean;
 };
+
+/**
+ * 取 `/app` 下的顶层路由段作为 AnimatePresence 的 key。
+ * 这样持久父布局（如 ManageBanksLayout）在其子路由间切换时不会 remount，
+ * 只有跨顶层段（如 banks → manage）才会触发整页过渡。
+ */
+function getTopAppSegment(pathname: string): string {
+  const match = pathname.match(/^\/app\/([^/]+)/);
+  return match ? match[1] : "index";
+}
 
 export function AppShell() {
   const location = useLocation();
@@ -49,7 +58,19 @@ export function AppShell() {
     (match) => (match.handle as RouteHandle | undefined)?.immersive,
   );
 
-  if (!loading && !isAuthenticated) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen px-6 py-10">
+        <div className="paper-panel mx-auto h-64 max-w-3xl animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     return (
       <Navigate
         replace
@@ -60,14 +81,6 @@ export function AppShell() {
 
   if (isImmersive) {
     return <Outlet />;
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen px-6 py-10">
-        <div className="paper-panel mx-auto h-64 max-w-3xl animate-pulse" />
-      </div>
-    );
   }
 
   const sidebarNav = getVisibleSidebarNav(user?.role);
@@ -213,7 +226,7 @@ export function AppShell() {
               animate="visible"
               exit="exit"
               initial="hidden"
-              key={location.pathname}
+              key={getTopAppSegment(location.pathname)}
               variants={fadeSlideUp}
             >
               {outlet}

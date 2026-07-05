@@ -59,9 +59,9 @@ export function BankTree({
 
   return (
     <ul className={cn("space-y-0.5", className)} role="tree">
-      {tree.map((node) => (
+      {tree.map((node, index) => (
         <BankTreeNode
-          key={node.id ?? node.title}
+          key={node.id ?? `node-${index}`}
           node={node}
           onSelect={onSelect}
           selectedId={selectedId}

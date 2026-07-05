@@ -52,6 +52,8 @@ export function BankDetailPage() {
   const [pendingImportCount, setPendingImportCount] = useState(0);
   const { error: showError, success } = useAppToast();
 
+  const bankReady = !bankError && bank != null;
+
   useEffect(() => {
     if (!Number.isFinite(numericBankId)) {
       return;
@@ -83,7 +85,7 @@ export function BankDetailPage() {
     return () => {
       ignore = true;
     };
-  }, [numericBankId]);
+  }, [numericBankId, reloadKey]);
 
   useEffect(() => {
     const flash = consumePageFlash();
@@ -141,7 +143,7 @@ export function BankDetailPage() {
   }, [numericBankId, reloadKey]);
 
   useEffect(() => {
-    if (!Number.isFinite(numericBankId) || bankError) {
+    if (!bankReady) {
       return;
     }
 
@@ -182,7 +184,7 @@ export function BankDetailPage() {
     return () => {
       ignore = true;
     };
-  }, [bankError, current, debouncedKeyword, numericBankId, reloadKey]);
+  }, [bankReady, current, debouncedKeyword, numericBankId, reloadKey]);
 
   function refreshAll() {
     setReloadKey((key) => key + 1);
@@ -345,8 +347,8 @@ export function BankDetailPage() {
           </div>
         ) : null}
 
-        {!listLoading && !listError && questions.length > 0 ? (
-          <>
+        {questions.length > 0 ? (
+          <div className={cn("relative", listLoading && "pointer-events-none opacity-60")}>
             <QuestionList
               bankId={numericBankId}
               onDelete={(question) => void handleDeleteQuestion(question)}
@@ -360,7 +362,7 @@ export function BankDetailPage() {
               pageSize={PAGE_SIZE}
               total={total}
             />
-          </>
+          </div>
         ) : null}
       </section>
 

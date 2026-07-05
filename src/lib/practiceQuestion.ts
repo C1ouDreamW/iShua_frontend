@@ -4,7 +4,7 @@ import { parseOptionsJson } from "@/lib/parseOptionsJson";
 
 const OPTION_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-type QuestionLike = Pick<Question | PracticeQuestion, "questionType" | "optionsJson">;
+export type QuestionLike = Pick<Question | PracticeQuestion, "questionType" | "optionsJson">;
 
 export function isObjectiveQuestionType(questionType: string | undefined) {
   return ["SINGLE", "MULTI", "JUDGE"].includes(questionType ?? "");

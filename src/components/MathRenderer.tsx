@@ -1,4 +1,5 @@
 import katex from "katex";
+import { memo } from "react";
 import { cn } from "@/lib/utils";
 
 type MathRendererProps = {
@@ -8,6 +9,7 @@ type MathRendererProps = {
 };
 
 const MATH_REGEX = /(\$\$[\s\S]*?\$\$|\$[^$\n\r]+?\$)/g;
+const MATH_REGEX_GLOBAL = new RegExp(MATH_REGEX.source, "g");
 
 function renderMathFragment(latex: string, displayMode: boolean): string {
   const formula = displayMode
@@ -27,7 +29,7 @@ function renderMathFragment(latex: string, displayMode: boolean): string {
   }
 }
 
-export function MathRenderer({
+export const MathRenderer = memo(function MathRenderer({
   text,
   className,
   as: Tag = "span",
@@ -40,9 +42,9 @@ export function MathRenderer({
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  const regex = new RegExp(MATH_REGEX.source, "g");
+  MATH_REGEX_GLOBAL.lastIndex = 0;
 
-  while ((match = regex.exec(text)) !== null) {
+  while ((match = MATH_REGEX_GLOBAL.exec(text)) !== null) {
     if (match.index > lastIndex) {
       parts.push({ type: "text", content: text.slice(lastIndex, match.index) });
     }
@@ -74,4 +76,4 @@ export function MathRenderer({
       )}
     </Tag>
   );
-}
+});

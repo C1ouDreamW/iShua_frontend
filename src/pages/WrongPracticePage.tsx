@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { WrongPracticePlayer } from "@/components/WrongPracticePlayer";
+import { PageTransition } from "@/components/motion/PageTransition";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
 import { useWrongPracticeSession } from "@/hooks/useWrongPracticeSession";
@@ -90,16 +91,18 @@ export function WrongPracticePage() {
   }
 
   return (
-    <WrongPracticePlayer
-      autoNext={session.autoNext}
-      currentIndex={session.currentIndex}
-      onAnswerChange={session.updateAnswer}
-      onComplete={session.complete}
-      onIndexChange={session.setCurrentIndex}
-      onSubmit={() => void session.submitCurrent()}
-      onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
-      questions={session.questions}
-      record={session.records[session.currentIndex]}
-    />
+    <PageTransition>
+      <WrongPracticePlayer
+        autoNext={session.autoNext}
+        currentIndex={session.currentIndex}
+        onAnswerChange={session.updateAnswer}
+        onComplete={session.complete}
+        onIndexChange={session.setCurrentIndex}
+        onSubmit={() => void session.submitCurrent()}
+        onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
+        questions={session.questions}
+        record={session.records[session.currentIndex]}
+      />
+    </PageTransition>
   );
 }

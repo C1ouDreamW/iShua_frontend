@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   listMyBankTree,
@@ -84,6 +84,6 @@ export function useBankTree({
     flatNodes,
     loading,
     refresh,
-    tree: buildBankTree(flatNodes),
+    tree: useMemo(() => buildBankTree(flatNodes), [flatNodes]),
   };
 }

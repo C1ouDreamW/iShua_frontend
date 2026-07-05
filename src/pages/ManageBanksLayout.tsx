@@ -1,5 +1,11 @@
-import { useMemo, useState } from "react";
-import { Outlet, useMatch, useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useMemo, useState } from "react";
+import {
+  Outlet,
+  useLocation,
+  useMatch,
+  useNavigate,
+} from "react-router-dom";
 
 import {
   moveBankNode,
@@ -17,6 +23,7 @@ import type { TreeBankNode } from "@/components/bank-tree/buildBankTree";
 import { useBankTree } from "@/components/bank-tree/useBankTree";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
+import { fadeSlideUp } from "@/lib/motion";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
 
 export type ManageBanksOutletContext = {
@@ -29,6 +36,7 @@ export type ManageBanksOutletContext = {
 
 export function ManageBanksLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const detailMatch = useMatch({
     end: false,
     path: "/app/manage/banks/:bankId",
@@ -56,79 +64,101 @@ export function ManageBanksLayout() {
 
   const treeSelectedId = activeNodeId ?? folderPreviewId;
 
-  function openCreate(kind: BankNodeKind, parentId: number | null = null) {
-    setEditingNode(null);
-    setFormParentId(parentId);
-    setFormFixedKind(kind);
-    setFormOpen(true);
-  }
+  const openCreate = useCallback(
+    (kind: BankNodeKind, parentId: number | null = null) => {
+      setEditingNode(null);
+      setFormParentId(parentId);
+      setFormFixedKind(kind);
+      setFormOpen(true);
+    },
+    [],
+  );
 
-  function openEdit(node: BankNode) {
+  const openEdit = useCallback((node: BankNode) => {
     setEditingNode(node);
     setFormParentId(node.parentId ?? null);
     setFormFixedKind(node.nodeKind === "FOLDER" ? "FOLDER" : "LEAF");
     setFormOpen(true);
-  }
+  }, []);
 
-  function handleSelect(node: TreeBankNode) {
-    if (node.nodeKind === "LEAF" && node.id != null) {
-      navigate(`/app/manage/banks/${node.id}`);
-      return;
-    }
-
-    if (node.id != null) {
-      setFolderPreviewId(node.id);
-      if (activeNodeId != null) {
-        navigate("/app/manage/banks");
+  const handleSelect = useCallback(
+    (node: TreeBankNode) => {
+      if (node.nodeKind === "LEAF" && node.id != null) {
+        navigate(`/app/manage/banks/${node.id}`);
+        return;
       }
-    }
-  }
 
-  async function handleMove(activeId: number, overId: number) {
-    const move = computeBankNodeMove(flatNodes, activeId, overId);
-    if (!move) {
-      return;
-    }
+      if (node.id != null) {
+        setFolderPreviewId(node.id);
+        if (activeNodeId != null) {
+          navigate("/app/manage/banks");
+        }
+      }
+    },
+    [activeNodeId, navigate],
+  );
 
-    const parentDepth =
-      move.newParentId == null ? -1 : getNodeDepth(flatNodes, move.newParentId);
-    if (parentDepth + 1 > 10) {
-      show({ message: "当前层级已超过 10 层，结构可能较难维护。" });
-    }
+  const handleMove = useCallback(
+    async (activeId: number, overId: number) => {
+      const move = computeBankNodeMove(flatNodes, activeId, overId);
+      if (!move) {
+        return;
+      }
 
-    try {
-      await moveBankNode(activeId, move);
+      const parentDepth =
+        move.newParentId == null ? -1 : getNodeDepth(flatNodes, move.newParentId);
+      if (parentDepth + 1 > 10) {
+        show({ message: "当前层级已超过 10 层，结构可能较难维护。" });
+      }
+
+      try {
+        await moveBankNode(activeId, move);
+        refresh();
+        success("已移动节点");
+      } catch (caught) {
+        showError(resolveApiErrorMessage(caught, "移动失败，请重试。"));
+      }
+    },
+    [flatNodes, refresh, show, showError, success],
+  );
+
+  const handleMoveWrapper = useCallback(
+    (activeId: number, overId: number) => {
+      void handleMove(activeId, overId);
+    },
+    [handleMove],
+  );
+
+  const handleSaved = useCallback(
+    (nodeId?: number) => {
       refresh();
-      success("已移动节点");
-    } catch (caught) {
-      showError(resolveApiErrorMessage(caught, "移动失败，请重试。"));
-    }
-  }
+      success("保存成功");
 
-  function handleSaved(nodeId?: number) {
-    refresh();
-    success("保存成功");
+      if (!nodeId) {
+        return;
+      }
 
-    if (!nodeId) {
-      return;
-    }
+      if (formFixedKind === "LEAF") {
+        navigate(`/app/manage/banks/${nodeId}`);
+        return;
+      }
 
-    if (formFixedKind === "LEAF") {
-      navigate(`/app/manage/banks/${nodeId}`);
-      return;
-    }
+      setFolderPreviewId(nodeId);
+      navigate("/app/manage/banks");
+    },
+    [formFixedKind, navigate, refresh, success],
+  );
 
-    setFolderPreviewId(nodeId);
-    navigate("/app/manage/banks");
-  }
-
-  const outletContext: ManageBanksOutletContext = {
-    onAddChild: (parentId, kind) => openCreate(kind, parentId),
-    onDeleteNode: setDeletingNode,
-    onEditNode: openEdit,
-    previewNode,
-    refreshTree: refresh,
-  };
+  const outletContext = useMemo<ManageBanksOutletContext>(
+    () => ({
+      onAddChild: (parentId, kind) => openCreate(kind, parentId),
+      onDeleteNode: setDeletingNode,
+      onEditNode: openEdit,
+      previewNode,
+      refreshTree: refresh,
+    }),
+    [openCreate, openEdit, previewNode, refresh],
+  );
 
   return (
     <section className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10">
@@ -158,7 +188,7 @@ export function ManageBanksLayout() {
             <DraggableManageTree
               error={error}
               loading={loading}
-              onMove={(activeId, overId) => void handleMove(activeId, overId)}
+              onMove={handleMoveWrapper}
               onRetry={refresh}
               onSelect={handleSelect}
               selectedId={treeSelectedId}
@@ -168,7 +198,17 @@ export function ManageBanksLayout() {
         </aside>
 
         <main className="min-w-0">
-          <Outlet context={outletContext} />
+          <AnimatePresence initial={false} mode="wait">
+            <motion.div
+              animate="visible"
+              exit="exit"
+              initial="hidden"
+              key={location.pathname}
+              variants={fadeSlideUp}
+            >
+              <Outlet context={outletContext} />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 
