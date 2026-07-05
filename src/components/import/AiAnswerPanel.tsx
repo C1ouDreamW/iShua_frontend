@@ -48,7 +48,11 @@ export function AiAnswerPanel({
             <IdleView
               disabled={disabled || !taskId}
               missingCount={missingCount}
-              onStart={() => void create(taskId!)}
+              onStart={() => {
+                if (taskId) {
+                  void create(taskId);
+                }
+              }}
             />
           ) : null}
 
@@ -157,9 +161,10 @@ function ProgressView({
           <div className="mt-2 flex items-center gap-2">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg-surface">
               <motion.div
-                animate={{ width: `${ratio}%` }}
+                animate={{ scaleX: ratio / 100 }}
                 className="h-full rounded-full bg-brand"
                 initial={false}
+                style={{ originX: 0 }}
                 transition={{ duration: DURATION.expand, ease: EASE_OUT }}
               />
             </div>

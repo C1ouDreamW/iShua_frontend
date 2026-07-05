@@ -450,11 +450,10 @@ export function ImportWizard({
         </nav>
         <div className="h-0.5 w-full overflow-hidden rounded-full bg-border">
           <motion.div
-            animate={{
-              width: `${(stepIndex / (STEPS.length - 1)) * 100}%`,
-            }}
+            animate={{ scaleX: stepIndex / (STEPS.length - 1) }}
             className="h-full rounded-full bg-brand"
             initial={false}
+            style={{ originX: 0 }}
             transition={{ duration: DURATION.page, ease: EASE_OUT }}
           />
         </div>
@@ -508,6 +507,9 @@ export function ImportWizard({
               onChange={(event) =>
                 handleFileSelect(event.target.files?.[0] ?? null)
               }
+              onClick={(event) => {
+                (event.target as HTMLInputElement).value = "";
+              }}
               ref={fileInputRef}
               type="file"
             />
