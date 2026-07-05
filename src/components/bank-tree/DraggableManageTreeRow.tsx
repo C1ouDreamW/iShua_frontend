@@ -38,7 +38,7 @@ export function DraggableManageTreeRow({
   const nodeId = node.id;
   const hasChildren = node.children.length > 0;
   const isFolder = isFolderNode(node);
-  const [expanded, setExpanded] = useState(depth < 2);
+  const [expanded, setExpanded] = useState(depth < 1);
   const isSelected = selectedId != null && nodeId === selectedId;
   const fallbackKey = `node-${depth}-${index}`;
   const rowRef = useRef<HTMLLIElement | null>(null);

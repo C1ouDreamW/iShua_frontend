@@ -21,7 +21,7 @@ export function BankTreeNode({
 }: BankTreeNodeProps) {
   const hasChildren = node.children.length > 0;
   const isFolder = isFolderNode(node);
-  const [expanded, setExpanded] = useState(depth < 2);
+  const [expanded, setExpanded] = useState(depth < 1);
   const isSelected = selectedId != null && node.id === selectedId;
 
   return (
