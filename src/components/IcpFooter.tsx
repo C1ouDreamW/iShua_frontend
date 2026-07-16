@@ -1,6 +1,8 @@
-export function IcpFooter() {
+import { cn } from "@/lib/utils";
+
+export function IcpFooter({ className }: { className?: string }) {
   return (
-    <footer className="border-t border-border py-3 text-center">
+    <footer className={cn("py-3 text-center", className)}>
       <a
         className="text-xs text-text-muted transition-colors hover:text-text-secondary"
         href="https://beian.miit.gov.cn/"

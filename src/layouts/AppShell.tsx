@@ -233,9 +233,9 @@ export function AppShell() {
               {outlet}
             </motion.div>
           </AnimatePresence>
-
-          <IcpFooter />
         </main>
+
+        <IcpFooter />
 
         <MobileNavBar items={mobileNavItems} onItemClick={handleMobileNavClick} />
       </div>

@@ -89,7 +89,7 @@ export function HomePage() {
   }, [pageSize, state.total]);
 
   return (
-    <main className="min-h-screen">
+    <main className="flex min-h-screen flex-col">
       <PageTransition className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-12">
         <header className="paper-panel relative overflow-hidden p-6 sm:p-8">
           <div
@@ -215,7 +215,7 @@ export function HomePage() {
         </section>
       </PageTransition>
 
-      <IcpFooter />
+      <IcpFooter className="mt-auto" />
     </main>
   );
 }
