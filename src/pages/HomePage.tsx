@@ -10,6 +10,7 @@ import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { Reveal } from "@/components/motion/Reveal";
 import { Stagger, StaggerItem } from "@/components/motion/Stagger";
+import { IcpFooter } from "@/components/IcpFooter";
 import { PaginationBar } from "@/components/PaginationBar";
 import { RootNodeCard } from "@/components/RootNodeCard";
 import { Button } from "@/components/ui/button";
@@ -213,6 +214,8 @@ export function HomePage() {
           </ContentCrossfade>
         </section>
       </PageTransition>
+
+      <IcpFooter />
     </main>
   );
 }

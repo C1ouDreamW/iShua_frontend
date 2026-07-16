@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import { User } from "lucide-react";
 
+import { IcpFooter } from "@/components/IcpFooter";
 import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
 import {
   MobileNavBar,
@@ -232,6 +233,8 @@ export function AppShell() {
               {outlet}
             </motion.div>
           </AnimatePresence>
+
+          <IcpFooter />
         </main>
 
         <MobileNavBar items={mobileNavItems} onItemClick={handleMobileNavClick} />
