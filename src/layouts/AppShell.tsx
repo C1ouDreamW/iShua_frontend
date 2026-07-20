@@ -1,9 +1,8 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Link,
   Navigate,
-  Outlet,
   useLocation,
   useMatches,
   useNavigate,
@@ -13,6 +12,7 @@ import { User } from "lucide-react";
 
 import { IcpFooter } from "@/components/IcpFooter";
 import { UpgradePrompt } from "@/components/auth/UpgradePrompt";
+import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
 import {
   MobileNavBar,
   ProfileSheet,
@@ -59,10 +59,6 @@ export function AppShell() {
     (match) => (match.handle as RouteHandle | undefined)?.immersive,
   );
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
-
   if (loading) {
     return (
       <div className="min-h-screen px-6 py-10">
@@ -78,10 +74,6 @@ export function AppShell() {
         to={buildLoginRedirect(location.pathname, location.search)}
       />
     );
-  }
-
-  if (isImmersive) {
-    return <Outlet />;
   }
 
   const sidebarNav = getVisibleSidebarNav(user?.role);
@@ -129,7 +121,7 @@ export function AppShell() {
     }
   }
 
-  return (
+  const standardShell = (
     <div className="min-h-screen text-text-primary lg:flex">
       <UpgradePrompt onOpenChange={setUpgradeOpen} open={upgradeOpen} />
 
@@ -249,5 +241,18 @@ export function AppShell() {
         open={profileOpen}
       />
     </div>
+  );
+
+  return (
+    <ContentCrossfade
+      className="min-h-screen"
+      stateKey={isImmersive ? "immersive" : "shell"}
+    >
+      {isImmersive ? (
+        <div className="min-h-screen">{outlet}</div>
+      ) : (
+        standardShell
+      )}
+    </ContentCrossfade>
   );
 }

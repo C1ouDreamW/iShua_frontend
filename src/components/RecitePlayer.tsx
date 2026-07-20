@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 
@@ -71,6 +71,10 @@ export function RecitePlayer({
   const isMultiple = question?.questionType === "MULTI";
   const total = questions.length;
   const progress = total > 0 ? ((currentIndex + 1) / total) * 100 : 0;
+
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentIndex, question?.id]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {

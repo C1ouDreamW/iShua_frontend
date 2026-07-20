@@ -4,8 +4,9 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PracticeComplete } from "@/components/PracticeComplete";
+import { PracticeSessionSkeleton } from "@/components/PracticeSessionSkeleton";
 import { WrongPracticePlayer } from "@/components/WrongPracticePlayer";
-import { PageTransition } from "@/components/motion/PageTransition";
+import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
 import { useWrongPracticeSession } from "@/hooks/useWrongPracticeSession";
@@ -46,63 +47,61 @@ export function WrongPracticePage() {
     );
   }
 
-  if (session.status === "loading" && session.questions.length === 0) {
-    return (
-      <main className="min-h-screen px-6 py-8">
-        <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          <div className="h-16 animate-pulse rounded-md border border-border bg-bg-surface" />
-          <div className="h-[520px] animate-pulse rounded-lg border border-border bg-bg-sheet" />
-        </div>
-      </main>
-    );
-  }
-
-  if (session.status === "error" && session.error) {
-    return (
-      <main className="min-h-screen px-6 py-12">
-        <div className="mx-auto max-w-3xl space-y-4">
-          <ErrorState
-            message={session.error}
-            onRetry={() => void session.reload()}
-          />
-          <div className="flex justify-center">
-            <Button asChild variant="outline">
-              <Link to="/app/wrong-questions">返回错题本</Link>
-            </Button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (session.questions.length === 0) {
-    return (
-      <main className="min-h-screen px-6 py-12">
-        <div className="mx-auto max-w-3xl space-y-4">
-          <EmptyState description="先去刷题答错几道题再来吧。" title="暂无错题" />
-          <div className="flex justify-center">
-            <Button asChild variant="outline">
-              <Link to="/app/wrong-questions">返回错题本</Link>
-            </Button>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const isInitialLoading =
+    session.status === "loading" && session.questions.length === 0;
+  const viewKey = isInitialLoading
+    ? "loading"
+    : session.status === "error" && session.error
+      ? "error"
+      : session.questions.length === 0
+        ? "empty"
+        : `content-${filterBankId ?? "all"}`;
 
   return (
-    <PageTransition>
-      <WrongPracticePlayer
-        autoNext={session.autoNext}
-        currentIndex={session.currentIndex}
-        onAnswerChange={session.updateAnswer}
-        onComplete={session.complete}
-        onIndexChange={session.setCurrentIndex}
-        onSubmit={() => void session.submitCurrent()}
-        onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
-        questions={session.questions}
-        record={session.records[session.currentIndex]}
-      />
-    </PageTransition>
+    <ContentCrossfade className="min-h-screen" stateKey={viewKey}>
+      {isInitialLoading ? (
+        <PracticeSessionSkeleton />
+      ) : session.status === "error" && session.error ? (
+        <main className="min-h-screen px-6 py-12">
+          <div className="mx-auto max-w-3xl space-y-4">
+            <ErrorState
+              message={session.error}
+              onRetry={() => void session.reload()}
+            />
+            <div className="flex justify-center">
+              <Button asChild variant="outline">
+                <Link to="/app/wrong-questions">返回错题本</Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+      ) : session.questions.length === 0 ? (
+        <main className="min-h-screen px-6 py-12">
+          <div className="mx-auto max-w-3xl space-y-4">
+            <EmptyState
+              description="先去刷题答错几道题再来吧。"
+              title="暂无错题"
+            />
+            <div className="flex justify-center">
+              <Button asChild variant="outline">
+                <Link to="/app/wrong-questions">返回错题本</Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+      ) : (
+        <WrongPracticePlayer
+          autoNext={session.autoNext}
+          currentIndex={session.currentIndex}
+          onAnswerChange={session.updateAnswer}
+          onComplete={session.complete}
+          onIndexChange={session.setCurrentIndex}
+          onSubmit={() => void session.submitCurrent()}
+          onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
+          questions={session.questions}
+          record={session.records[session.currentIndex]}
+        />
+      )}
+    </ContentCrossfade>
   );
 }

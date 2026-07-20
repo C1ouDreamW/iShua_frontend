@@ -640,7 +640,7 @@ export function ImportWizard({
             </p>
           </div>
           <Button onClick={resetToUpload} type="button" variant="outline">
-            返回上传
+            离开并保留后台任务
           </Button>
         </section>
       ) : null}

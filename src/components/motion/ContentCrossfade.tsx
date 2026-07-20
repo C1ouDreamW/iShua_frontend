@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 
 import { fadeIn } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 type ContentCrossfadeProps = {
   /** 用于区分 loading / error / empty / content 等状态的 key。 */
@@ -17,17 +18,19 @@ export function ContentCrossfade({
   className,
 }: ContentCrossfadeProps) {
   return (
-    <AnimatePresence initial={false} mode="wait">
-      <motion.div
-        animate="visible"
-        className={className}
-        exit="exit"
-        initial="hidden"
-        key={stateKey}
-        variants={fadeIn}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <div className={cn("grid min-h-64", className)}>
+      <AnimatePresence initial={false} mode="sync">
+        <motion.div
+          animate="visible"
+          className="col-start-1 row-start-1 min-w-0"
+          exit="exit"
+          initial="hidden"
+          key={stateKey}
+          variants={fadeIn}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }

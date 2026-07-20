@@ -6,7 +6,8 @@ import type { QuestionBank } from "@/api/banks";
 import type { Question } from "@/api/questions";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
-import { PageTransition } from "@/components/motion/PageTransition";
+import { PracticeSessionSkeleton } from "@/components/PracticeSessionSkeleton";
+import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
 import { PracticePlayerCore } from "@/components/PracticePlayerCore";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { Button } from "@/components/ui/button";
@@ -253,84 +254,79 @@ export function GuestPracticePage() {
     );
   }
 
-  if (state.loading && !state.bank) {
-    return (
-      <main className="min-h-screen px-6 py-8">
-        <div className="mx-auto flex max-w-3xl flex-col gap-4">
-          <div className="h-16 animate-pulse rounded-md border border-border bg-bg-surface" />
-          <div className="h-[520px] animate-pulse rounded-lg border border-border bg-bg-sheet" />
-        </div>
-      </main>
-    );
-  }
-
-  if (state.error) {
-    return (
-      <main className="min-h-screen px-6 py-12">
-        <div className="mx-auto max-w-3xl">
-          <ErrorState backHref="/" message={state.error} />
-        </div>
-      </main>
-    );
-  }
-
-  if (!question || state.questions.length === 0) {
-    return (
-      <main className="min-h-screen px-6 py-12">
-        <div className="mx-auto max-w-3xl space-y-4">
-          <EmptyState
-            description="这个公开题库暂时没有可练习的题目。"
-            title="暂无题目"
-          />
-          <div className="flex justify-center">
-            <Button asChild variant="outline">
-              <Link to="/">返回</Link>
-            </Button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
+  const isInitialLoading = state.loading && !state.bank;
+  const viewKey = isInitialLoading
+    ? "loading"
+    : state.error
+      ? "error"
+      : !question || state.questions.length === 0
+        ? "empty"
+        : `content-${numericBankId}`;
   const isAnswerEmpty = isManualGrading
     ? shortAnswerValue.trim().length === 0
     : record?.answer.length === 0;
 
   return (
-    <PageTransition>
-      <PracticePlayerCore
-        autoNext={autoNext}
-        currentIndex={currentIndex}
-        enableKeyboardNav
-        exitTo="/"
-        headerExtra={
-          <div className="flex flex-col items-end gap-0.5">
-            <Link
-              className="text-xs text-brand underline-offset-4 hover:underline"
-              to={buildRecitePath(numericBankId, false)}
-            >
-              切换背题模式
-            </Link>
-            <Link
-              className="text-xs text-text-muted underline-offset-4 hover:underline"
-              to={buildLoginRedirect(`/practice/guest/${numericBankId}`)}
-            >
-              登录以同步错题
-            </Link>
+    <ContentCrossfade className="min-h-screen" stateKey={viewKey}>
+      {isInitialLoading ? (
+        <PracticeSessionSkeleton />
+      ) : state.error ? (
+        <main className="min-h-screen px-6 py-12">
+          <div className="mx-auto max-w-3xl">
+            <ErrorState backHref="/" message={state.error} />
           </div>
-        }
-        isAnswerEmpty={isAnswerEmpty}
-        manualAnswerPoints={answerPoints}
-        manualTypeLabel="简答"
-        onAnswerChange={isManualGrading ? updateShortAnswer : updateCurrentAnswer}
-        onComplete={() => setCompleted(true)}
-        onIndexChange={(index) => setCurrentIndex(index)}
-        onSubmit={submitCurrentAnswer}
-        onToggleAutoNext={() => setAutoNext((prev) => !prev)}
-        questions={state.questions}
-        record={record}
-        title={state.bank?.title ?? "访客刷题"}
-      />
-    </PageTransition>
+        </main>
+      ) : !question || state.questions.length === 0 ? (
+        <main className="min-h-screen px-6 py-12">
+          <div className="mx-auto max-w-3xl space-y-4">
+            <EmptyState
+              description="这个公开题库暂时没有可练习的题目。"
+              title="暂无题目"
+            />
+            <div className="flex justify-center">
+              <Button asChild variant="outline">
+                <Link to="/">返回</Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+      ) : (
+        <PracticePlayerCore
+          autoNext={autoNext}
+          currentIndex={currentIndex}
+          enableKeyboardNav
+          exitTo="/"
+          headerExtra={
+            <div className="flex flex-col items-end gap-0.5">
+              <Link
+                className="text-xs text-brand underline-offset-4 hover:underline"
+                to={buildRecitePath(numericBankId, false)}
+              >
+                切换背题模式
+              </Link>
+              <Link
+                className="text-xs text-text-muted underline-offset-4 hover:underline"
+                to={buildLoginRedirect(`/practice/guest/${numericBankId}`)}
+              >
+                登录以同步错题
+              </Link>
+            </div>
+          }
+          isAnswerEmpty={isAnswerEmpty}
+          manualAnswerPoints={answerPoints}
+          manualTypeLabel="简答"
+          onAnswerChange={
+            isManualGrading ? updateShortAnswer : updateCurrentAnswer
+          }
+          onComplete={() => setCompleted(true)}
+          onIndexChange={(index) => setCurrentIndex(index)}
+          onSubmit={submitCurrentAnswer}
+          onToggleAutoNext={() => setAutoNext((prev) => !prev)}
+          questions={state.questions}
+          record={record}
+          title={state.bank?.title ?? "访客刷题"}
+        />
+      )}
+    </ContentCrossfade>
   );
 }
