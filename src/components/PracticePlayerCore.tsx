@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { type ReactNode } from "react";
 
@@ -100,7 +100,8 @@ export function PracticePlayerCore({
   const isMultiple = question?.questionType === "MULTI";
   const shortAnswerValue = record?.answer[0] ?? "";
 
-  useEffect(() => {
+  // 与 RecitePlayer 一致：换题后在绘制前复位滚动，避免低端设备先画出旧滚动位置再跳顶。
+  useLayoutEffect(() => {
     focusedOptionIndex.current = 0;
     window.scrollTo(0, 0);
     if (enableKeyboardNav && !isManualGrading && stemRef.current) {

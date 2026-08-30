@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { slideVariants, type SlideDirection } from "@/lib/motion";
 
@@ -21,6 +21,9 @@ type QuestionTransitionProps = {
  *
  * 使用 popLayout 模式：退场题卡绝对定位、入场题卡正常流入，两者交叉过渡，
  * 避免 mode="wait" 的 0.3s 空窗。
+ *
+ * 方向在渲染期由「上次已提交的索引」（ref，effect 中更新）纯推导，
+ * 不再于渲染期 setState：快速连点不会产生额外 render，方向始终稳定。
  */
 export function QuestionTransition({
   currentIndex,
@@ -29,26 +32,22 @@ export function QuestionTransition({
   className,
   children,
 }: QuestionTransitionProps) {
-  const [prevIndex, setPrevIndex] = useState(currentIndex);
-  const [resolvedDirection, setResolvedDirection] = useState<SlideDirection>(
-    direction ?? 1,
-  );
+  const prevIndexRef = useRef<number | null>(currentIndex);
 
+  let resolvedDirection: SlideDirection = 1;
   if (direction != null) {
-    if (resolvedDirection !== direction) {
-      setResolvedDirection(direction);
-    }
-    if (currentIndex != null && prevIndex !== currentIndex) {
-      setPrevIndex(currentIndex);
-    }
+    resolvedDirection = direction;
   } else if (
     currentIndex != null &&
-    prevIndex != null &&
-    currentIndex !== prevIndex
+    prevIndexRef.current != null &&
+    currentIndex !== prevIndexRef.current
   ) {
-    setResolvedDirection(currentIndex > prevIndex ? 1 : -1);
-    setPrevIndex(currentIndex);
+    resolvedDirection = currentIndex > prevIndexRef.current ? 1 : -1;
   }
+
+  useEffect(() => {
+    prevIndexRef.current = currentIndex ?? null;
+  }, [currentIndex]);
 
   return (
     <div className="relative">
