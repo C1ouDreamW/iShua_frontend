@@ -1,28 +1,69 @@
+import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { RoleGate } from "@/components/auth/RoleGate";
 import { PageStub } from "@/components/PageStub";
 import { AppShell } from "@/layouts/AppShell";
 import { RootLayout } from "@/layouts/RootLayout";
-import { AdminAiImportPage } from "@/pages/AdminAiImportPage";
-import { AdminAiImportStatsPage } from "@/pages/AdminAiImportStatsPage";
-import { AdminUsersPage } from "@/pages/AdminUsersPage";
-import { DiscoverPage } from "@/pages/DiscoverPage";
-import { GuestPracticePage } from "@/pages/GuestPracticePage";
-import { BankBrowsePage } from "@/pages/BankBrowsePage";
 import { HomePage } from "@/pages/HomePage";
-import { LoginPage } from "@/pages/LoginPage";
-import { BankDetailPage } from "@/pages/BankDetailPage";
-import { ImportPage } from "@/pages/ImportPage";
-import { ManageBanksHome } from "@/pages/ManageBanksHome";
-import { ManageBanksLayout } from "@/pages/ManageBanksLayout";
-import { PracticeBanksPage } from "@/pages/PracticeBanksPage";
-import { PracticePage } from "@/pages/PracticePage";
-import { QuestionFormPage } from "@/pages/QuestionFormPage";
-import { RecitePage } from "@/pages/RecitePage";
-import { RegisterPage } from "@/pages/RegisterPage";
-import { WrongPracticePage } from "@/pages/WrongPracticePage";
-import { WrongQuestionsPage } from "@/pages/WrongQuestionsPage";
+
+/** 路由级代码分割：首屏只保留首页与布局，其余页面按需加载（懒加载 chunk）。 */
+const AdminAiImportPage = lazy(() =>
+  import("@/pages/AdminAiImportPage").then((m) => ({ default: m.AdminAiImportPage })),
+);
+const AdminAiImportStatsPage = lazy(() =>
+  import("@/pages/AdminAiImportStatsPage").then((m) => ({
+    default: m.AdminAiImportStatsPage,
+  })),
+);
+const AdminUsersPage = lazy(() =>
+  import("@/pages/AdminUsersPage").then((m) => ({ default: m.AdminUsersPage })),
+);
+const DiscoverPage = lazy(() =>
+  import("@/pages/DiscoverPage").then((m) => ({ default: m.DiscoverPage })),
+);
+const GuestPracticePage = lazy(() =>
+  import("@/pages/GuestPracticePage").then((m) => ({ default: m.GuestPracticePage })),
+);
+const BankBrowsePage = lazy(() =>
+  import("@/pages/BankBrowsePage").then((m) => ({ default: m.BankBrowsePage })),
+);
+const LoginPage = lazy(() =>
+  import("@/pages/LoginPage").then((m) => ({ default: m.LoginPage })),
+);
+const BankDetailPage = lazy(() =>
+  import("@/pages/BankDetailPage").then((m) => ({ default: m.BankDetailPage })),
+);
+const ImportPage = lazy(() =>
+  import("@/pages/ImportPage").then((m) => ({ default: m.ImportPage })),
+);
+const ManageBanksHome = lazy(() =>
+  import("@/pages/ManageBanksHome").then((m) => ({ default: m.ManageBanksHome })),
+);
+const ManageBanksLayout = lazy(() =>
+  import("@/pages/ManageBanksLayout").then((m) => ({ default: m.ManageBanksLayout })),
+);
+const PracticeBanksPage = lazy(() =>
+  import("@/pages/PracticeBanksPage").then((m) => ({ default: m.PracticeBanksPage })),
+);
+const PracticePage = lazy(() =>
+  import("@/pages/PracticePage").then((m) => ({ default: m.PracticePage })),
+);
+const QuestionFormPage = lazy(() =>
+  import("@/pages/QuestionFormPage").then((m) => ({ default: m.QuestionFormPage })),
+);
+const RecitePage = lazy(() =>
+  import("@/pages/RecitePage").then((m) => ({ default: m.RecitePage })),
+);
+const RegisterPage = lazy(() =>
+  import("@/pages/RegisterPage").then((m) => ({ default: m.RegisterPage })),
+);
+const WrongPracticePage = lazy(() =>
+  import("@/pages/WrongPracticePage").then((m) => ({ default: m.WrongPracticePage })),
+);
+const WrongQuestionsPage = lazy(() =>
+  import("@/pages/WrongQuestionsPage").then((m) => ({ default: m.WrongQuestionsPage })),
+);
 
 export const router = createBrowserRouter([
   {

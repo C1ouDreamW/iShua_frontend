@@ -1,5 +1,9 @@
 import katex from "katex";
 import { memo } from "react";
+
+// KaTeX 样式跟随 MathRenderer 所在的懒加载 chunk 按需加载，不进首屏 CSS。
+import "katex/dist/katex.min.css";
+
 import { cn } from "@/lib/utils";
 
 type MathRendererProps = {

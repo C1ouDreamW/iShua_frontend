@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Outlet,
   useLocation,
@@ -21,6 +21,7 @@ import {
 import { DraggableManageTree } from "@/components/bank-tree/DraggableManageTree";
 import type { TreeBankNode } from "@/components/bank-tree/buildBankTree";
 import { useBankTree } from "@/components/bank-tree/useBankTree";
+import { RouteFallback } from "@/components/RouteFallback";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
 import { fadeSlideUp } from "@/lib/motion";
@@ -215,14 +216,17 @@ export function ManageBanksLayout() {
         </aside>
 
         <main className="min-w-0">
-          {/* 与 AppShell 顶层过渡一致：退场即卸载、只保留入场，子路由切换不再叠加顺序等待。 */}
+          {/* 与 AppShell 顶层过渡一致：退场即卸载、只保留入场，子路由切换不再叠加顺序等待。
+              Suspense 兜住懒加载详情页，加载期间保留左侧题库树。 */}
           <motion.div
             animate="visible"
             initial="hidden"
             key={location.pathname}
             variants={fadeSlideUp}
           >
-            <Outlet context={outletContext} />
+            <Suspense fallback={<RouteFallback />}>
+              <Outlet context={outletContext} />
+            </Suspense>
           </motion.div>
         </main>
       </div>
