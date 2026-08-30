@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import {
   Link,
@@ -214,17 +214,16 @@ export function AppShell() {
         </a>
 
         <main className="flex-1 pb-mobile-nav lg:pb-0" id="main-content">
-          <AnimatePresence initial={false} mode="wait">
-            <motion.div
-              animate="visible"
-              exit="exit"
-              initial="hidden"
-              key={getTopAppSegment(location.pathname)}
-              variants={fadeSlideUp}
-            >
-              {outlet}
-            </motion.div>
-          </AnimatePresence>
+          {/* 退场即卸载、只保留入场：避免 mode="wait" 先退场再入场的固定等待。
+              动画在 key 变化（跨顶层段）时重放，入场期间旧内容已替换，无空白帧。 */}
+          <motion.div
+            animate="visible"
+            initial="hidden"
+            key={getTopAppSegment(location.pathname)}
+            variants={fadeSlideUp}
+          >
+            {outlet}
+          </motion.div>
         </main>
 
         <IcpFooter />

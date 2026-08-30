@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Outlet,
@@ -215,17 +215,15 @@ export function ManageBanksLayout() {
         </aside>
 
         <main className="min-w-0">
-          <AnimatePresence initial={false} mode="wait">
-            <motion.div
-              animate="visible"
-              exit="exit"
-              initial="hidden"
-              key={location.pathname}
-              variants={fadeSlideUp}
-            >
-              <Outlet context={outletContext} />
-            </motion.div>
-          </AnimatePresence>
+          {/* 与 AppShell 顶层过渡一致：退场即卸载、只保留入场，子路由切换不再叠加顺序等待。 */}
+          <motion.div
+            animate="visible"
+            initial="hidden"
+            key={location.pathname}
+            variants={fadeSlideUp}
+          >
+            <Outlet context={outletContext} />
+          </motion.div>
         </main>
       </div>
 
