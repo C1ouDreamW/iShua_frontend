@@ -1,5 +1,4 @@
 import {
-  BarChart3,
   BookmarkX,
   Bot,
   Compass,
@@ -67,7 +66,8 @@ export const APP_SIDEBAR_NAV: AppNavItem[] = [
   },
 ];
 
-export const APP_MOBILE_NAV_IDS = ["discover", "wrong", "banks"] as const;
+/** 移动底栏入口：「发现」仍是占位页，上线前不占用 1/4 的主导航位（桌面侧栏保留）。 */
+export const APP_MOBILE_NAV_IDS = ["wrong", "banks"] as const;
 
 export function getVisibleSidebarNav(role: string | undefined) {
   return APP_SIDEBAR_NAV.filter((item) => {
