@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { slideVariants, type SlideDirection } from "@/lib/motion";
 
@@ -21,6 +21,9 @@ type QuestionTransitionProps = {
  *
  * 使用 popLayout 模式：退场题卡绝对定位、入场题卡正常流入，两者交叉过渡，
  * 避免 mode="wait" 的 0.3s 空窗。
+ *
+ * 方向在渲染期由「上次已提交的索引」（ref，effect 中更新）纯推导，
+ * 不再于渲染期 setState：快速连点不会产生额外 render，方向始终稳定。
  */
 export function QuestionTransition({
   currentIndex,
@@ -29,26 +32,29 @@ export function QuestionTransition({
   className,
   children,
 }: QuestionTransitionProps) {
-  const [prevIndex, setPrevIndex] = useState(currentIndex);
-  const [resolvedDirection, setResolvedDirection] = useState<SlideDirection>(
-    direction ?? 1,
-  );
+  const prevIndexRef = useRef<number | null>(currentIndex);
 
+  // React 官方 "previous value" 模式：ref 只在 effect 中写入，渲染期只读上次
+  // 已提交的索引做方向推导（react.dev 的 getPrevState 范例即此写法），
+  // 渲染被丢弃时基线不会前移，方向始终稳定。
+  /* eslint-disable react-hooks/refs -- 上一值模式需在渲染期读取 ref */
+  const prevIndex = prevIndexRef.current;
+
+  let resolvedDirection: SlideDirection = 1;
   if (direction != null) {
-    if (resolvedDirection !== direction) {
-      setResolvedDirection(direction);
-    }
-    if (currentIndex != null && prevIndex !== currentIndex) {
-      setPrevIndex(currentIndex);
-    }
+    resolvedDirection = direction;
   } else if (
     currentIndex != null &&
     prevIndex != null &&
     currentIndex !== prevIndex
   ) {
-    setResolvedDirection(currentIndex > prevIndex ? 1 : -1);
-    setPrevIndex(currentIndex);
+    resolvedDirection = currentIndex > prevIndex ? 1 : -1;
   }
+  /* eslint-enable react-hooks/refs */
+
+  useEffect(() => {
+    prevIndexRef.current = currentIndex ?? null;
+  }, [currentIndex]);
 
   return (
     <div className="relative">

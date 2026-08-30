@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   listMyBankTree,
@@ -24,18 +24,53 @@ type UseBankTreeState = {
   refresh: () => void;
 };
 
+/**
+ * 题库树短时缓存（模块级，跨组件挂载存活）：
+ * Tab 往返、子树前进后退时立即复用上次结果，不再回退骨架屏；
+ * 超过 TTL 的数据后台静默刷新。骨架屏仅用于无缓存可展示的首次加载。
+ */
+const BANK_TREE_CACHE_TTL = 60_000;
+const BANK_TREE_CACHE_LIMIT = 50;
+
+const bankTreeCache = new Map<string, { data: BankNode[]; fetchedAt: number }>();
+
+function cacheKey(scope: BankTreeScope, rootId?: number) {
+  return `${scope}:${rootId ?? ""}`;
+}
+
+function readCache(key: string) {
+  return bankTreeCache.get(key);
+}
+
+function writeCache(key: string, data: BankNode[]) {
+  bankTreeCache.delete(key);
+  bankTreeCache.set(key, { data, fetchedAt: Date.now() });
+
+  if (bankTreeCache.size > BANK_TREE_CACHE_LIMIT) {
+    const oldest = bankTreeCache.keys().next().value;
+    if (oldest !== undefined) {
+      bankTreeCache.delete(oldest);
+    }
+  }
+}
+
 export function useBankTree({
   scope = "mine",
   rootId,
   enabled = true,
 }: UseBankTreeOptions = {}): UseBankTreeState {
-  const [flatNodes, setFlatNodes] = useState<BankNode[]>([]);
-  const [loading, setLoading] = useState(enabled);
+  const key = cacheKey(scope, rootId);
+  const [flatNodes, setFlatNodes] = useState<BankNode[]>(
+    () => readCache(key)?.data ?? [],
+  );
+  const [loading, setLoading] = useState(() => enabled && !readCache(key));
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const forceReloadRef = useRef(false);
 
   const refresh = useCallback(() => {
-    setReloadKey((key) => key + 1);
+    forceReloadRef.current = true;
+    setReloadKey((k) => k + 1);
   }, []);
 
   useEffect(() => {
@@ -45,9 +80,15 @@ export function useBankTree({
     }
 
     let ignore = false;
+    // 手动 refresh（重试、增删改后）强制走网络并展示加载态，其余情况优先用缓存。
+    const forceReload = forceReloadRef.current;
+    forceReloadRef.current = false;
+    const cached = readCache(key);
 
-    async function loadTree() {
-      setLoading(true);
+    async function loadTree(options?: { silent?: boolean }) {
+      if (!options?.silent) {
+        setLoading(true);
+      }
       setError(null);
 
       try {
@@ -56,28 +97,39 @@ export function useBankTree({
             ? await listPublicBankTree({ rootId })
             : await listMyBankTree({ rootId });
         if (!ignore) {
+          writeCache(key, nodes ?? []);
           setFlatNodes(nodes ?? []);
+          setLoading(false);
         }
       } catch (loadError) {
-        if (!ignore) {
+        if (!ignore && !options?.silent) {
           setFlatNodes([]);
           setError(
             resolveApiErrorMessage(loadError, "题库树加载失败，请稍后再试。"),
           );
-        }
-      } finally {
-        if (!ignore) {
           setLoading(false);
         }
       }
     }
 
-    void loadTree();
+    if (cached && !forceReload) {
+      // 缓存命中立即同步展示，避免 Tab 往返回退骨架屏（SWR 的核心行为，
+      // scope/rootId 变化时这是唯一能让新缓存当帧生效的时机）。
+      setFlatNodes(cached.data);
+      setLoading(false);
+      setError(null);
+
+      if (Date.now() - cached.fetchedAt > BANK_TREE_CACHE_TTL) {
+        void loadTree({ silent: true });
+      }
+    } else {
+      void loadTree();
+    }
 
     return () => {
       ignore = true;
     };
-  }, [enabled, reloadKey, rootId, scope]);
+  }, [enabled, key, reloadKey, rootId, scope]);
 
   return {
     error,

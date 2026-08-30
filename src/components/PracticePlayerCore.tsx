@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { type ReactNode } from "react";
 
@@ -100,7 +100,8 @@ export function PracticePlayerCore({
   const isMultiple = question?.questionType === "MULTI";
   const shortAnswerValue = record?.answer[0] ?? "";
 
-  useEffect(() => {
+  // 与 RecitePlayer 一致：换题后在绘制前复位滚动，避免低端设备先画出旧滚动位置再跳顶。
+  useLayoutEffect(() => {
     focusedOptionIndex.current = 0;
     window.scrollTo(0, 0);
     if (enableKeyboardNav && !isManualGrading && stemRef.current) {
@@ -183,44 +184,50 @@ export function PracticePlayerCore({
       ) : null}
 
       <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
-          <div className="min-w-0">
+        {/* 窄屏两行布局：第一行操作（退出 + 进度 + 自动下一题），第二行标题 + 辅助链接，
+            避免长标题、题数与开关在 320-375px 下互相挤压。 */}
+        <div className="mx-auto flex max-w-3xl flex-col gap-1.5 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
             <Button asChild size="sm" variant="ghost">
               <Link to={exitTo}>← 退出</Link>
             </Button>
-            <h1 className="mt-2 truncate font-serif text-xl font-semibold text-text-primary">
+            <div className="flex min-w-0 items-center justify-end gap-3">
+              <p
+                aria-live="polite"
+                className="shrink-0 font-medium tabular-nums text-text-primary"
+              >
+                <span className="text-text-muted">第 </span>
+                {currentIndex + 1}
+                <span className="text-text-muted"> / {questions.length} 题</span>
+              </p>
+              <label className="flex shrink-0 items-center gap-1.5 text-xs text-text-muted">
+                <span>自动下一题</span>
+                <button
+                  aria-checked={autoNext}
+                  className={cn(
+                    "relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas",
+                    // 视觉尺寸保持 36×20，伪元素把可点击区域扩到 ≥44×44。
+                    "before:absolute before:-inset-x-2.5 before:-inset-y-3 before:content-['']",
+                    autoNext ? "bg-brand" : "bg-border",
+                  )}
+                  onClick={onToggleAutoNext}
+                  role="switch"
+                  type="button"
+                >
+                  <span
+                    className={cn(
+                      "absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-transform",
+                      autoNext ? "left-[17px]" : "left-0.5",
+                    )}
+                  />
+                </button>
+              </label>
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="min-w-0 truncate font-serif text-lg font-semibold text-text-primary sm:text-xl">
               {title}
             </h1>
-          </div>
-          <div className="shrink-0 text-right">
-            <p
-              aria-live="polite"
-              className="font-medium tabular-nums text-text-primary"
-            >
-              <span className="text-text-muted">第 </span>
-              {currentIndex + 1}
-              <span className="text-text-muted"> / {questions.length} 题</span>
-            </p>
-            <div className="mt-1 flex items-center justify-end gap-1.5">
-              <span className="text-xs text-text-muted">自动下一题</span>
-              <button
-                aria-checked={autoNext}
-                className={cn(
-                  "relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas",
-                  autoNext ? "bg-brand" : "bg-border",
-                )}
-                onClick={onToggleAutoNext}
-                role="switch"
-                type="button"
-              >
-                <span
-                  className={cn(
-                    "absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-transform",
-                    autoNext ? "left-[17px]" : "left-0.5",
-                  )}
-                />
-              </button>
-            </div>
             {headerExtra}
           </div>
         </div>
@@ -362,6 +369,7 @@ export function PracticePlayerCore({
           <Button
             disabled={currentIndex === 0}
             onClick={() => onIndexChange(currentIndex - 1)}
+            size="lg"
             variant="outline"
           >
             上一题
@@ -369,6 +377,7 @@ export function PracticePlayerCore({
           <Button
             disabled={submitDisabled}
             onClick={onSubmit}
+            size="lg"
           >
             {record?.submitting
               ? isManualGrading
@@ -387,6 +396,7 @@ export function PracticePlayerCore({
 
               onIndexChange(currentIndex + 1);
             }}
+            size="lg"
             variant="outline"
           >
             {currentIndex >= questions.length - 1 ? "完成" : "下一题"}

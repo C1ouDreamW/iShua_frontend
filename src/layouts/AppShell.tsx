@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { motion } from "motion/react";
+import { Suspense, useState } from "react";
 import {
   Link,
   Navigate,
@@ -18,6 +18,7 @@ import {
   ProfileSheet,
   type MobileNavItem,
 } from "@/components/auth/ProfileSheet";
+import { RouteFallback } from "@/components/RouteFallback";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -60,11 +61,7 @@ export function AppShell() {
   );
 
   if (loading) {
-    return (
-      <div className="min-h-screen px-6 py-10">
-        <div className="paper-panel mx-auto h-64 max-w-3xl animate-pulse" />
-      </div>
-    );
+    return <RouteFallback />;
   }
 
   if (!isAuthenticated) {
@@ -214,17 +211,17 @@ export function AppShell() {
         </a>
 
         <main className="flex-1 pb-mobile-nav lg:pb-0" id="main-content">
-          <AnimatePresence initial={false} mode="wait">
-            <motion.div
-              animate="visible"
-              exit="exit"
-              initial="hidden"
-              key={getTopAppSegment(location.pathname)}
-              variants={fadeSlideUp}
-            >
-              {outlet}
-            </motion.div>
-          </AnimatePresence>
+          {/* 退场即卸载、只保留入场：避免 mode="wait" 先退场再入场的固定等待。
+              动画在 key 变化（跨顶层段）时重放，入场期间旧内容已替换，无空白帧。
+              Suspense 兜住 /app 下懒加载子路由，加载期间保留外壳只换内容区。 */}
+          <motion.div
+            animate="visible"
+            initial="hidden"
+            key={getTopAppSegment(location.pathname)}
+            variants={fadeSlideUp}
+          >
+            <Suspense fallback={<RouteFallback />}>{outlet}</Suspense>
+          </motion.div>
         </main>
 
         <IcpFooter />
@@ -249,7 +246,9 @@ export function AppShell() {
       stateKey={isImmersive ? "immersive" : "shell"}
     >
       {isImmersive ? (
-        <div className="min-h-screen">{outlet}</div>
+        <div className="min-h-screen">
+          <Suspense fallback={<RouteFallback />}>{outlet}</Suspense>
+        </div>
       ) : (
         standardShell
       )}

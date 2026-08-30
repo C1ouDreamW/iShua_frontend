@@ -52,7 +52,7 @@ export function RegisterPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-3 py-8 sm:px-6 sm:py-12">
       <PageTransition className="w-full max-w-5xl">
-        <section className="paper-panel grid w-full gap-6 p-4 sm:p-6 md:grid-cols-[1fr_420px] md:gap-8 md:p-8">
+        <section className="paper-panel grid w-full grid-cols-1 gap-6 p-4 sm:p-6 md:grid-cols-[1fr_420px] md:gap-8 md:p-8">
           <div className="flex flex-col justify-center gap-8 py-2 sm:px-2 sm:py-4 md:order-2">
             <div className="md:hidden">
               <Button asChild variant="outline">

@@ -182,7 +182,7 @@ export function AdminUsersPage() {
                 return (
                   <StaggerItem
                     as="article"
-                    className="grid gap-3 px-4 py-4 text-sm md:grid-cols-[1.2fr_1fr_0.9fr_0.9fr_1.2fr] md:items-center"
+                    className="grid grid-cols-1 gap-3 px-4 py-4 text-sm md:grid-cols-[1.2fr_1fr_0.9fr_0.9fr_1.2fr] md:items-center"
                     key={user.userId ?? user.username}
                   >
                     <div>

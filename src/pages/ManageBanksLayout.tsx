@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { motion } from "motion/react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Outlet,
   useLocation,
@@ -21,6 +21,7 @@ import {
 import { DraggableManageTree } from "@/components/bank-tree/DraggableManageTree";
 import type { TreeBankNode } from "@/components/bank-tree/buildBankTree";
 import { useBankTree } from "@/components/bank-tree/useBankTree";
+import { RouteFallback } from "@/components/RouteFallback";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
 import { fadeSlideUp } from "@/lib/motion";
@@ -196,7 +197,7 @@ export function ManageBanksLayout() {
         </div>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(240px,280px)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(240px,280px)_minmax(0,1fr)]">
         <aside className="paper-panel flex max-h-[calc(100vh-12rem-3.5rem-env(safe-area-inset-bottom,0px))] flex-col gap-3 overflow-hidden p-3 lg:max-h-[calc(100vh-12rem)]">
           <p className="px-1 text-xs font-medium uppercase tracking-wide text-text-muted">
             我的题库树
@@ -215,17 +216,18 @@ export function ManageBanksLayout() {
         </aside>
 
         <main className="min-w-0">
-          <AnimatePresence initial={false} mode="wait">
-            <motion.div
-              animate="visible"
-              exit="exit"
-              initial="hidden"
-              key={location.pathname}
-              variants={fadeSlideUp}
-            >
+          {/* 与 AppShell 顶层过渡一致：退场即卸载、只保留入场，子路由切换不再叠加顺序等待。
+              Suspense 兜住懒加载详情页，加载期间保留左侧题库树。 */}
+          <motion.div
+            animate="visible"
+            initial="hidden"
+            key={location.pathname}
+            variants={fadeSlideUp}
+          >
+            <Suspense fallback={<RouteFallback />}>
               <Outlet context={outletContext} />
-            </motion.div>
-          </AnimatePresence>
+            </Suspense>
+          </motion.div>
         </main>
       </div>
 

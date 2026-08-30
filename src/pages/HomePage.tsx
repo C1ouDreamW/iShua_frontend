@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { pagePublicBankRoots, type BankNode } from "@/api/bankNodes";
@@ -17,31 +17,69 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useResponsivePageSize } from "@/hooks/useResponsivePageSize";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import { cn } from "@/lib/utils";
 
 type LobbyState = {
   roots: BankNode[];
   total: number;
+  /** 全屏骨架：仅首次进入且无可展示数据时为 true。 */
   loading: boolean;
+  /** 保留旧列表的后台刷新/翻页，配合透明度作局部进度提示。 */
+  refreshing: boolean;
   error: string | null;
 };
+
+/**
+ * 首页公开题库分页短时缓存（模块级，跨组件挂载存活）：
+ * 翻页、其他页面返回时立即复用上次结果，不回退整屏骨架、不重播逐卡入场。
+ */
+const LOBBY_CACHE_TTL = 60_000;
+
+const lobbyCache = new Map<
+  string,
+  { records: BankNode[]; total: number; fetchedAt: number }
+>();
+
+function lobbyCacheKey(current: number, pageSize: number) {
+  return `${current}:${pageSize}`;
+}
 
 export function HomePage() {
   const { isAuthenticated, loading: authLoading, logout, user } = useAuth();
   const pageSize = useResponsivePageSize();
   const [current, setCurrent] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
-  const [state, setState] = useState<LobbyState>({
-    error: null,
-    loading: true,
-    roots: [],
-    total: 0,
+  const forceReloadRef = useRef(false);
+  const [state, setState] = useState<LobbyState>(() => {
+    const cached = lobbyCache.get(lobbyCacheKey(1, pageSize));
+    return cached
+      ? {
+          error: null,
+          loading: false,
+          refreshing: false,
+          roots: cached.records,
+          total: cached.total,
+        }
+      : { error: null, loading: true, refreshing: false, roots: [], total: 0 };
   });
 
   useEffect(() => {
     let ignore = false;
+    const cacheKey = lobbyCacheKey(current, pageSize);
+    // 重试按钮强制走网络；翻页/返回优先用缓存。
+    const forceReload = forceReloadRef.current;
+    forceReloadRef.current = false;
+    const cached = lobbyCache.get(cacheKey);
 
-    async function loadRoots() {
-      setState((prev) => ({ ...prev, error: null, loading: true }));
+    async function loadRoots(options?: { silent?: boolean }) {
+      if (!options?.silent) {
+        setState((prev) => ({
+          ...prev,
+          error: null,
+          loading: prev.roots.length === 0,
+          refreshing: prev.roots.length > 0,
+        }));
+      }
 
       try {
         const data = await pagePublicBankRoots({
@@ -50,21 +88,26 @@ export function HomePage() {
         });
 
         if (!ignore) {
+          const records = data?.records ?? [];
+          const total = data?.total ?? 0;
+          lobbyCache.set(cacheKey, { records, total, fetchedAt: Date.now() });
           setState({
             error: null,
             loading: false,
-            roots: data?.records ?? [],
-            total: data?.total ?? 0,
+            refreshing: false,
+            roots: records,
+            total,
           });
         }
       } catch (error) {
-        if (!ignore) {
+        if (!ignore && !options?.silent) {
           setState({
             error: resolveApiErrorMessage(
               error,
               "公开题库加载失败，请稍后再试。",
             ),
             loading: false,
+            refreshing: false,
             roots: [],
             total: 0,
           });
@@ -72,7 +115,24 @@ export function HomePage() {
       }
     }
 
-    void loadRoots();
+    if (!forceReload && cached) {
+      // 缓存命中立即同步展示：翻页/返回时不回退骨架屏、不重播入场动画
+      // （SWR 的核心行为）。首屏挂载时初始 state 已读同一份缓存，此处为
+      // 同值写入，React 会自动跳过重渲染。
+      setState({
+        error: null,
+        loading: false,
+        refreshing: false,
+        roots: cached.records,
+        total: cached.total,
+      });
+
+      if (Date.now() - cached.fetchedAt > LOBBY_CACHE_TTL) {
+        void loadRoots({ silent: true });
+      }
+    } else {
+      void loadRoots();
+    }
 
     return () => {
       ignore = true;
@@ -171,11 +231,11 @@ export function HomePage() {
                   ? "error"
                   : state.roots.length === 0
                     ? "empty"
-                    : `content-${current}`
+                    : "content"
             }
           >
             {state.loading ? (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
                   <div
                     className="paper-panel min-h-52 animate-pulse p-5"
@@ -187,7 +247,10 @@ export function HomePage() {
               <ErrorState
                 backHref="/"
                 message={state.error}
-                onRetry={() => setReloadKey((key) => key + 1)}
+                onRetry={() => {
+                  forceReloadRef.current = true;
+                  setReloadKey((key) => key + 1);
+                }}
               />
             ) : state.roots.length === 0 ? (
               <EmptyState
@@ -196,7 +259,15 @@ export function HomePage() {
               />
             ) : (
               <div className="flex flex-col gap-4">
-                <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" key={current}>
+                {/* Stagger 不按页码重建：容器跨页保留，逐卡入场只在首次展示时执行，
+                    翻页时列表整体保留（缓存命中即时切换），后台刷新时降低透明度作局部提示。 */}
+                <Stagger
+                  aria-busy={state.refreshing || undefined}
+                  className={cn(
+                    "grid grid-cols-1 gap-4 transition-opacity duration-200 sm:grid-cols-2 lg:grid-cols-3",
+                    state.refreshing && "opacity-60",
+                  )}
+                >
                   {state.roots.map((node) => (
                     <StaggerItem key={node.id ?? node.title}>
                       <RootNodeCard node={node} />
