@@ -85,8 +85,13 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --font-sans: "Noto Sans SC", system-ui, sans-serif;
-  --font-serif: "Noto Serif SC", "Source Serif 4", serif;
+  /* 系统字体栈：避免 Google Fonts 外链在弱网/国内网络下的延迟与回退跳变。
+     本机装有 Noto 系列时仍优先使用，观感与原方案一致。 */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-serif:
+    Georgia, "Times New Roman", "Noto Serif SC", "Songti SC", "SimSun", serif;
   --radius-sm: calc(var(--radius) - 2px);
   --radius-md: var(--radius);
   --radius-lg: var(--radius-lg);
