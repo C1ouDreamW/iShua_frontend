@@ -34,16 +34,23 @@ export function QuestionTransition({
 }: QuestionTransitionProps) {
   const prevIndexRef = useRef<number | null>(currentIndex);
 
+  // React 官方 "previous value" 模式：ref 只在 effect 中写入，渲染期只读上次
+  // 已提交的索引做方向推导（react.dev 的 getPrevState 范例即此写法），
+  // 渲染被丢弃时基线不会前移，方向始终稳定。
+  /* eslint-disable react-hooks/refs -- 上一值模式需在渲染期读取 ref */
+  const prevIndex = prevIndexRef.current;
+
   let resolvedDirection: SlideDirection = 1;
   if (direction != null) {
     resolvedDirection = direction;
   } else if (
     currentIndex != null &&
-    prevIndexRef.current != null &&
-    currentIndex !== prevIndexRef.current
+    prevIndex != null &&
+    currentIndex !== prevIndex
   ) {
-    resolvedDirection = currentIndex > prevIndexRef.current ? 1 : -1;
+    resolvedDirection = currentIndex > prevIndex ? 1 : -1;
   }
+  /* eslint-enable react-hooks/refs */
 
   useEffect(() => {
     prevIndexRef.current = currentIndex ?? null;

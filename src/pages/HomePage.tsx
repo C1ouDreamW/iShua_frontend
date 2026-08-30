@@ -116,6 +116,9 @@ export function HomePage() {
     }
 
     if (!forceReload && cached) {
+      // 缓存命中立即同步展示：翻页/返回时不回退骨架屏、不重播入场动画
+      // （SWR 的核心行为）。首屏挂载时初始 state 已读同一份缓存，此处为
+      // 同值写入，React 会自动跳过重渲染。
       setState({
         error: null,
         loading: false,

@@ -113,6 +113,8 @@ export function useBankTree({
     }
 
     if (cached && !forceReload) {
+      // 缓存命中立即同步展示，避免 Tab 往返回退骨架屏（SWR 的核心行为，
+      // scope/rootId 变化时这是唯一能让新缓存当帧生效的时机）。
       setFlatNodes(cached.data);
       setLoading(false);
       setError(null);

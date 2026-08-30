@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- 路由模块导出 router 实例，lazy 页面常量非组件 */
 import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
