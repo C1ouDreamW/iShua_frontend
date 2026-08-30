@@ -148,7 +148,7 @@ export function AdminAiImportStatsPage() {
 
       {state.loading ? (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
               <div className="paper-panel h-28 animate-pulse" key={index} />
             ))}
@@ -171,7 +171,7 @@ export function AdminAiImportStatsPage() {
             {stats.periodDays ? `（近 ${stats.periodDays} 天）` : null}
           </p>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
               accent="brand"
               hint="窗口内提交的任务总数"
@@ -229,7 +229,7 @@ export function AdminAiImportStatsPage() {
 
                   return (
                     <div
-                      className="grid gap-3 px-5 py-4 sm:grid-cols-[9rem_minmax(0,1fr)_8rem_8rem] sm:items-center"
+                      className="grid grid-cols-1 gap-3 px-5 py-4 sm:grid-cols-[9rem_minmax(0,1fr)_8rem_8rem] sm:items-center"
                       key={item.status ?? count}
                     >
                       <div>

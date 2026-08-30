@@ -235,7 +235,7 @@ export function HomePage() {
             }
           >
             {state.loading ? (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {Array.from({ length: Math.min(pageSize, 6) }).map((_, index) => (
                   <div
                     className="paper-panel min-h-52 animate-pulse p-5"
@@ -264,7 +264,7 @@ export function HomePage() {
                 <Stagger
                   aria-busy={state.refreshing || undefined}
                   className={cn(
-                    "grid gap-4 transition-opacity duration-200 sm:grid-cols-2 lg:grid-cols-3",
+                    "grid grid-cols-1 gap-4 transition-opacity duration-200 sm:grid-cols-2 lg:grid-cols-3",
                     state.refreshing && "opacity-60",
                   )}
                 >

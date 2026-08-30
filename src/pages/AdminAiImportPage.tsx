@@ -207,7 +207,7 @@ export function AdminAiImportPage() {
       {statsLoading ? (
         <div className="paper-panel flex flex-col gap-6 p-6">
           <div className="h-5 w-32 animate-pulse rounded bg-bg-sheet" />
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <div
                 className="h-20 animate-pulse border border-border bg-bg-sheet"
@@ -241,7 +241,7 @@ export function AdminAiImportPage() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatMetric
               label="任务总数"
               value={formatNumber(stats?.totalTasks)}
@@ -269,7 +269,7 @@ export function AdminAiImportPage() {
               <div className="divide-y divide-border">
                 {statusStats.map((item) => (
                   <article
-                    className="grid gap-2 px-4 py-3 text-sm md:grid-cols-[1.2fr_0.7fr_0.9fr] md:items-center"
+                    className="grid grid-cols-1 gap-2 px-4 py-3 text-sm md:grid-cols-[1.2fr_0.7fr_0.9fr] md:items-center"
                     key={item.status}
                   >
                     <p className="font-medium text-text-primary">
@@ -307,7 +307,7 @@ export function AdminAiImportPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm">
             <span className="font-medium text-text-primary">超过天数</span>
             <Input
