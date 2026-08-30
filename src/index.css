@@ -14,7 +14,8 @@
   }
 
   body {
-    min-width: 320px;
+    /* 下限保护超窄视口；用 min(100%, …) 避免经典滚动条下 320px 视口出现 15px 横向滚动 */
+    min-width: min(100%, 320px);
     min-height: 100vh;
     margin: 0;
   }
