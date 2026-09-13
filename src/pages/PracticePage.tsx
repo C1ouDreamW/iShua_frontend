@@ -56,6 +56,7 @@ export function PracticePage() {
     return (
       <PracticeComplete
         correctCount={session.stats.correctCount}
+        onContinueUnanswered={session.continueUnanswered}
         onPrimary={() => {
           navigate(isAuthenticated ? "/app/banks" : "/");
         }}

@@ -22,6 +22,7 @@ import { gradeAnswer } from "@/lib/gradeAnswer";
 import {
   clearPracticeProgress,
   clearRecentPractice,
+  findFirstUnansweredIndex,
   readPracticeProgress,
   rememberRecentPractice,
   savePracticeProgress,
@@ -313,6 +314,16 @@ export function GuestPracticePage() {
     setCompleted(true);
   }, [clearAutoNextTimer, numericBankId]);
 
+  const continueUnanswered = useCallback(() => {
+    const nextIndex = findFirstUnansweredIndex(answers);
+    if (nextIndex < 0) {
+      return;
+    }
+
+    setCurrentIndex(nextIndex);
+    setCompleted(false);
+  }, [answers]);
+
   if (isAuthenticated && Number.isFinite(numericBankId)) {
     return <Navigate replace to={buildPracticePath(numericBankId, true)} />;
   }
@@ -321,6 +332,7 @@ export function GuestPracticePage() {
     return (
       <PracticeComplete
         correctCount={stats.correctCount}
+        onContinueUnanswered={continueUnanswered}
         onPrimary={() => navigate("/")}
         onRetry={restart}
         title="访客刷题完成"

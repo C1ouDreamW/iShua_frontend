@@ -9,6 +9,7 @@ import { listWrongPractice } from "@/api/wrong";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import {
   clearPracticeProgress,
+  findFirstUnansweredIndex,
   readPracticeProgress,
   savePracticeProgress,
 } from "@/lib/practiceProgress";
@@ -251,9 +252,20 @@ export function useWrongPracticeSession(filterBankId?: number) {
     setStatus("complete");
   }, [clearAutoNextTimer, filterBankId]);
 
+  const continueUnanswered = useCallback(() => {
+    const nextIndex = findFirstUnansweredIndex(records);
+    if (nextIndex < 0) {
+      return;
+    }
+
+    setCurrentIndex(nextIndex);
+    setStatus("ready");
+  }, [records]);
+
   return {
     autoNext,
     complete,
+    continueUnanswered,
     currentIndex,
     error,
     questions,

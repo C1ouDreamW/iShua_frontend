@@ -11,6 +11,7 @@ type PracticeCompleteProps = {
   unansweredCount: number;
   onPrimary: () => void;
   onRetry: () => void;
+  onContinueUnanswered?: () => void;
   primaryLabel?: string;
 };
 
@@ -21,6 +22,7 @@ export function PracticeComplete({
   unansweredCount,
   onPrimary,
   onRetry,
+  onContinueUnanswered,
   primaryLabel = "返回大厅",
 }: PracticeCompleteProps) {
   const answeredCount = correctCount + wrongCount;
@@ -65,13 +67,24 @@ export function PracticeComplete({
             </dd>
           </StaggerItem>
         </Stagger>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button className="flex-1" onClick={onRetry}>
-            再刷一遍
-          </Button>
-          <Button className="flex-1" onClick={onPrimary} variant="outline">
-            {primaryLabel}
-          </Button>
+        <div className="mt-8 flex flex-col gap-3">
+          {unansweredCount > 0 && onContinueUnanswered ? (
+            <Button onClick={onContinueUnanswered}>
+              继续未答题（{unansweredCount}）
+            </Button>
+          ) : null}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button
+              className="flex-1"
+              onClick={onRetry}
+              variant={unansweredCount > 0 ? "outline" : "default"}
+            >
+              再刷一遍
+            </Button>
+            <Button className="flex-1" onClick={onPrimary} variant="outline">
+              {primaryLabel}
+            </Button>
+          </div>
         </div>
       </motion.section>
     </main>

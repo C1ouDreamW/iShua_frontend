@@ -1,5 +1,11 @@
 type QuestionIdentity = { id?: number };
 
+export function findFirstUnansweredIndex(
+  records: Array<{ submitted: boolean }>,
+) {
+  return records.findIndex((record) => !record.submitted);
+}
+
 export type PersistedPracticeRecord = {
   answer: string[];
   submitted: boolean;

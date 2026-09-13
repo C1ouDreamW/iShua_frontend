@@ -37,6 +37,7 @@ export function WrongPracticePage() {
     return (
       <PracticeComplete
         correctCount={session.stats.correctCount}
+        onContinueUnanswered={session.continueUnanswered}
         onPrimary={() => navigate("/app/wrong-questions")}
         onRetry={session.restart}
         primaryLabel="返回错题本"

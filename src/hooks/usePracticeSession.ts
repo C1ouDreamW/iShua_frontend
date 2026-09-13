@@ -11,6 +11,7 @@ import {
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import {
   clearPracticeProgress,
+  findFirstUnansweredIndex,
   readPracticeProgress,
   savePracticeProgress,
 } from "@/lib/practiceProgress";
@@ -278,6 +279,17 @@ export function usePracticeSession(bankId: number) {
     setShowWrongToast(false);
   }, [bankId, clearAutoNextTimer]);
 
+  const continueUnanswered = useCallback(() => {
+    const nextIndex = findFirstUnansweredIndex(records);
+    if (nextIndex < 0) {
+      return;
+    }
+
+    setCurrentIndex(nextIndex);
+    setStatus("ready");
+    setShowWrongToast(false);
+  }, [records]);
+
   const dismissWrongToast = useCallback(() => {
     setShowWrongToast(false);
   }, []);
@@ -286,6 +298,7 @@ export function usePracticeSession(bankId: number) {
     autoNext,
     bankTitle,
     complete,
+    continueUnanswered,
     currentIndex,
     dismissWrongToast,
     error,

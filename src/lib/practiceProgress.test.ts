@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { parsePracticeProgress } from "./practiceProgress";
+import {
+  findFirstUnansweredIndex,
+  parsePracticeProgress,
+} from "./practiceProgress";
 
 const questions = [{ id: 10 }, { id: 11 }];
 const progress = JSON.stringify({
@@ -23,4 +26,15 @@ describe("parsePracticeProgress", () => {
     expect(parsePracticeProgress(progress, [{ id: 10 }, { id: 12 }])).toBeNull();
     expect(parsePracticeProgress("{", questions)).toBeNull();
   });
+});
+
+it("找到第一道未答题", () => {
+  expect(
+    findFirstUnansweredIndex([
+      { submitted: true },
+      { submitted: false },
+      { submitted: false },
+    ]),
+  ).toBe(1);
+  expect(findFirstUnansweredIndex([{ submitted: true }])).toBe(-1);
 });
