@@ -24,6 +24,15 @@ export function BankTreeNode({
   const [expanded, setExpanded] = useState(depth < 1);
   const isSelected = selectedId != null && node.id === selectedId;
 
+  function handleSelect() {
+    if (isFolder && hasChildren) {
+      setExpanded((value) => !value);
+      return;
+    }
+
+    onSelect(node);
+  }
+
   return (
     <li aria-expanded={hasChildren ? expanded : undefined} role="treeitem">
       <div
@@ -38,7 +47,7 @@ export function BankTreeNode({
         {hasChildren ? (
           <button
             aria-label={expanded ? "折叠" : "展开"}
-            className="flex size-7 shrink-0 items-center justify-center rounded-sm text-text-muted hover:bg-bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-bg-canvas"
+            className="flex size-11 shrink-0 items-center justify-center rounded-sm text-text-muted hover:bg-bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-bg-canvas"
             onClick={() => setExpanded((value) => !value)}
             type="button"
           >
@@ -51,13 +60,13 @@ export function BankTreeNode({
             />
           </button>
         ) : (
-          <span className="size-7 shrink-0" />
+          <span className="size-11 shrink-0" />
         )}
 
         <button
           aria-selected={isSelected || undefined}
-          className="flex min-w-0 flex-1 items-center gap-1.5 py-1.5 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-          onClick={() => onSelect(node)}
+          className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 py-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          onClick={handleSelect}
           type="button"
         >
           {isFolder ? (

@@ -119,7 +119,7 @@ export function RecitePlayer({
 
   return (
     <main className="min-h-screen pb-practice-footer">
-      <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 pt-safe backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
           <div className="min-w-0">
             <Button asChild size="sm" variant="ghost">

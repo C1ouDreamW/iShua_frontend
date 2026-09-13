@@ -136,7 +136,7 @@ export function MobileNavBar({
       aria-label="底部导航"
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-bg-surface/95 backdrop-blur pb-safe lg:hidden"
     >
-      <ul className="mx-auto grid h-14 max-w-lg grid-cols-4">
+      <ul className="mx-auto grid h-14 max-w-lg grid-flow-col auto-cols-fr">
         {items.map((item) => {
           const Icon = item.icon;
 

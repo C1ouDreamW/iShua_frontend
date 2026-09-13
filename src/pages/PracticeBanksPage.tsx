@@ -79,7 +79,7 @@ export function PracticeBanksPage() {
           题库
         </h1>
         <p className="mt-2 text-sm leading-6 text-text-secondary">
-          在树中选择题库节点开始刷题。文件夹仅用于展开浏览；创建与管理请使用侧栏「管理题库」。
+          选择一个题库开始刷题，点击文件夹可展开章节。
         </p>
       </header>
 

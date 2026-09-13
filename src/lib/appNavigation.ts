@@ -1,7 +1,6 @@
 import {
   BookmarkX,
   Bot,
-  Compass,
   FolderCog,
   Library,
   Shield,
@@ -22,12 +21,6 @@ export type AppNavItem = {
 };
 
 export const APP_SIDEBAR_NAV: AppNavItem[] = [
-  {
-    id: "discover",
-    label: "发现",
-    to: "/app/discover",
-    icon: Compass,
-  },
   {
     id: "wrong",
     label: "错题本",
