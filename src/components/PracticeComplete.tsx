@@ -43,7 +43,7 @@ export function PracticeComplete({
           <p className="font-serif text-5xl font-semibold tabular-nums text-brand">
             {accuracy}%
           </p>
-          <p className="mt-2 text-sm text-text-secondary">正确率</p>
+          <p className="mt-2 text-sm text-text-secondary">已答题正确率</p>
         </div>
         <Stagger as="dl" className="mt-6 grid grid-cols-3 gap-3 text-center">
           <StaggerItem className="border border-border bg-bg-surface p-3">
@@ -66,11 +66,11 @@ export function PracticeComplete({
           </StaggerItem>
         </Stagger>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button className="flex-1" onClick={onPrimary}>
-            {primaryLabel}
-          </Button>
-          <Button className="flex-1" onClick={onRetry} variant="outline">
+          <Button className="flex-1" onClick={onRetry}>
             再刷一遍
+          </Button>
+          <Button className="flex-1" onClick={onPrimary} variant="outline">
+            {primaryLabel}
           </Button>
         </div>
       </motion.section>
