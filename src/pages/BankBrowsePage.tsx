@@ -52,7 +52,7 @@ export function BankBrowsePage() {
 
   return (
     <main className="min-h-screen">
-      <PageTransition className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-12">
+      <PageTransition className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-12">
         <header className="paper-panel p-6">
           <div className="flex flex-col gap-4">
             <Button asChild className="w-fit" size="sm" variant="ghost">

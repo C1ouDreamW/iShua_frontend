@@ -160,7 +160,7 @@ export function HomePage() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      <PageTransition className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-6 sm:gap-10 sm:px-6 sm:py-12">
+      <PageTransition className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-6 sm:gap-10 sm:px-6 sm:py-12">
         <header className="paper-panel relative overflow-hidden p-5 sm:p-8">
           <div
             aria-hidden
