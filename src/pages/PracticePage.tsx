@@ -61,6 +61,9 @@ export function PracticePage() {
           navigate(isAuthenticated ? "/app/banks" : "/");
         }}
         onRetry={session.restart}
+        onReviewWrong={() =>
+          navigate(`/app/wrong-questions/practice?bankId=${numericBankId}`)
+        }
         title="本次练习完成"
         unansweredCount={session.stats.unansweredCount}
         wrongCount={session.stats.wrongCount}

@@ -12,6 +12,7 @@ type PracticeCompleteProps = {
   onPrimary: () => void;
   onRetry: () => void;
   onContinueUnanswered?: () => void;
+  onReviewWrong?: () => void;
   primaryLabel?: string;
 };
 
@@ -23,11 +24,14 @@ export function PracticeComplete({
   onPrimary,
   onRetry,
   onContinueUnanswered,
+  onReviewWrong,
   primaryLabel = "返回大厅",
 }: PracticeCompleteProps) {
   const answeredCount = correctCount + wrongCount;
   const accuracy =
     answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+  const canReviewWrong =
+    unansweredCount === 0 && wrongCount > 0 && Boolean(onReviewWrong);
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6 py-12">
@@ -72,12 +76,16 @@ export function PracticeComplete({
             <Button onClick={onContinueUnanswered}>
               继续未答题（{unansweredCount}）
             </Button>
+          ) : canReviewWrong ? (
+            <Button onClick={onReviewWrong}>重刷错题（{wrongCount}）</Button>
           ) : null}
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
               className="flex-1"
               onClick={onRetry}
-              variant={unansweredCount > 0 ? "outline" : "default"}
+              variant={
+                unansweredCount > 0 || canReviewWrong ? "outline" : "default"
+              }
             >
               再刷一遍
             </Button>
