@@ -52,6 +52,7 @@ type PracticePlayerCoreProps = {
   onAnswerChange: (value: string) => void;
   onSubmit: () => void;
   onComplete: () => void;
+  onRestart?: () => void;
   autoNext: boolean;
   onToggleAutoNext: () => void;
   exitTo: string;
@@ -74,6 +75,7 @@ export function PracticePlayerCore({
   onAnswerChange,
   onSubmit,
   onComplete,
+  onRestart,
   autoNext,
   onToggleAutoNext,
   exitTo,
@@ -198,9 +200,24 @@ export function PracticePlayerCore({
             避免长标题、题数与开关在 320-375px 下互相挤压。 */}
         <div className="mx-auto flex max-w-3xl flex-col gap-1.5 px-4 py-2.5 sm:px-6 sm:py-4">
           <div className="flex items-center justify-between gap-2">
-            <Button asChild size="sm" variant="ghost">
-              <Link to={exitTo}>← 退出</Link>
-            </Button>
+            <div className="flex items-center">
+              <Button asChild size="sm" variant="ghost">
+                <Link to={exitTo}>← 退出</Link>
+              </Button>
+              {onRestart ? (
+                <Button
+                  onClick={() => {
+                    if (window.confirm("清空本题库的作答进度并从头开始？")) {
+                      onRestart();
+                    }
+                  }}
+                  size="sm"
+                  variant="ghost"
+                >
+                  重来
+                </Button>
+              ) : null}
+            </div>
             <div className="flex min-w-0 items-center justify-end gap-3">
               <p
                 aria-live="polite"
@@ -211,7 +228,8 @@ export function PracticePlayerCore({
                 <span className="text-text-muted"> / {questions.length} 题</span>
               </p>
               <label className="flex shrink-0 items-center gap-1.5 text-xs text-text-muted">
-                <span>自动下一题</span>
+                <span className="sm:hidden">自动</span>
+                <span className="hidden sm:inline">自动下一题</span>
                 <button
                   aria-checked={autoNext}
                   className={cn(

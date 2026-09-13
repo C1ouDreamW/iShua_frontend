@@ -398,6 +398,7 @@ export function GuestPracticePage() {
           }
           onComplete={complete}
           onIndexChange={(index) => setCurrentIndex(index)}
+          onRestart={restart}
           onSubmit={submitCurrentAnswer}
           onToggleAutoNext={() => setAutoNext((prev) => !prev)}
           questions={state.questions}

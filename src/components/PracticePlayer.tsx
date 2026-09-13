@@ -15,6 +15,7 @@ type PracticePlayerProps = {
   onAnswerChange: (value: string) => void;
   onSubmit: () => void;
   onComplete: () => void;
+  onRestart: () => void;
   showWrongToast: boolean;
   onDismissWrongToast: () => void;
   autoNext: boolean;
@@ -31,6 +32,7 @@ export function PracticePlayer({
   onAnswerChange,
   onSubmit,
   onComplete,
+  onRestart,
   showWrongToast,
   onDismissWrongToast,
   autoNext,
@@ -55,6 +57,7 @@ export function PracticePlayer({
       isAnswerEmpty={!record || record.answer.length === 0}
       onAnswerChange={onAnswerChange}
       onComplete={onComplete}
+      onRestart={onRestart}
       onDismissWrongToast={onDismissWrongToast}
       onIndexChange={onIndexChange}
       onSubmit={onSubmit}

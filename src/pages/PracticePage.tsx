@@ -120,6 +120,7 @@ export function PracticePage() {
           onComplete={session.complete}
           onDismissWrongToast={session.dismissWrongToast}
           onIndexChange={session.setCurrentIndex}
+          onRestart={session.restart}
           onSubmit={() => void session.submitCurrent()}
           onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
           questions={session.questions}

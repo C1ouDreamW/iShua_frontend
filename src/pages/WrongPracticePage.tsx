@@ -96,6 +96,7 @@ export function WrongPracticePage() {
           onAnswerChange={session.updateAnswer}
           onComplete={session.complete}
           onIndexChange={session.setCurrentIndex}
+          onRestart={session.restart}
           onSubmit={() => void session.submitCurrent()}
           onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
           questions={session.questions}

@@ -119,6 +119,7 @@ export function RecitePage() {
           currentIndex={session.workingIndex}
           onMark={session.markCurrent}
           onPrev={session.goPrev}
+          onRestart={() => session.restart()}
           questions={session.questions}
         />
       )}

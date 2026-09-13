@@ -36,6 +36,7 @@ type RecitePlayerProps = {
   currentIndex: number;
   onMark: (mark: ReciteMark) => void;
   onPrev: () => void;
+  onRestart: () => void;
 };
 
 export function RecitePlayer({
@@ -45,6 +46,7 @@ export function RecitePlayer({
   currentIndex,
   onMark,
   onPrev,
+  onRestart,
 }: RecitePlayerProps) {
   const { isAuthenticated } = useAuth();
   const question = questions[currentIndex];
@@ -122,9 +124,22 @@ export function RecitePlayer({
       <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 pt-safe backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="min-w-0">
-            <Button asChild size="sm" variant="ghost">
-              <Link to={isAuthenticated ? "/app/banks" : "/"}>← 退出</Link>
-            </Button>
+            <div className="flex items-center">
+              <Button asChild size="sm" variant="ghost">
+                <Link to={isAuthenticated ? "/app/banks" : "/"}>← 退出</Link>
+              </Button>
+              <Button
+                onClick={() => {
+                  if (window.confirm("清空本次背题标记并从头开始？")) {
+                    onRestart();
+                  }
+                }}
+                size="sm"
+                variant="ghost"
+              >
+                重来
+              </Button>
+            </div>
             <h1 className="mt-1.5 truncate font-serif text-lg font-semibold text-text-primary sm:mt-2 sm:text-xl">
               {bankTitle}
             </h1>
