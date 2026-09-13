@@ -56,7 +56,6 @@ export function usePracticeSession(bankId: number) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [autoNext, setAutoNext] = useState(false);
   const autoNextRef = useRef(autoNext);
-  autoNextRef.current = autoNext;
   const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearAutoNextTimer = useCallback(() => {
@@ -67,10 +66,17 @@ export function usePracticeSession(bankId: number) {
   }, []);
 
   useEffect(() => {
+    autoNextRef.current = autoNext;
+    if (!autoNext) {
+      clearAutoNextTimer();
+    }
+
     return clearAutoNextTimer;
-  }, [clearAutoNextTimer]);
+  }, [autoNext, clearAutoNextTimer, currentIndex]);
 
   const reload = useCallback(async () => {
+    clearAutoNextTimer();
+
     if (!Number.isFinite(bankId)) {
       setStatus("error");
       setError("题库 ID 不正确。");
@@ -102,7 +108,7 @@ export function usePracticeSession(bankId: number) {
       setStatus("error");
       setError(resolveLoadError(loadError));
     }
-  }, [bankId]);
+  }, [bankId, clearAutoNextTimer]);
 
   useEffect(() => {
     void reload();
@@ -233,18 +239,20 @@ export function usePracticeSession(bankId: number) {
   }, [bankId, clearAutoNextTimer, currentIndex, questions, records]);
 
   const restart = useCallback(() => {
+    clearAutoNextTimer();
     setRecords(createEmptyRecords(questions));
     setCurrentIndex(0);
     setStatus("ready");
     setShowWrongToast(false);
     setError(null);
     setSubmitError(null);
-  }, [questions]);
+  }, [clearAutoNextTimer, questions]);
 
   const complete = useCallback(() => {
+    clearAutoNextTimer();
     setStatus("complete");
     setShowWrongToast(false);
-  }, []);
+  }, [clearAutoNextTimer]);
 
   const dismissWrongToast = useCallback(() => {
     setShowWrongToast(false);

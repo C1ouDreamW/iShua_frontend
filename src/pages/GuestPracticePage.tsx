@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 
 import { getHotPracticeDetail } from "@/api/bankNodes";
 import type { QuestionBank } from "@/api/banks";
@@ -11,8 +11,13 @@ import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
 import { PracticePlayerCore } from "@/components/PracticePlayerCore";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
-import { buildLoginRedirect, buildRecitePath } from "@/lib/navigation";
+import {
+  buildLoginRedirect,
+  buildPracticePath,
+  buildRecitePath,
+} from "@/lib/navigation";
 import { gradeAnswer } from "@/lib/gradeAnswer";
 import {
   isObjectiveQuestionType,
@@ -43,6 +48,7 @@ function createEmptyRecords(questions: Question[]) {
 export function GuestPracticePage() {
   const { bankId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const numericBankId = Number(bankId);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completed, setCompleted] = useState(false);
@@ -55,7 +61,6 @@ export function GuestPracticePage() {
   });
   const [autoNext, setAutoNext] = useState(false);
   const autoNextRef = useRef(autoNext);
-  autoNextRef.current = autoNext;
   const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearAutoNextTimer = useCallback(() => {
@@ -66,10 +71,19 @@ export function GuestPracticePage() {
   }, []);
 
   useEffect(() => {
+    autoNextRef.current = autoNext;
+    if (!autoNext) {
+      clearAutoNextTimer();
+    }
+
     return clearAutoNextTimer;
-  }, [clearAutoNextTimer]);
+  }, [autoNext, clearAutoNextTimer, currentIndex]);
 
   useEffect(() => {
+    if (isAuthenticated) {
+      return;
+    }
+
     let ignore = false;
 
     async function loadDetail() {
@@ -120,7 +134,7 @@ export function GuestPracticePage() {
     return () => {
       ignore = true;
     };
-  }, [numericBankId]);
+  }, [isAuthenticated, numericBankId]);
 
   const question = state.questions[currentIndex];
   const record = answers[currentIndex];
@@ -241,6 +255,15 @@ export function GuestPracticePage() {
     setCompleted(false);
   }, [clearAutoNextTimer, state.questions]);
 
+  const complete = useCallback(() => {
+    clearAutoNextTimer();
+    setCompleted(true);
+  }, [clearAutoNextTimer]);
+
+  if (isAuthenticated && Number.isFinite(numericBankId)) {
+    return <Navigate replace to={buildPracticePath(numericBankId, true)} />;
+  }
+
   if (completed) {
     return (
       <PracticeComplete
@@ -306,7 +329,7 @@ export function GuestPracticePage() {
               </Link>
               <Link
                 className="text-xs text-text-muted underline-offset-4 hover:underline"
-                to={buildLoginRedirect(`/practice/guest/${numericBankId}`)}
+                to={buildLoginRedirect(buildPracticePath(numericBankId, true))}
               >
                 登录以同步错题
               </Link>
@@ -318,7 +341,7 @@ export function GuestPracticePage() {
           onAnswerChange={
             isManualGrading ? updateShortAnswer : updateCurrentAnswer
           }
-          onComplete={() => setCompleted(true)}
+          onComplete={complete}
           onIndexChange={(index) => setCurrentIndex(index)}
           onSubmit={submitCurrentAnswer}
           onToggleAutoNext={() => setAutoNext((prev) => !prev)}

@@ -33,7 +33,6 @@ export function useWrongPracticeSession(filterBankId?: number) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [autoNext, setAutoNext] = useState(false);
   const autoNextRef = useRef(autoNext);
-  autoNextRef.current = autoNext;
   const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearAutoNextTimer = useCallback(() => {
@@ -44,10 +43,16 @@ export function useWrongPracticeSession(filterBankId?: number) {
   }, []);
 
   useEffect(() => {
+    autoNextRef.current = autoNext;
+    if (!autoNext) {
+      clearAutoNextTimer();
+    }
+
     return clearAutoNextTimer;
-  }, [clearAutoNextTimer]);
+  }, [autoNext, clearAutoNextTimer, currentIndex]);
 
   const reload = useCallback(async () => {
+    clearAutoNextTimer();
     setStatus("loading");
     setError(null);
 
@@ -66,7 +71,7 @@ export function useWrongPracticeSession(filterBankId?: number) {
       setStatus("error");
       setError(resolveApiErrorMessage(loadError, "错题重刷数据加载失败。"));
     }
-  }, [filterBankId]);
+  }, [clearAutoNextTimer, filterBankId]);
 
   useEffect(() => {
     void reload();
@@ -204,8 +209,9 @@ export function useWrongPracticeSession(filterBankId?: number) {
   }, [reload]);
 
   const complete = useCallback(() => {
+    clearAutoNextTimer();
     setStatus("complete");
-  }, []);
+  }, [clearAutoNextTimer]);
 
   return {
     autoNext,
