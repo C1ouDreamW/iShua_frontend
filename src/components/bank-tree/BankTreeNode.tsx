@@ -21,6 +21,7 @@ export function BankTreeNode({
 }: BankTreeNodeProps) {
   const hasChildren = node.children.length > 0;
   const isFolder = isFolderNode(node);
+  const isEmptyLeaf = !isFolder && node.questionCount === 0;
   const [expanded, setExpanded] = useState(depth < 1);
   const isSelected = selectedId != null && node.id === selectedId;
 
@@ -65,7 +66,8 @@ export function BankTreeNode({
 
         <button
           aria-selected={isSelected || undefined}
-          className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 py-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+          className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 py-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-55"
+          disabled={isEmptyLeaf}
           onClick={handleSelect}
           type="button"
         >
