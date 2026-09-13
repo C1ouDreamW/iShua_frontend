@@ -14,6 +14,8 @@ type MathRendererProps = {
 
 const MATH_REGEX = /(\$\$[\s\S]*?\$\$|\$[^$\n\r]+?\$)/g;
 const MATH_REGEX_GLOBAL = new RegExp(MATH_REGEX.source, "g");
+const CONTENT_CLASSES =
+  "min-w-0 max-w-full break-words [overflow-wrap:anywhere] [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden";
 
 function renderMathFragment(latex: string, displayMode: boolean): string {
   const formula = displayMode
@@ -66,11 +68,11 @@ export const MathRenderer = memo(function MathRenderer({
   }
 
   if (parts.length === 0) {
-    return <Tag className={className}>{text}</Tag>;
+    return <Tag className={cn(CONTENT_CLASSES, className)}>{text}</Tag>;
   }
 
   return (
-    <Tag className={cn(className)}>
+    <Tag className={cn(CONTENT_CLASSES, className)}>
       {parts.map((part, i) =>
         part.type === "html" ? (
           <span key={i} dangerouslySetInnerHTML={{ __html: part.content }} />
