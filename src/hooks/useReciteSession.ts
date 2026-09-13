@@ -4,6 +4,10 @@ import { getBankNode, getHotPracticeDetail } from "@/api/bankNodes";
 import { pageQuestionsInBank, type Question } from "@/api/questions";
 import { ApiError } from "@/api/client";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import {
+  readPracticeProgress,
+  savePracticePosition,
+} from "@/lib/practiceProgress";
 
 export type ReciteMark = "known" | "review";
 
@@ -74,12 +78,13 @@ export function useReciteSession(
     try {
       const bundle = await getHotPracticeDetail(bankId);
       const questions = bundle.questions ?? [];
+      const progress = readPracticeProgress("practice", bankId, questions);
 
       setAllQuestions(questions);
       setActiveIndices(questions.map((_, index) => index));
       setMarks(questions.map(() => null));
       setBankTitle(bundle.bank?.title ?? "背题模式");
-      setWorkingIndex(0);
+      setWorkingIndex(progress?.currentIndex ?? 0);
       setStatus("ready");
     } catch (publicError) {
       // 公开聚合接口对私有题库返回 404；登录用户（题库所有者 / ADMIN）回退到分页接口。
@@ -104,12 +109,13 @@ export function useReciteSession(
         const { bankTitle: title, questions } = await loadFromPrivateBank(
           bankId,
         );
+        const progress = readPracticeProgress("practice", bankId, questions);
 
         setAllQuestions(questions);
         setActiveIndices(questions.map((_, index) => index));
         setMarks(questions.map(() => null));
         setBankTitle(title);
-        setWorkingIndex(0);
+        setWorkingIndex(progress?.currentIndex ?? 0);
         setStatus("ready");
       } catch (fallbackError) {
         setAllQuestions([]);
@@ -129,6 +135,21 @@ export function useReciteSession(
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    const isFullRun =
+      activeIndices.length === allQuestions.length &&
+      activeIndices.every((index, position) => index === position);
+
+    if (status === "ready" && isFullRun) {
+      savePracticePosition(
+        "practice",
+        bankId,
+        allQuestions,
+        workingIndex,
+      );
+    }
+  }, [activeIndices, allQuestions, bankId, status, workingIndex]);
 
   const questions = useMemo(
     () => activeIndices.map((index) => allQuestions[index]).filter(Boolean),

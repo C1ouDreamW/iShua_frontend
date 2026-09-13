@@ -7,6 +7,11 @@ import {
 } from "@/api/practice";
 import { listWrongPractice } from "@/api/wrong";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import {
+  clearPracticeProgress,
+  readPracticeProgress,
+  savePracticeProgress,
+} from "@/lib/practiceProgress";
 import { isObjectiveQuestionType } from "@/lib/practiceQuestion";
 import type { PracticeAnswerRecord } from "@/hooks/usePracticeSession";
 
@@ -59,10 +64,16 @@ export function useWrongPracticeSession(filterBankId?: number) {
     try {
       const questionList = await listWrongPractice(filterBankId);
       const items = questionList ?? [];
+      const progress = readPracticeProgress(
+        "wrong",
+        filterBankId ?? 0,
+        items,
+      );
 
       setQuestions(items);
-      setRecords(createEmptyRecords(items));
-      setCurrentIndex(0);
+      setRecords(progress?.records ?? createEmptyRecords(items));
+      setCurrentIndex(progress?.currentIndex ?? 0);
+      setAutoNext(progress?.autoNext ?? false);
       setStatus("ready");
       setSubmitError(null);
     } catch (loadError) {
@@ -76,6 +87,25 @@ export function useWrongPracticeSession(filterBankId?: number) {
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    if (status === "complete") {
+      clearPracticeProgress(
+        "wrong",
+        filterBankId ?? 0,
+      );
+      return;
+    }
+
+    if (status === "ready") {
+      savePracticeProgress(
+        "wrong",
+        filterBankId ?? 0,
+        questions,
+        { autoNext, currentIndex, records },
+      );
+    }
+  }, [autoNext, currentIndex, filterBankId, questions, records, status]);
 
   const stats = useMemo(() => {
     const correctCount = records.filter((item) => item.correct === true).length;
@@ -205,13 +235,21 @@ export function useWrongPracticeSession(filterBankId?: number) {
   }, [clearAutoNextTimer, currentIndex, questions, records]);
 
   const restart = useCallback(() => {
+    clearPracticeProgress(
+      "wrong",
+      filterBankId ?? 0,
+    );
     void reload();
-  }, [reload]);
+  }, [filterBankId, reload]);
 
   const complete = useCallback(() => {
     clearAutoNextTimer();
+    clearPracticeProgress(
+      "wrong",
+      filterBankId ?? 0,
+    );
     setStatus("complete");
-  }, [clearAutoNextTimer]);
+  }, [clearAutoNextTimer, filterBankId]);
 
   return {
     autoNext,

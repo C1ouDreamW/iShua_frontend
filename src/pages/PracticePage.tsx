@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
 import { useAuth } from "@/hooks/useAuth";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
+import {
+  clearRecentPractice,
+  rememberRecentPractice,
+} from "@/lib/practiceProgress";
 
 export function PracticePage() {
   const { bankId } = useParams();
@@ -25,6 +29,28 @@ export function PracticePage() {
       showError(session.submitError);
     }
   }, [session.submitError, showError]);
+
+  useEffect(() => {
+    if (session.status === "complete") {
+      clearRecentPractice(numericBankId);
+      return;
+    }
+
+    if (session.status === "ready" && session.questions.length > 0) {
+      rememberRecentPractice({
+        authenticated: isAuthenticated,
+        bankId: numericBankId,
+        mode: "practice",
+        title: session.bankTitle,
+      });
+    }
+  }, [
+    isAuthenticated,
+    numericBankId,
+    session.bankTitle,
+    session.questions.length,
+    session.status,
+  ]);
 
   if (session.status === "complete") {
     return (

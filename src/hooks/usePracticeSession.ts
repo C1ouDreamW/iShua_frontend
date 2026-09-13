@@ -9,6 +9,11 @@ import {
   type PracticeQuestion,
 } from "@/api/practice";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import {
+  clearPracticeProgress,
+  readPracticeProgress,
+  savePracticeProgress,
+} from "@/lib/practiceProgress";
 import { isObjectiveQuestionType } from "@/lib/practiceQuestion";
 
 export type PracticeAnswerRecord = {
@@ -95,10 +100,12 @@ export function usePracticeSession(bankId: number) {
       ]);
 
       const items = questionList ?? [];
+      const progress = readPracticeProgress("practice", bankId, items);
 
       setQuestions(items);
-      setRecords(createEmptyRecords(items));
-      setCurrentIndex(0);
+      setRecords(progress?.records ?? createEmptyRecords(items));
+      setCurrentIndex(progress?.currentIndex ?? 0);
+      setAutoNext(progress?.autoNext ?? false);
       setBankTitle(detail?.bank?.title ?? "题库练习");
       setStatus("ready");
       setSubmitError(null);
@@ -113,6 +120,21 @@ export function usePracticeSession(bankId: number) {
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    if (status === "complete") {
+      clearPracticeProgress("practice", bankId);
+      return;
+    }
+
+    if (status === "ready") {
+      savePracticeProgress("practice", bankId, questions, {
+        autoNext,
+        currentIndex,
+        records,
+      });
+    }
+  }, [autoNext, bankId, currentIndex, questions, records, status]);
 
   const stats = useMemo(() => {
     const correctCount = records.filter((item) => item.correct === true).length;
@@ -240,19 +262,21 @@ export function usePracticeSession(bankId: number) {
 
   const restart = useCallback(() => {
     clearAutoNextTimer();
+    clearPracticeProgress("practice", bankId);
     setRecords(createEmptyRecords(questions));
     setCurrentIndex(0);
     setStatus("ready");
     setShowWrongToast(false);
     setError(null);
     setSubmitError(null);
-  }, [clearAutoNextTimer, questions]);
+  }, [bankId, clearAutoNextTimer, questions]);
 
   const complete = useCallback(() => {
     clearAutoNextTimer();
+    clearPracticeProgress("practice", bankId);
     setStatus("complete");
     setShowWrongToast(false);
-  }, [clearAutoNextTimer]);
+  }, [bankId, clearAutoNextTimer]);
 
   const dismissWrongToast = useCallback(() => {
     setShowWrongToast(false);

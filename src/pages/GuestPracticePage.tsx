@@ -20,6 +20,13 @@ import {
 } from "@/lib/navigation";
 import { gradeAnswer } from "@/lib/gradeAnswer";
 import {
+  clearPracticeProgress,
+  clearRecentPractice,
+  readPracticeProgress,
+  rememberRecentPractice,
+  savePracticeProgress,
+} from "@/lib/practiceProgress";
+import {
   isObjectiveQuestionType,
   parseAnswerPoints,
 } from "@/lib/practiceQuestion";
@@ -102,6 +109,11 @@ export function GuestPracticePage() {
       try {
         const detail = await getHotPracticeDetail(numericBankId);
         const questions = detail.questions ?? [];
+        const progress = readPracticeProgress(
+          "practice",
+          numericBankId,
+          questions,
+        );
 
         if (!ignore) {
           setState({
@@ -110,8 +122,9 @@ export function GuestPracticePage() {
             loading: false,
             questions,
           });
-          setAnswers(createEmptyRecords(questions));
-          setCurrentIndex(0);
+          setAnswers(progress?.records ?? createEmptyRecords(questions));
+          setCurrentIndex(progress?.currentIndex ?? 0);
+          setAutoNext(progress?.autoNext ?? false);
           setCompleted(false);
         }
       } catch (error) {
@@ -135,6 +148,44 @@ export function GuestPracticePage() {
       ignore = true;
     };
   }, [isAuthenticated, numericBankId]);
+
+  useEffect(() => {
+    if (completed) {
+      clearPracticeProgress("practice", numericBankId);
+      clearRecentPractice(numericBankId);
+      return;
+    }
+
+    if (
+      !isAuthenticated &&
+      !state.loading &&
+      !state.error &&
+      state.questions.length > 0
+    ) {
+      savePracticeProgress("practice", numericBankId, state.questions, {
+        autoNext,
+        currentIndex,
+        records: answers,
+      });
+      rememberRecentPractice({
+        authenticated: false,
+        bankId: numericBankId,
+        mode: "practice",
+        title: state.bank?.title ?? "访客刷题",
+      });
+    }
+  }, [
+    answers,
+    autoNext,
+    currentIndex,
+    completed,
+    isAuthenticated,
+    numericBankId,
+    state.bank?.title,
+    state.error,
+    state.loading,
+    state.questions,
+  ]);
 
   const question = state.questions[currentIndex];
   const record = answers[currentIndex];
@@ -250,15 +301,17 @@ export function GuestPracticePage() {
 
   const restart = useCallback(() => {
     clearAutoNextTimer();
+    clearPracticeProgress("practice", numericBankId);
     setAnswers(createEmptyRecords(state.questions));
     setCurrentIndex(0);
     setCompleted(false);
-  }, [clearAutoNextTimer, state.questions]);
+  }, [clearAutoNextTimer, numericBankId, state.questions]);
 
   const complete = useCallback(() => {
     clearAutoNextTimer();
+    clearPracticeProgress("practice", numericBankId);
     setCompleted(true);
-  }, [clearAutoNextTimer]);
+  }, [clearAutoNextTimer, numericBankId]);
 
   if (isAuthenticated && Number.isFinite(numericBankId)) {
     return <Navigate replace to={buildPracticePath(numericBankId, true)} />;

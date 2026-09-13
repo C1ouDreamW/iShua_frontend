@@ -17,6 +17,11 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useResponsivePageSize } from "@/hooks/useResponsivePageSize";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import {
+  buildPracticePath,
+  buildRecitePath,
+} from "@/lib/navigation";
+import { readRecentPractice } from "@/lib/practiceProgress";
 import { cn } from "@/lib/utils";
 
 type LobbyState = {
@@ -48,6 +53,7 @@ export function HomePage() {
   const { isAuthenticated, loading: authLoading, logout, user } = useAuth();
   const pageSize = useResponsivePageSize();
   const [current, setCurrent] = useState(1);
+  const [recentPractice] = useState(readRecentPractice);
   const [reloadKey, setReloadKey] = useState(0);
   const forceReloadRef = useRef(false);
   const [state, setState] = useState<LobbyState>(() => {
@@ -62,6 +68,10 @@ export function HomePage() {
         }
       : { error: null, loading: true, refreshing: false, roots: [], total: 0 };
   });
+  const visibleRecentPractice =
+    !authLoading && recentPractice?.authenticated === isAuthenticated
+      ? recentPractice
+      : null;
 
   useEffect(() => {
     let ignore = false;
@@ -202,6 +212,27 @@ export function HomePage() {
                   ? "挑一个题库继续学习，也可以进入文件夹按章节选择。"
                   : "挑一个题库就能开始练习，不登录也可以刷。"}
               </p>
+              {visibleRecentPractice ? (
+                <Button asChild className="w-full sm:w-fit">
+                  <Link
+                    to={
+                      visibleRecentPractice.mode === "recite"
+                        ? buildRecitePath(
+                            visibleRecentPractice.bankId,
+                            isAuthenticated,
+                          )
+                        : buildPracticePath(
+                            visibleRecentPractice.bankId,
+                            isAuthenticated,
+                          )
+                    }
+                  >
+                    <span className="max-w-64 truncate">
+                      继续上次 · {visibleRecentPractice.title}
+                    </span>
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           </div>
         </header>
