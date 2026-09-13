@@ -120,12 +120,12 @@ export function RecitePlayer({
   return (
     <main className="min-h-screen pb-practice-footer">
       <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 pt-safe backdrop-blur-sm">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="min-w-0">
             <Button asChild size="sm" variant="ghost">
               <Link to={isAuthenticated ? "/app/banks" : "/"}>← 退出</Link>
             </Button>
-            <h1 className="mt-2 truncate font-serif text-xl font-semibold text-text-primary">
+            <h1 className="mt-1.5 truncate font-serif text-lg font-semibold text-text-primary sm:mt-2 sm:text-xl">
               {bankTitle}
             </h1>
           </div>
@@ -154,7 +154,7 @@ export function RecitePlayer({
         </div>
       </header>
 
-      <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-8">
+      <section className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-5 sm:px-6 sm:py-8">
         <QuestionTransition
           className={paperSheetClasses()}
           currentIndex={currentIndex}

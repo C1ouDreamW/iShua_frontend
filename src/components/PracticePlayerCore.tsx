@@ -196,8 +196,8 @@ export function PracticePlayerCore({
       <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 pt-safe backdrop-blur-sm">
         {/* 窄屏两行布局：第一行操作（退出 + 进度 + 自动下一题），第二行标题 + 辅助链接，
             避免长标题、题数与开关在 320-375px 下互相挤压。 */}
-        <div className="mx-auto flex max-w-3xl flex-col gap-1.5 px-4 py-3 sm:px-6 sm:py-4">
-          <div className="flex items-center justify-between gap-3">
+        <div className="mx-auto flex max-w-3xl flex-col gap-1.5 px-4 py-2.5 sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
             <Button asChild size="sm" variant="ghost">
               <Link to={exitTo}>← 退出</Link>
             </Button>
@@ -249,7 +249,7 @@ export function PracticePlayerCore({
         </div>
       </header>
 
-      <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-8">
+      <section className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-5 sm:px-6 sm:py-8">
         <QuestionTransition
           className={paperSheetClasses()}
           currentIndex={currentIndex}

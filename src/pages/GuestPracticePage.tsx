@@ -373,18 +373,20 @@ export function GuestPracticePage() {
           enableKeyboardNav
           exitTo="/"
           headerExtra={
-            <div className="flex flex-col items-end gap-0.5">
+            <div className="flex shrink-0 items-center gap-3 whitespace-nowrap">
               <Link
                 className="text-xs text-brand underline-offset-4 hover:underline"
                 to={buildRecitePath(numericBankId, false)}
               >
-                切换背题模式
+                <span className="sm:hidden">背题</span>
+                <span className="hidden sm:inline">切换背题模式</span>
               </Link>
               <Link
                 className="text-xs text-text-muted underline-offset-4 hover:underline"
                 to={buildLoginRedirect(buildPracticePath(numericBankId, true))}
               >
-                登录以同步错题
+                <span className="sm:hidden">登录同步</span>
+                <span className="hidden sm:inline">登录以同步错题</span>
               </Link>
             </div>
           }

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export function paperSheetClasses(extra?: string) {
   return cn(
-    "paper-sheet paper-ruled rounded-lg border border-border p-6",
+    "paper-sheet paper-ruled rounded-lg border border-border p-4 sm:p-6",
     extra,
   );
 }
