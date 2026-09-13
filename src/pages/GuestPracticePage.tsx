@@ -397,8 +397,8 @@ export function GuestPracticePage() {
                 className="text-xs text-text-muted underline-offset-4 hover:underline"
                 to={buildLoginRedirect(buildPracticePath(numericBankId, true))}
               >
-                <span className="sm:hidden">登录同步</span>
-                <span className="hidden sm:inline">登录以同步错题</span>
+                <span className="sm:hidden">登录后记录</span>
+                <span className="hidden sm:inline">登录后记录错题</span>
               </Link>
             </div>
           }
