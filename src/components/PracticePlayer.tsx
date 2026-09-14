@@ -48,7 +48,7 @@ export function PracticePlayer({
       exitTo={isAuthenticated ? "/app/banks" : "/"}
       headerExtra={
         <Link
-          className="text-xs text-brand underline-offset-4 hover:underline"
+          className="shrink-0 whitespace-nowrap text-xs text-brand underline-offset-4 hover:underline"
           to={buildRecitePath(bankId, isAuthenticated)}
         >
           切换背题模式
