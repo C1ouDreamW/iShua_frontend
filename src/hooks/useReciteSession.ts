@@ -9,6 +9,8 @@ import { pageQuestionsInBank, type Question } from "@/api/questions";
 import { ApiError } from "@/api/client";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
 import {
+  findFirstUnansweredIndex,
+  findNextUnmarkedIndex,
   readPracticeProgress,
   savePracticePosition,
 } from "@/lib/practiceProgress";
@@ -154,12 +156,28 @@ export function useReciteSession(
       activeIndices.length === allQuestions.length &&
       activeIndices.every((index, position) => index === position);
 
-    if (status === "ready" && isFullRun) {
+    if (!isFullRun) {
+      return;
+    }
+
+    if (status === "ready") {
       savePracticePosition(
         "practice",
         bankId,
         allQuestions,
         workingIndex,
+      );
+      return;
+    }
+
+    if (status === "complete") {
+      const progress = readPracticeProgress("practice", bankId, allQuestions);
+      const firstUnanswered = findFirstUnansweredIndex(progress?.records ?? []);
+      savePracticePosition(
+        "practice",
+        bankId,
+        allQuestions,
+        firstUnanswered < 0 ? 0 : firstUnanswered,
       );
     }
   }, [activeIndices, allQuestions, bankId, status, workingIndex]);
@@ -205,14 +223,19 @@ export function useReciteSession(
         items.map((item, index) => (index === allIndex ? mark : item)),
       );
 
-      if (workingIndex >= activeIndices.length - 1) {
+      const nextIndex = findNextUnmarkedIndex(
+        activeIndices,
+        marks,
+        workingIndex,
+      );
+      if (nextIndex < 0) {
         setStatus("complete");
         return;
       }
 
-      setWorkingIndex((index) => index + 1);
+      setWorkingIndex(nextIndex);
     },
-    [activeIndices, workingIndex],
+    [activeIndices, marks, workingIndex],
   );
 
   const goPrev = useCallback(() => {

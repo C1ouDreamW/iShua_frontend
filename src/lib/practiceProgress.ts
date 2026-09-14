@@ -6,6 +6,16 @@ export function findFirstUnansweredIndex(
   return records.findIndex((record) => !record.submitted);
 }
 
+export function findNextUnmarkedIndex(
+  activeIndices: number[],
+  marks: Array<unknown | null>,
+  currentIndex: number,
+) {
+  return activeIndices.findIndex(
+    (index, position) => position !== currentIndex && marks[index] === null,
+  );
+}
+
 export function summarizePracticeRecords(
   records: Array<{ submitted: boolean; correct: boolean | null }>,
 ) {

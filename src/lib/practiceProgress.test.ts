@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   findFirstUnansweredIndex,
+  findNextUnmarkedIndex,
   parsePracticeProgress,
   summarizePracticeRecords,
 } from "./practiceProgress";
@@ -38,6 +39,13 @@ it("找到第一道未答题", () => {
     ]),
   ).toBe(1);
   expect(findFirstUnansweredIndex([{ submitted: true }])).toBe(-1);
+});
+
+it("背到末题时回到前面尚未标记的题", () => {
+  expect(findNextUnmarkedIndex([0, 1, 2], [null, null, null], 2)).toBe(0);
+  expect(findNextUnmarkedIndex([0, 1, 2], ["known", "review", null], 2)).toBe(
+    -1,
+  );
 });
 
 it("将主观题计入已看解析而不是答错", () => {
