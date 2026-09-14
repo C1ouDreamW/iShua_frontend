@@ -9,10 +9,7 @@ import {
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { PaginationBar } from "@/components/PaginationBar";
-import {
-  WrongQuestionList,
-  type BankFilterOption,
-} from "@/components/WrongQuestionList";
+import { WrongQuestionList } from "@/components/WrongQuestionList";
 const PAGE_SIZE = 10;
 
 export function WrongQuestionsPage() {
@@ -36,7 +33,7 @@ export function WrongQuestionsPage() {
         const labels: Record<number, string> = {};
 
         for (const node of nodes ?? []) {
-          if (isLeafNode(node) && node.id) {
+          if (isLeafNode(node) && node.id && node.questionCount !== 0) {
             labels[node.id] = node.title ?? `题库 ${node.id}`;
           }
         }
