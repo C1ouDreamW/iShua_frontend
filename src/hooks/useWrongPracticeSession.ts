@@ -12,6 +12,7 @@ import {
   findFirstUnansweredIndex,
   readPracticeProgress,
   savePracticeProgress,
+  summarizePracticeRecords,
 } from "@/lib/practiceProgress";
 import { isObjectiveQuestionType } from "@/lib/practiceQuestion";
 import type { PracticeAnswerRecord } from "@/hooks/usePracticeSession";
@@ -114,13 +115,7 @@ export function useWrongPracticeSession(filterBankId?: number) {
     }
   }, [autoNext, currentIndex, filterBankId, questions, records, status]);
 
-  const stats = useMemo(() => {
-    const correctCount = records.filter((item) => item.correct === true).length;
-    const wrongCount = records.filter((item) => item.correct === false).length;
-    const unansweredCount = records.filter((item) => !item.submitted).length;
-
-    return { correctCount, unansweredCount, wrongCount };
-  }, [records]);
+  const stats = useMemo(() => summarizePracticeRecords(records), [records]);
 
   const updateAnswer = useCallback(
     (value: string) => {

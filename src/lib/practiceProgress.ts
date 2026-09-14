@@ -6,6 +6,19 @@ export function findFirstUnansweredIndex(
   return records.findIndex((record) => !record.submitted);
 }
 
+export function summarizePracticeRecords(
+  records: Array<{ submitted: boolean; correct: boolean | null }>,
+) {
+  return {
+    correctCount: records.filter((record) => record.correct === true).length,
+    reviewedCount: records.filter(
+      (record) => record.submitted && record.correct === null,
+    ).length,
+    unansweredCount: records.filter((record) => !record.submitted).length,
+    wrongCount: records.filter((record) => record.correct === false).length,
+  };
+}
+
 export type PersistedPracticeRecord = {
   answer: string[];
   submitted: boolean;

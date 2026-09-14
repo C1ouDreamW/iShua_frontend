@@ -29,6 +29,7 @@ import {
   readPracticeProgress,
   rememberRecentPractice,
   savePracticeProgress,
+  summarizePracticeRecords,
 } from "@/lib/practiceProgress";
 import {
   isObjectiveQuestionType,
@@ -210,13 +211,7 @@ export function GuestPracticePage() {
     () => (question ? parseAnswerPoints(question.answerJson) : []),
     [question],
   );
-  const stats = useMemo(() => {
-    const correctCount = answers.filter((item) => item.correct === true).length;
-    const wrongCount = answers.filter((item) => item.correct === false).length;
-    const unansweredCount = answers.filter((item) => !item.submitted).length;
-
-    return { correctCount, unansweredCount, wrongCount };
-  }, [answers]);
+  const stats = useMemo(() => summarizePracticeRecords(answers), [answers]);
 
   const updateCurrentAnswer = useCallback(
     (value: string) => {
@@ -347,6 +342,7 @@ export function GuestPracticePage() {
         onContinueUnanswered={continueUnanswered}
         onPrimary={() => navigate("/")}
         onRetry={restart}
+        reviewedCount={stats.reviewedCount}
         title="访客刷题完成"
         unansweredCount={stats.unansweredCount}
         wrongCount={stats.wrongCount}

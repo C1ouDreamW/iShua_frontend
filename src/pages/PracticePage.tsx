@@ -68,6 +68,7 @@ export function PracticePage() {
         onReviewWrong={() =>
           navigate(`/app/wrong-questions/practice?bankId=${numericBankId}`)
         }
+        reviewedCount={session.stats.reviewedCount}
         title="本次练习完成"
         unansweredCount={session.stats.unansweredCount}
         wrongCount={session.stats.wrongCount}

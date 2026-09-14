@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   findFirstUnansweredIndex,
   parsePracticeProgress,
+  summarizePracticeRecords,
 } from "./practiceProgress";
 
 const questions = [{ id: 10 }, { id: 11 }];
@@ -37,4 +38,20 @@ it("找到第一道未答题", () => {
     ]),
   ).toBe(1);
   expect(findFirstUnansweredIndex([{ submitted: true }])).toBe(-1);
+});
+
+it("将主观题计入已看解析而不是答错", () => {
+  expect(
+    summarizePracticeRecords([
+      { submitted: true, correct: true },
+      { submitted: true, correct: false },
+      { submitted: true, correct: null },
+      { submitted: false, correct: null },
+    ]),
+  ).toEqual({
+    correctCount: 1,
+    reviewedCount: 1,
+    unansweredCount: 1,
+    wrongCount: 1,
+  });
 });
