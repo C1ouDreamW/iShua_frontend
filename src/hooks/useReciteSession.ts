@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getBankNode, getHotPracticeDetail } from "@/api/bankNodes";
+import {
+  getBankNode,
+  getHotPracticeDetail,
+  isHotPracticeUnavailableError,
+} from "@/api/bankNodes";
 import { pageQuestionsInBank, type Question } from "@/api/questions";
 import { ApiError } from "@/api/client";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
@@ -87,9 +91,18 @@ export function useReciteSession(
       setWorkingIndex(progress?.currentIndex ?? 0);
       setStatus("ready");
     } catch (publicError) {
+      if (!isAuthenticated && isHotPracticeUnavailableError(publicError)) {
+        setAllQuestions([]);
+        setActiveIndices([]);
+        setMarks([]);
+        setStatus("ready");
+        return;
+      }
+
       // 公开聚合接口对私有题库返回 404；登录用户（题库所有者 / ADMIN）回退到分页接口。
       const isPrivateBank =
-        publicError instanceof ApiError && publicError.code === 404;
+        (publicError instanceof ApiError && publicError.code === 404) ||
+        isHotPracticeUnavailableError(publicError);
 
       if (!isAuthenticated || !isPrivateBank) {
         setAllQuestions([]);

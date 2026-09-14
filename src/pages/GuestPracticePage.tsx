@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 
-import { getHotPracticeDetail } from "@/api/bankNodes";
+import {
+  getHotPracticeDetail,
+  isHotPracticeUnavailableError,
+} from "@/api/bankNodes";
 import type { QuestionBank } from "@/api/banks";
-import { ApiError } from "@/api/client";
 import type { Question } from "@/api/questions";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
@@ -134,7 +136,7 @@ export function GuestPracticePage() {
           setState({
             bank: null,
             error:
-              error instanceof ApiError && error.code === 403
+              isHotPracticeUnavailableError(error)
                 ? null
                 : resolveApiErrorMessage(error, "访客刷题数据加载失败。"),
             loading: false,
