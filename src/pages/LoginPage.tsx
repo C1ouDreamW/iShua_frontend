@@ -16,7 +16,7 @@ function getDefaultLanding() {
 }
 
 export function LoginPage() {
-  const { isAuthenticated, loading: authLoading, login, user } = useAuth();
+  const { isAuthenticated, loading: authLoading, login } = useAuth();
   const { error: showToastError } = useAppToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -49,7 +49,7 @@ export function LoginPage() {
     setError(null);
 
     try {
-      const result = await login({
+      await login({
         password: values.password,
         username: values.username,
       });
