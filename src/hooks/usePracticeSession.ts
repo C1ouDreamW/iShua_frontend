@@ -9,6 +9,13 @@ import {
   type PracticeQuestion,
 } from "@/api/practice";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import {
+  clearPracticeProgress,
+  findFirstUnansweredIndex,
+  readPracticeProgress,
+  savePracticeProgress,
+  summarizePracticeRecords,
+} from "@/lib/practiceProgress";
 import { isObjectiveQuestionType } from "@/lib/practiceQuestion";
 
 export type PracticeAnswerRecord = {
@@ -56,7 +63,6 @@ export function usePracticeSession(bankId: number) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [autoNext, setAutoNext] = useState(false);
   const autoNextRef = useRef(autoNext);
-  autoNextRef.current = autoNext;
   const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearAutoNextTimer = useCallback(() => {
@@ -67,10 +73,17 @@ export function usePracticeSession(bankId: number) {
   }, []);
 
   useEffect(() => {
+    autoNextRef.current = autoNext;
+    if (!autoNext) {
+      clearAutoNextTimer();
+    }
+
     return clearAutoNextTimer;
-  }, [clearAutoNextTimer]);
+  }, [autoNext, clearAutoNextTimer, currentIndex]);
 
   const reload = useCallback(async () => {
+    clearAutoNextTimer();
+
     if (!Number.isFinite(bankId)) {
       setStatus("error");
       setError("题库 ID 不正确。");
@@ -89,10 +102,12 @@ export function usePracticeSession(bankId: number) {
       ]);
 
       const items = questionList ?? [];
+      const progress = readPracticeProgress("practice", bankId, items);
 
       setQuestions(items);
-      setRecords(createEmptyRecords(items));
-      setCurrentIndex(0);
+      setRecords(progress?.records ?? createEmptyRecords(items));
+      setCurrentIndex(progress?.currentIndex ?? 0);
+      setAutoNext(progress?.autoNext ?? false);
       setBankTitle(detail?.bank?.title ?? "题库练习");
       setStatus("ready");
       setSubmitError(null);
@@ -102,19 +117,37 @@ export function usePracticeSession(bankId: number) {
       setStatus("error");
       setError(resolveLoadError(loadError));
     }
-  }, [bankId]);
+  }, [bankId, clearAutoNextTimer]);
 
   useEffect(() => {
     void reload();
   }, [reload]);
 
-  const stats = useMemo(() => {
-    const correctCount = records.filter((item) => item.correct === true).length;
-    const wrongCount = records.filter((item) => item.correct === false).length;
-    const unansweredCount = records.filter((item) => !item.submitted).length;
+  useEffect(() => {
+    if (status === "complete") {
+      const firstUnansweredIndex = findFirstUnansweredIndex(records);
+      if (firstUnansweredIndex === -1) {
+        clearPracticeProgress("practice", bankId);
+      } else {
+        savePracticeProgress("practice", bankId, questions, {
+          autoNext,
+          currentIndex: firstUnansweredIndex,
+          records,
+        });
+      }
+      return;
+    }
 
-    return { correctCount, unansweredCount, wrongCount };
-  }, [records]);
+    if (status === "ready") {
+      savePracticeProgress("practice", bankId, questions, {
+        autoNext,
+        currentIndex,
+        records,
+      });
+    }
+  }, [autoNext, bankId, currentIndex, questions, records, status]);
+
+  const stats = useMemo(() => summarizePracticeRecords(records), [records]);
 
   const updateAnswer = useCallback(
     (value: string) => {
@@ -233,18 +266,33 @@ export function usePracticeSession(bankId: number) {
   }, [bankId, clearAutoNextTimer, currentIndex, questions, records]);
 
   const restart = useCallback(() => {
+    clearAutoNextTimer();
+    clearPracticeProgress("practice", bankId);
     setRecords(createEmptyRecords(questions));
     setCurrentIndex(0);
     setStatus("ready");
     setShowWrongToast(false);
     setError(null);
     setSubmitError(null);
-  }, [questions]);
+  }, [bankId, clearAutoNextTimer, questions]);
 
   const complete = useCallback(() => {
+    clearAutoNextTimer();
+    clearPracticeProgress("practice", bankId);
     setStatus("complete");
     setShowWrongToast(false);
-  }, []);
+  }, [bankId, clearAutoNextTimer]);
+
+  const continueUnanswered = useCallback(() => {
+    const nextIndex = findFirstUnansweredIndex(records);
+    if (nextIndex < 0) {
+      return;
+    }
+
+    setCurrentIndex(nextIndex);
+    setStatus("ready");
+    setShowWrongToast(false);
+  }, [records]);
 
   const dismissWrongToast = useCallback(() => {
     setShowWrongToast(false);
@@ -254,6 +302,7 @@ export function usePracticeSession(bankId: number) {
     autoNext,
     bankTitle,
     complete,
+    continueUnanswered,
     currentIndex,
     dismissWrongToast,
     error,

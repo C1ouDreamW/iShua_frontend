@@ -7,6 +7,13 @@ import {
 } from "@/api/practice";
 import { listWrongPractice } from "@/api/wrong";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import {
+  clearPracticeProgress,
+  findFirstUnansweredIndex,
+  readPracticeProgress,
+  savePracticeProgress,
+  summarizePracticeRecords,
+} from "@/lib/practiceProgress";
 import { isObjectiveQuestionType } from "@/lib/practiceQuestion";
 import type { PracticeAnswerRecord } from "@/hooks/usePracticeSession";
 
@@ -33,7 +40,6 @@ export function useWrongPracticeSession(filterBankId?: number) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [autoNext, setAutoNext] = useState(false);
   const autoNextRef = useRef(autoNext);
-  autoNextRef.current = autoNext;
   const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearAutoNextTimer = useCallback(() => {
@@ -44,20 +50,32 @@ export function useWrongPracticeSession(filterBankId?: number) {
   }, []);
 
   useEffect(() => {
+    autoNextRef.current = autoNext;
+    if (!autoNext) {
+      clearAutoNextTimer();
+    }
+
     return clearAutoNextTimer;
-  }, [clearAutoNextTimer]);
+  }, [autoNext, clearAutoNextTimer, currentIndex]);
 
   const reload = useCallback(async () => {
+    clearAutoNextTimer();
     setStatus("loading");
     setError(null);
 
     try {
       const questionList = await listWrongPractice(filterBankId);
       const items = questionList ?? [];
+      const progress = readPracticeProgress(
+        "wrong",
+        filterBankId ?? 0,
+        items,
+      );
 
       setQuestions(items);
-      setRecords(createEmptyRecords(items));
-      setCurrentIndex(0);
+      setRecords(progress?.records ?? createEmptyRecords(items));
+      setCurrentIndex(progress?.currentIndex ?? 0);
+      setAutoNext(progress?.autoNext ?? false);
       setStatus("ready");
       setSubmitError(null);
     } catch (loadError) {
@@ -66,19 +84,38 @@ export function useWrongPracticeSession(filterBankId?: number) {
       setStatus("error");
       setError(resolveApiErrorMessage(loadError, "错题重刷数据加载失败。"));
     }
-  }, [filterBankId]);
+  }, [clearAutoNextTimer, filterBankId]);
 
   useEffect(() => {
     void reload();
   }, [reload]);
 
-  const stats = useMemo(() => {
-    const correctCount = records.filter((item) => item.correct === true).length;
-    const wrongCount = records.filter((item) => item.correct === false).length;
-    const unansweredCount = records.filter((item) => !item.submitted).length;
+  useEffect(() => {
+    if (status === "complete") {
+      const firstUnansweredIndex = findFirstUnansweredIndex(records);
+      if (firstUnansweredIndex === -1) {
+        clearPracticeProgress("wrong", filterBankId ?? 0);
+      } else {
+        savePracticeProgress("wrong", filterBankId ?? 0, questions, {
+          autoNext,
+          currentIndex: firstUnansweredIndex,
+          records,
+        });
+      }
+      return;
+    }
 
-    return { correctCount, unansweredCount, wrongCount };
-  }, [records]);
+    if (status === "ready") {
+      savePracticeProgress(
+        "wrong",
+        filterBankId ?? 0,
+        questions,
+        { autoNext, currentIndex, records },
+      );
+    }
+  }, [autoNext, currentIndex, filterBankId, questions, records, status]);
+
+  const stats = useMemo(() => summarizePracticeRecords(records), [records]);
 
   const updateAnswer = useCallback(
     (value: string) => {
@@ -200,16 +237,36 @@ export function useWrongPracticeSession(filterBankId?: number) {
   }, [clearAutoNextTimer, currentIndex, questions, records]);
 
   const restart = useCallback(() => {
+    clearPracticeProgress(
+      "wrong",
+      filterBankId ?? 0,
+    );
     void reload();
-  }, [reload]);
+  }, [filterBankId, reload]);
 
   const complete = useCallback(() => {
+    clearAutoNextTimer();
+    clearPracticeProgress(
+      "wrong",
+      filterBankId ?? 0,
+    );
     setStatus("complete");
-  }, []);
+  }, [clearAutoNextTimer, filterBankId]);
+
+  const continueUnanswered = useCallback(() => {
+    const nextIndex = findFirstUnansweredIndex(records);
+    if (nextIndex < 0) {
+      return;
+    }
+
+    setCurrentIndex(nextIndex);
+    setStatus("ready");
+  }, [records]);
 
   return {
     autoNext,
     complete,
+    continueUnanswered,
     currentIndex,
     error,
     questions,

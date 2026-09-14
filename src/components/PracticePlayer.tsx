@@ -15,6 +15,7 @@ type PracticePlayerProps = {
   onAnswerChange: (value: string) => void;
   onSubmit: () => void;
   onComplete: () => void;
+  onRestart: () => void;
   showWrongToast: boolean;
   onDismissWrongToast: () => void;
   autoNext: boolean;
@@ -31,6 +32,7 @@ export function PracticePlayer({
   onAnswerChange,
   onSubmit,
   onComplete,
+  onRestart,
   showWrongToast,
   onDismissWrongToast,
   autoNext,
@@ -46,7 +48,7 @@ export function PracticePlayer({
       exitTo={isAuthenticated ? "/app/banks" : "/"}
       headerExtra={
         <Link
-          className="text-xs text-brand underline-offset-4 hover:underline"
+          className="shrink-0 whitespace-nowrap text-xs text-brand underline-offset-4 hover:underline"
           to={buildRecitePath(bankId, isAuthenticated)}
         >
           切换背题模式
@@ -55,6 +57,7 @@ export function PracticePlayer({
       isAnswerEmpty={!record || record.answer.length === 0}
       onAnswerChange={onAnswerChange}
       onComplete={onComplete}
+      onRestart={onRestart}
       onDismissWrongToast={onDismissWrongToast}
       onIndexChange={onIndexChange}
       onSubmit={onSubmit}

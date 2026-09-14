@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 
-import { getHotPracticeDetail } from "@/api/bankNodes";
+import {
+  getHotPracticeDetail,
+  isHotPracticeUnavailableError,
+} from "@/api/bankNodes";
 import type { QuestionBank } from "@/api/banks";
 import type { Question } from "@/api/questions";
 import { EmptyState } from "@/components/EmptyState";
@@ -11,9 +14,23 @@ import { ContentCrossfade } from "@/components/motion/ContentCrossfade";
 import { PracticePlayerCore } from "@/components/PracticePlayerCore";
 import { PracticeComplete } from "@/components/PracticeComplete";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
-import { buildLoginRedirect, buildRecitePath } from "@/lib/navigation";
+import {
+  buildLoginRedirect,
+  buildPracticePath,
+  buildRecitePath,
+} from "@/lib/navigation";
 import { gradeAnswer } from "@/lib/gradeAnswer";
+import {
+  clearPracticeProgress,
+  clearRecentPractice,
+  findFirstUnansweredIndex,
+  readPracticeProgress,
+  rememberRecentPractice,
+  savePracticeProgress,
+  summarizePracticeRecords,
+} from "@/lib/practiceProgress";
 import {
   isObjectiveQuestionType,
   parseAnswerPoints,
@@ -43,6 +60,7 @@ function createEmptyRecords(questions: Question[]) {
 export function GuestPracticePage() {
   const { bankId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const numericBankId = Number(bankId);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completed, setCompleted] = useState(false);
@@ -55,7 +73,6 @@ export function GuestPracticePage() {
   });
   const [autoNext, setAutoNext] = useState(false);
   const autoNextRef = useRef(autoNext);
-  autoNextRef.current = autoNext;
   const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearAutoNextTimer = useCallback(() => {
@@ -66,10 +83,19 @@ export function GuestPracticePage() {
   }, []);
 
   useEffect(() => {
+    autoNextRef.current = autoNext;
+    if (!autoNext) {
+      clearAutoNextTimer();
+    }
+
     return clearAutoNextTimer;
-  }, [clearAutoNextTimer]);
+  }, [autoNext, clearAutoNextTimer, currentIndex]);
 
   useEffect(() => {
+    if (isAuthenticated) {
+      return;
+    }
+
     let ignore = false;
 
     async function loadDetail() {
@@ -88,6 +114,11 @@ export function GuestPracticePage() {
       try {
         const detail = await getHotPracticeDetail(numericBankId);
         const questions = detail.questions ?? [];
+        const progress = readPracticeProgress(
+          "practice",
+          numericBankId,
+          questions,
+        );
 
         if (!ignore) {
           setState({
@@ -96,18 +127,19 @@ export function GuestPracticePage() {
             loading: false,
             questions,
           });
-          setAnswers(createEmptyRecords(questions));
-          setCurrentIndex(0);
+          setAnswers(progress?.records ?? createEmptyRecords(questions));
+          setCurrentIndex(progress?.currentIndex ?? 0);
+          setAutoNext(progress?.autoNext ?? false);
           setCompleted(false);
         }
       } catch (error) {
         if (!ignore) {
           setState({
             bank: null,
-            error: resolveApiErrorMessage(
-              error,
-              "访客刷题数据加载失败。",
-            ),
+            error:
+              isHotPracticeUnavailableError(error)
+                ? null
+                : resolveApiErrorMessage(error, "访客刷题数据加载失败。"),
             loading: false,
             questions: [],
           });
@@ -120,7 +152,54 @@ export function GuestPracticePage() {
     return () => {
       ignore = true;
     };
-  }, [numericBankId]);
+  }, [isAuthenticated, numericBankId]);
+
+  useEffect(() => {
+    if (completed) {
+      const firstUnansweredIndex = findFirstUnansweredIndex(answers);
+      if (firstUnansweredIndex === -1) {
+        clearPracticeProgress("practice", numericBankId);
+        clearRecentPractice(numericBankId);
+      } else {
+        savePracticeProgress("practice", numericBankId, state.questions, {
+          autoNext,
+          currentIndex: firstUnansweredIndex,
+          records: answers,
+        });
+      }
+      return;
+    }
+
+    if (
+      !isAuthenticated &&
+      !state.loading &&
+      !state.error &&
+      state.questions.length > 0
+    ) {
+      savePracticeProgress("practice", numericBankId, state.questions, {
+        autoNext,
+        currentIndex,
+        records: answers,
+      });
+      rememberRecentPractice({
+        authenticated: false,
+        bankId: numericBankId,
+        mode: "practice",
+        title: state.bank?.title ?? "访客刷题",
+      });
+    }
+  }, [
+    answers,
+    autoNext,
+    currentIndex,
+    completed,
+    isAuthenticated,
+    numericBankId,
+    state.bank?.title,
+    state.error,
+    state.loading,
+    state.questions,
+  ]);
 
   const question = state.questions[currentIndex];
   const record = answers[currentIndex];
@@ -132,13 +211,7 @@ export function GuestPracticePage() {
     () => (question ? parseAnswerPoints(question.answerJson) : []),
     [question],
   );
-  const stats = useMemo(() => {
-    const correctCount = answers.filter((item) => item.correct === true).length;
-    const wrongCount = answers.filter((item) => item.correct === false).length;
-    const unansweredCount = answers.filter((item) => !item.submitted).length;
-
-    return { correctCount, unansweredCount, wrongCount };
-  }, [answers]);
+  const stats = useMemo(() => summarizePracticeRecords(answers), [answers]);
 
   const updateCurrentAnswer = useCallback(
     (value: string) => {
@@ -236,17 +309,40 @@ export function GuestPracticePage() {
 
   const restart = useCallback(() => {
     clearAutoNextTimer();
+    clearPracticeProgress("practice", numericBankId);
     setAnswers(createEmptyRecords(state.questions));
     setCurrentIndex(0);
     setCompleted(false);
-  }, [clearAutoNextTimer, state.questions]);
+  }, [clearAutoNextTimer, numericBankId, state.questions]);
+
+  const complete = useCallback(() => {
+    clearAutoNextTimer();
+    clearPracticeProgress("practice", numericBankId);
+    setCompleted(true);
+  }, [clearAutoNextTimer, numericBankId]);
+
+  const continueUnanswered = useCallback(() => {
+    const nextIndex = findFirstUnansweredIndex(answers);
+    if (nextIndex < 0) {
+      return;
+    }
+
+    setCurrentIndex(nextIndex);
+    setCompleted(false);
+  }, [answers]);
+
+  if (isAuthenticated && Number.isFinite(numericBankId)) {
+    return <Navigate replace to={buildPracticePath(numericBankId, true)} />;
+  }
 
   if (completed) {
     return (
       <PracticeComplete
         correctCount={stats.correctCount}
+        onContinueUnanswered={continueUnanswered}
         onPrimary={() => navigate("/")}
         onRetry={restart}
+        reviewedCount={stats.reviewedCount}
         title="访客刷题完成"
         unansweredCount={stats.unansweredCount}
         wrongCount={stats.wrongCount}
@@ -297,18 +393,20 @@ export function GuestPracticePage() {
           enableKeyboardNav
           exitTo="/"
           headerExtra={
-            <div className="flex flex-col items-end gap-0.5">
+            <div className="flex shrink-0 items-center gap-3 whitespace-nowrap">
               <Link
                 className="text-xs text-brand underline-offset-4 hover:underline"
                 to={buildRecitePath(numericBankId, false)}
               >
-                切换背题模式
+                <span className="sm:hidden">背题</span>
+                <span className="hidden sm:inline">切换背题模式</span>
               </Link>
               <Link
                 className="text-xs text-text-muted underline-offset-4 hover:underline"
-                to={buildLoginRedirect(`/practice/guest/${numericBankId}`)}
+                to={buildLoginRedirect(buildPracticePath(numericBankId, true))}
               >
-                登录以同步错题
+                <span className="sm:hidden">登录后记录</span>
+                <span className="hidden sm:inline">登录后记录错题</span>
               </Link>
             </div>
           }
@@ -318,8 +416,9 @@ export function GuestPracticePage() {
           onAnswerChange={
             isManualGrading ? updateShortAnswer : updateCurrentAnswer
           }
-          onComplete={() => setCompleted(true)}
+          onComplete={complete}
           onIndexChange={(index) => setCurrentIndex(index)}
+          onRestart={restart}
           onSubmit={submitCurrentAnswer}
           onToggleAutoNext={() => setAutoNext((prev) => !prev)}
           questions={state.questions}

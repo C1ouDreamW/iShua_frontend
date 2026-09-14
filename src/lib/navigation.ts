@@ -7,7 +7,7 @@ export function sanitizeRedirect(
     return fallback;
   }
 
-  let decoded = raw;
+  let decoded: string;
 
   try {
     decoded = decodeURIComponent(raw);

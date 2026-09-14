@@ -10,6 +10,7 @@ type WrongPracticePlayerProps = {
   onAnswerChange: (value: string) => void;
   onSubmit: () => void;
   onComplete: () => void;
+  onRestart: () => void;
   autoNext: boolean;
   onToggleAutoNext: () => void;
 };
@@ -22,6 +23,7 @@ export function WrongPracticePlayer({
   onAnswerChange,
   onSubmit,
   onComplete,
+  onRestart,
   autoNext,
   onToggleAutoNext,
 }: WrongPracticePlayerProps) {
@@ -34,6 +36,7 @@ export function WrongPracticePlayer({
       isAnswerEmpty={!record || record.answer.length === 0}
       onAnswerChange={onAnswerChange}
       onComplete={onComplete}
+      onRestart={onRestart}
       onIndexChange={onIndexChange}
       onSubmit={onSubmit}
       onToggleAutoNext={onToggleAutoNext}

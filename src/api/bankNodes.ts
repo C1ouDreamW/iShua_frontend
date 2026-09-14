@@ -1,4 +1,4 @@
-import { request } from "@/api/client";
+import { ApiError, request } from "@/api/client";
 import type { components } from "@/types/api";
 
 export type PageResult<T> = {
@@ -115,6 +115,10 @@ export function getHotPracticeDetail(nodeId: number) {
   return request<QuestionBankDetailBundle>(
     `/api/v1/bank-nodes/${nodeId}/hot-practice-detail`,
   );
+}
+
+export function isHotPracticeUnavailableError(error: unknown) {
+  return error instanceof ApiError && error.code === 403;
 }
 
 export function batchImportQuestions(

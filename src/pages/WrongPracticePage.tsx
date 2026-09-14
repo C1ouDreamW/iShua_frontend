@@ -37,6 +37,7 @@ export function WrongPracticePage() {
     return (
       <PracticeComplete
         correctCount={session.stats.correctCount}
+        onContinueUnanswered={session.continueUnanswered}
         onPrimary={() => navigate("/app/wrong-questions")}
         onRetry={session.restart}
         primaryLabel="返回错题本"
@@ -96,6 +97,7 @@ export function WrongPracticePage() {
           onAnswerChange={session.updateAnswer}
           onComplete={session.complete}
           onIndexChange={session.setCurrentIndex}
+          onRestart={session.restart}
           onSubmit={() => void session.submitCurrent()}
           onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
           questions={session.questions}

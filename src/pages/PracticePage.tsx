@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/hooks/useAppToast";
 import { useAuth } from "@/hooks/useAuth";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
+import {
+  clearRecentPractice,
+  rememberRecentPractice,
+} from "@/lib/practiceProgress";
 
 export function PracticePage() {
   const { bankId } = useParams();
@@ -26,14 +30,45 @@ export function PracticePage() {
     }
   }, [session.submitError, showError]);
 
+  useEffect(() => {
+    if (
+      session.status === "complete" &&
+      session.stats.unansweredCount === 0
+    ) {
+      clearRecentPractice(numericBankId);
+      return;
+    }
+
+    if (session.status === "ready" && session.questions.length > 0) {
+      rememberRecentPractice({
+        authenticated: isAuthenticated,
+        bankId: numericBankId,
+        mode: "practice",
+        title: session.bankTitle,
+      });
+    }
+  }, [
+    isAuthenticated,
+    numericBankId,
+    session.bankTitle,
+    session.questions.length,
+    session.status,
+    session.stats.unansweredCount,
+  ]);
+
   if (session.status === "complete") {
     return (
       <PracticeComplete
         correctCount={session.stats.correctCount}
+        onContinueUnanswered={session.continueUnanswered}
         onPrimary={() => {
           navigate(isAuthenticated ? "/app/banks" : "/");
         }}
         onRetry={session.restart}
+        onReviewWrong={() =>
+          navigate(`/app/wrong-questions/practice?bankId=${numericBankId}`)
+        }
+        reviewedCount={session.stats.reviewedCount}
         title="本次练习完成"
         unansweredCount={session.stats.unansweredCount}
         wrongCount={session.stats.wrongCount}
@@ -94,6 +129,7 @@ export function PracticePage() {
           onComplete={session.complete}
           onDismissWrongToast={session.dismissWrongToast}
           onIndexChange={session.setCurrentIndex}
+          onRestart={session.restart}
           onSubmit={() => void session.submitCurrent()}
           onToggleAutoNext={() => session.setAutoNext((prev) => !prev)}
           questions={session.questions}

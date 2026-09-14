@@ -16,7 +16,7 @@ function getDefaultLanding() {
 }
 
 export function LoginPage() {
-  const { isAuthenticated, loading: authLoading, login, user } = useAuth();
+  const { isAuthenticated, loading: authLoading, login } = useAuth();
   const { error: showToastError } = useAppToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -49,7 +49,7 @@ export function LoginPage() {
     setError(null);
 
     try {
-      const result = await login({
+      await login({
         password: values.password,
         username: values.username,
       });
@@ -82,7 +82,7 @@ export function LoginPage() {
               今天，也刷一点
             </h1>
             <p className="mt-4 max-w-md leading-7 opacity-90">
-              登录后可以同步练习记录，并在后续阶段使用错题本。
+              登录后可以跨设备保存错题，并按账号权限使用更多功能。
             </p>
           </div>
         </div>

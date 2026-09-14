@@ -1,9 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getBankNode, getHotPracticeDetail } from "@/api/bankNodes";
+import {
+  getBankNode,
+  getHotPracticeDetail,
+  isHotPracticeUnavailableError,
+} from "@/api/bankNodes";
 import { pageQuestionsInBank, type Question } from "@/api/questions";
 import { ApiError } from "@/api/client";
 import { resolveApiErrorMessage } from "@/lib/apiErrors";
+import {
+  findFirstUnansweredIndex,
+  findNextUnmarkedIndex,
+  readPracticeProgress,
+  savePracticePosition,
+} from "@/lib/practiceProgress";
 
 export type ReciteMark = "known" | "review";
 
@@ -74,17 +84,27 @@ export function useReciteSession(
     try {
       const bundle = await getHotPracticeDetail(bankId);
       const questions = bundle.questions ?? [];
+      const progress = readPracticeProgress("practice", bankId, questions);
 
       setAllQuestions(questions);
       setActiveIndices(questions.map((_, index) => index));
       setMarks(questions.map(() => null));
       setBankTitle(bundle.bank?.title ?? "背题模式");
-      setWorkingIndex(0);
+      setWorkingIndex(progress?.currentIndex ?? 0);
       setStatus("ready");
     } catch (publicError) {
+      if (!isAuthenticated && isHotPracticeUnavailableError(publicError)) {
+        setAllQuestions([]);
+        setActiveIndices([]);
+        setMarks([]);
+        setStatus("ready");
+        return;
+      }
+
       // 公开聚合接口对私有题库返回 404；登录用户（题库所有者 / ADMIN）回退到分页接口。
       const isPrivateBank =
-        publicError instanceof ApiError && publicError.code === 404;
+        (publicError instanceof ApiError && publicError.code === 404) ||
+        isHotPracticeUnavailableError(publicError);
 
       if (!isAuthenticated || !isPrivateBank) {
         setAllQuestions([]);
@@ -104,12 +124,13 @@ export function useReciteSession(
         const { bankTitle: title, questions } = await loadFromPrivateBank(
           bankId,
         );
+        const progress = readPracticeProgress("practice", bankId, questions);
 
         setAllQuestions(questions);
         setActiveIndices(questions.map((_, index) => index));
         setMarks(questions.map(() => null));
         setBankTitle(title);
-        setWorkingIndex(0);
+        setWorkingIndex(progress?.currentIndex ?? 0);
         setStatus("ready");
       } catch (fallbackError) {
         setAllQuestions([]);
@@ -129,6 +150,37 @@ export function useReciteSession(
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    const isFullRun =
+      activeIndices.length === allQuestions.length &&
+      activeIndices.every((index, position) => index === position);
+
+    if (!isFullRun) {
+      return;
+    }
+
+    if (status === "ready") {
+      savePracticePosition(
+        "practice",
+        bankId,
+        allQuestions,
+        workingIndex,
+      );
+      return;
+    }
+
+    if (status === "complete") {
+      const progress = readPracticeProgress("practice", bankId, allQuestions);
+      const firstUnanswered = findFirstUnansweredIndex(progress?.records ?? []);
+      savePracticePosition(
+        "practice",
+        bankId,
+        allQuestions,
+        firstUnanswered < 0 ? 0 : firstUnanswered,
+      );
+    }
+  }, [activeIndices, allQuestions, bankId, status, workingIndex]);
 
   const questions = useMemo(
     () => activeIndices.map((index) => allQuestions[index]).filter(Boolean),
@@ -171,14 +223,19 @@ export function useReciteSession(
         items.map((item, index) => (index === allIndex ? mark : item)),
       );
 
-      if (workingIndex >= activeIndices.length - 1) {
+      const nextIndex = findNextUnmarkedIndex(
+        activeIndices,
+        marks,
+        workingIndex,
+      );
+      if (nextIndex < 0) {
         setStatus("complete");
         return;
       }
 
-      setWorkingIndex((index) => index + 1);
+      setWorkingIndex(nextIndex);
     },
-    [activeIndices, workingIndex],
+    [activeIndices, marks, workingIndex],
   );
 
   const goPrev = useCallback(() => {

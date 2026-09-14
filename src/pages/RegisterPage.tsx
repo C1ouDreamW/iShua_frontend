@@ -89,7 +89,7 @@ export function RegisterPage() {
                 今天，也刷一点
               </h1>
               <p className="mt-4 max-w-md leading-7 text-white/90">
-                注册后即可使用公开题库，并同步错题与练习记录。
+                注册后即可跨设备保存错题，并按账号权限使用更多功能。
               </p>
             </div>
           </div>

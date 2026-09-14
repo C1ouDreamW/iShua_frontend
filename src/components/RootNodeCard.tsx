@@ -28,11 +28,13 @@ export function RootNodeCard({ node }: RootNodeCardProps) {
   const isFolder = isFolderNode(node);
   const isLeaf = isLeafNode(node);
   const isPublic = node.isPublic === 1;
+  const hasQuestions = node.questionCount !== 0;
+  const folderMeta = isFolder ? formatFolderMeta(node) : "";
 
   return (
     <article
       className={cn(
-        "paper-panel paper-panel-accent flex min-h-44 flex-col justify-between p-5 sm:min-h-52",
+        "paper-panel paper-panel-accent flex min-h-40 flex-col justify-between p-5 sm:min-h-52",
         "transition-[border-color,background-color] duration-100",
         "hover:border-brand/30",
       )}
@@ -68,11 +70,13 @@ export function RootNodeCard({ node }: RootNodeCardProps) {
         <p className="line-clamp-2 text-sm leading-6 text-text-secondary">
           {node.description ||
             (isFolder
-              ? formatFolderMeta(node)
-              : "进入后可直接开始练习。")}
+              ? folderMeta
+              : hasQuestions
+                ? "进入后可直接开始练习。"
+                : "题库暂未录入题目。")}
         </p>
-        {isFolder ? (
-          <p className="text-xs text-text-muted">{formatFolderMeta(node)}</p>
+        {isFolder && node.description && node.description !== folderMeta ? (
+          <p className="text-xs text-text-muted">{folderMeta}</p>
         ) : null}
         {isLeaf && node.questionCount != null ? (
           <p className="text-xs text-text-muted">{node.questionCount} 道题</p>
@@ -86,7 +90,7 @@ export function RootNodeCard({ node }: RootNodeCardProps) {
               浏览子题库
             </Link>
           </Button>
-        ) : (
+        ) : hasQuestions ? (
           <div className="flex gap-2">
             <Button asChild className="flex-1" disabled={!nodeId}>
               <Link
@@ -107,6 +111,10 @@ export function RootNodeCard({ node }: RootNodeCardProps) {
               </Link>
             </Button>
           </div>
+        ) : (
+          <Button className="w-full" disabled>
+            暂无题目
+          </Button>
         )}
       </div>
     </article>

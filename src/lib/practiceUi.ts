@@ -2,29 +2,61 @@ import { cn } from "@/lib/utils";
 
 export function paperSheetClasses(extra?: string) {
   return cn(
-    "paper-sheet paper-ruled rounded-lg border border-border p-6",
+    "paper-sheet paper-ruled rounded-lg border border-border p-4 sm:p-6",
     extra,
   );
 }
 
-export function practiceOptionClasses(selected: boolean) {
+export type PracticeOptionState =
+  | "idle"
+  | "selected"
+  | "correct"
+  | "wrong"
+  | "dimmed";
+
+export function resolvePracticeOptionState({
+  correct,
+  selected,
+  submitted,
+}: {
+  correct: boolean;
+  selected: boolean;
+  submitted: boolean;
+}): PracticeOptionState {
+  if (!submitted) {
+    return selected ? "selected" : "idle";
+  }
+
+  if (correct) {
+    return "correct";
+  }
+
+  return selected ? "wrong" : "dimmed";
+}
+
+export function practiceOptionClasses(state: PracticeOptionState) {
   return cn(
     "flex w-full items-start gap-3 rounded-md border bg-bg-sheet p-4 text-left",
     "transition-[border-color,background-color,transform] duration-100 ease-out",
     "hover:border-brand/50 active:translate-y-px disabled:cursor-not-allowed",
     "border-l-[3px]",
-    selected
-      ? "border-brand border-l-brand bg-[color-mix(in_srgb,var(--bg-sheet)_88%,var(--brand-muted))]"
-      : "border-border border-l-border",
+    state === "selected" &&
+      "border-brand border-l-brand bg-[color-mix(in_srgb,var(--bg-sheet)_88%,var(--brand-muted))]",
+    state === "correct" && "border-success border-l-success bg-success-bg",
+    state === "wrong" && "border-error border-l-error bg-error-bg",
+    state === "dimmed" && "border-border border-l-border opacity-60",
+    state === "idle" && "border-border border-l-border",
   );
 }
 
-export function practiceOptionMarkerClasses(selected: boolean) {
+export function practiceOptionMarkerClasses(state: PracticeOptionState) {
   return cn(
     "flex size-7 shrink-0 items-center justify-center rounded-md border text-sm font-semibold tabular-nums",
-    selected
-      ? "border-brand bg-brand text-primary-foreground"
-      : "border-border bg-bg-surface text-brand",
+    state === "selected" && "border-brand bg-brand text-primary-foreground",
+    state === "correct" && "border-success bg-success text-primary-foreground",
+    state === "wrong" && "border-error bg-error text-primary-foreground",
+    (state === "idle" || state === "dimmed") &&
+      "border-border bg-bg-surface text-brand",
   );
 }
 

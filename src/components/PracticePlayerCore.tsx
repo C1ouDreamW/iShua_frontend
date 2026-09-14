@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Check, X } from "lucide-react";
 import { type ReactNode } from "react";
 
 import { MathRenderer } from "@/components/MathRenderer";
@@ -8,6 +9,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { PracticeToast } from "@/components/PracticeToast";
 import {
   formatAnswerJson,
+  getCorrectAnswerValues,
   getQuestionOptions,
   isObjectiveQuestionType,
   type QuestionLike,
@@ -20,6 +22,7 @@ import {
   practiceOptionClasses,
   practiceOptionMarkerClasses,
   practiceTypeBadgeClasses,
+  resolvePracticeOptionState,
 } from "@/lib/practiceUi";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -49,6 +52,7 @@ type PracticePlayerCoreProps = {
   onAnswerChange: (value: string) => void;
   onSubmit: () => void;
   onComplete: () => void;
+  onRestart?: () => void;
   autoNext: boolean;
   onToggleAutoNext: () => void;
   exitTo: string;
@@ -71,6 +75,7 @@ export function PracticePlayerCore({
   onAnswerChange,
   onSubmit,
   onComplete,
+  onRestart,
   autoNext,
   onToggleAutoNext,
   exitTo,
@@ -86,7 +91,6 @@ export function PracticePlayerCore({
 }: PracticePlayerCoreProps) {
   const question = questions[currentIndex];
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
-  const focusedOptionIndex = useRef(0);
   const stemRef = useRef<HTMLHeadingElement | null>(null);
 
   const options = useMemo(
@@ -99,10 +103,14 @@ export function PracticePlayerCore({
     : false;
   const isMultiple = question?.questionType === "MULTI";
   const shortAnswerValue = record?.answer[0] ?? "";
+  const progress = ((currentIndex + 1) / questions.length) * 100;
+  const correctValues = useMemo(
+    () => new Set(getCorrectAnswerValues(record?.answerJson ?? question?.answerJson)),
+    [question?.answerJson, record?.answerJson],
+  );
 
   // 与 RecitePlayer 一致：换题后在绘制前复位滚动，避免低端设备先画出旧滚动位置再跳顶。
   useLayoutEffect(() => {
-    focusedOptionIndex.current = 0;
     window.scrollTo(0, 0);
     if (enableKeyboardNav && !isManualGrading && stemRef.current) {
       stemRef.current.focus();
@@ -116,37 +124,41 @@ export function PracticePlayerCore({
       }
 
       const target = event.target;
+      const focusedOption =
+        target instanceof HTMLButtonElement
+          ? optionRefs.current.indexOf(target)
+          : -1;
       if (
         target instanceof HTMLElement &&
         (target.tagName === "INPUT" ||
           target.tagName === "TEXTAREA" ||
-          target.tagName === "BUTTON" ||
+          (target.tagName === "BUTTON" && focusedOption < 0) ||
           target.tagName === "A")
       ) {
         return;
       }
 
-      if (event.key === "ArrowDown") {
+      const forward = event.key === "ArrowDown" || event.key === "ArrowRight";
+      const backward = event.key === "ArrowUp" || event.key === "ArrowLeft";
+      if (forward || backward) {
         event.preventDefault();
-        focusedOptionIndex.current = Math.min(
-          focusedOptionIndex.current + 1,
-          options.length - 1,
-        );
-        optionRefs.current[focusedOptionIndex.current]?.focus();
+        const nextIndex =
+          focusedOption < 0
+            ? forward
+              ? 0
+              : options.length - 1
+            : (focusedOption + (forward ? 1 : -1) + options.length) %
+              options.length;
+        optionRefs.current[nextIndex]?.focus();
         return;
       }
 
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        focusedOptionIndex.current = Math.max(
-          focusedOptionIndex.current - 1,
-          0,
-        );
-        optionRefs.current[focusedOptionIndex.current]?.focus();
-        return;
-      }
-
-      if (event.key === "Enter" && record && record.answer.length > 0) {
+      if (
+        event.key === "Enter" &&
+        focusedOption < 0 &&
+        record &&
+        record.answer.length > 0
+      ) {
         event.preventDefault();
         onSubmit();
       }
@@ -183,14 +195,29 @@ export function PracticePlayerCore({
         />
       ) : null}
 
-      <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b border-border bg-bg-surface/95 pt-safe backdrop-blur-sm">
         {/* 窄屏两行布局：第一行操作（退出 + 进度 + 自动下一题），第二行标题 + 辅助链接，
             避免长标题、题数与开关在 320-375px 下互相挤压。 */}
-        <div className="mx-auto flex max-w-3xl flex-col gap-1.5 px-4 py-3 sm:px-6 sm:py-4">
-          <div className="flex items-center justify-between gap-3">
-            <Button asChild size="sm" variant="ghost">
-              <Link to={exitTo}>← 退出</Link>
-            </Button>
+        <div className="mx-auto flex max-w-3xl flex-col gap-1.5 px-4 py-2.5 sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center">
+              <Button asChild size="sm" variant="ghost">
+                <Link to={exitTo}>← 退出</Link>
+              </Button>
+              {onRestart ? (
+                <Button
+                  onClick={() => {
+                    if (window.confirm("清空本题库的作答进度并从头开始？")) {
+                      onRestart();
+                    }
+                  }}
+                  size="sm"
+                  variant="ghost"
+                >
+                  重来
+                </Button>
+              ) : null}
+            </div>
             <div className="flex min-w-0 items-center justify-end gap-3">
               <p
                 aria-live="polite"
@@ -201,7 +228,8 @@ export function PracticePlayerCore({
                 <span className="text-text-muted"> / {questions.length} 题</span>
               </p>
               <label className="flex shrink-0 items-center gap-1.5 text-xs text-text-muted">
-                <span>自动下一题</span>
+                <span className="sm:hidden">自动</span>
+                <span className="hidden sm:inline">自动下一题</span>
                 <button
                   aria-checked={autoNext}
                   className={cn(
@@ -231,9 +259,15 @@ export function PracticePlayerCore({
             {headerExtra}
           </div>
         </div>
+        <div className="h-1 w-full bg-bg-canvas" role="progressbar" aria-label="刷题进度" aria-valuemin={0} aria-valuemax={questions.length} aria-valuenow={currentIndex + 1}>
+          <div
+            className="h-full bg-brand transition-[width] duration-200 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </header>
 
-      <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-8">
+      <section className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-5 sm:px-6 sm:py-8">
         <QuestionTransition
           className={paperSheetClasses()}
           currentIndex={currentIndex}
@@ -293,11 +327,16 @@ export function PracticePlayerCore({
             >
               {options.map((option, index) => {
                 const selected = record?.answer.includes(option.value) ?? false;
+                const optionState = resolvePracticeOptionState({
+                  correct: correctValues.has(option.value.toUpperCase()),
+                  selected,
+                  submitted: record?.submitted ?? false,
+                });
 
                 return (
                   <button
                     aria-checked={selected}
-                    className={practiceOptionClasses(selected)}
+                    className={practiceOptionClasses(optionState)}
                     disabled={record?.submitted || record?.submitting}
                     key={option.value}
                     onClick={() => onAnswerChange(option.value)}
@@ -305,14 +344,28 @@ export function PracticePlayerCore({
                       optionRefs.current[index] = element;
                     }}
                     role={isMultiple ? "checkbox" : "radio"}
+                    tabIndex={selected || (!record?.answer.length && index === 0) ? 0 : -1}
                     type="button"
                   >
-                    <span className={practiceOptionMarkerClasses(selected)}>
+                    <span className={practiceOptionMarkerClasses(optionState)}>
                       {option.value}
                     </span>
-                    <span className="leading-7 text-text-primary">
+                    <span className="min-w-0 flex-1 leading-7 text-text-primary">
                       <MathRenderer text={option.label} />
                     </span>
+                    {optionState === "correct" ? (
+                      <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-xs font-medium text-success">
+                        <Check aria-hidden="true" className="size-4" />
+                        <span className="hidden sm:inline">正确</span>
+                        <span className="sr-only sm:hidden">正确答案</span>
+                      </span>
+                    ) : optionState === "wrong" ? (
+                      <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 text-xs font-medium text-error">
+                        <X aria-hidden="true" className="size-4" />
+                        <span className="hidden sm:inline">误选</span>
+                        <span className="sr-only sm:hidden">你的错误答案</span>
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}
@@ -374,33 +427,48 @@ export function PracticePlayerCore({
           >
             上一题
           </Button>
-          <Button
-            disabled={submitDisabled}
-            onClick={onSubmit}
-            size="lg"
-          >
-            {record?.submitting
-              ? isManualGrading
-                ? "加载中…"
-                : "提交中…"
-              : isManualGrading
-                ? "显示答案"
-                : "提交"}
-          </Button>
-          <Button
-            onClick={() => {
-              if (currentIndex >= questions.length - 1) {
-                onComplete();
-                return;
-              }
+          {record?.submitted ? (
+            <Button
+              className="col-span-2"
+              onClick={() => {
+                if (currentIndex >= questions.length - 1) {
+                  onComplete();
+                  return;
+                }
 
-              onIndexChange(currentIndex + 1);
-            }}
-            size="lg"
-            variant="outline"
-          >
-            {currentIndex >= questions.length - 1 ? "完成" : "下一题"}
-          </Button>
+                onIndexChange(currentIndex + 1);
+              }}
+              size="lg"
+            >
+              {currentIndex >= questions.length - 1 ? "查看结果" : "下一题"}
+            </Button>
+          ) : (
+            <>
+              <Button
+                onClick={() => {
+                  if (currentIndex >= questions.length - 1) {
+                    onComplete();
+                    return;
+                  }
+
+                  onIndexChange(currentIndex + 1);
+                }}
+                size="lg"
+                variant="ghost"
+              >
+                {currentIndex >= questions.length - 1 ? "结束" : "跳过"}
+              </Button>
+              <Button disabled={submitDisabled} onClick={onSubmit} size="lg">
+                {record?.submitting
+                  ? isManualGrading
+                    ? "加载中…"
+                    : "提交中…"
+                  : isManualGrading
+                    ? "显示答案"
+                    : "提交答案"}
+              </Button>
+            </>
+          )}
         </div>
       </footer>
     </main>
