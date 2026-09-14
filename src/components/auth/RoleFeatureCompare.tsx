@@ -7,7 +7,7 @@ import type { UserRole } from "@/types/auth";
 const ROLES: UserRole[] = ["USER", "PREMIUM", "ADMIN"];
 
 const FEATURE_MATRIX: { label: string; minRole: UserRole }[] = [
-  { label: "公开题库、错题与记录", minRole: "USER" },
+  { label: "公开题库与云端错题", minRole: "USER" },
   { label: "私有题库、管理与 AI 导入", minRole: "PREMIUM" },
   { label: "用户与权限管理", minRole: "ADMIN" },
 ];
@@ -15,7 +15,7 @@ const FEATURE_MATRIX: { label: string; minRole: UserRole }[] = [
 const ROLE_SUMMARIES: { role: UserRole; description: string }[] = [
   {
     role: "USER",
-    description: "使用公开题库，并同步错题与练习记录。",
+    description: "使用公开题库，并跨设备保存错题。",
   },
   {
     role: "PREMIUM",
