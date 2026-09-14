@@ -31,7 +31,10 @@ export function PracticePage() {
   }, [session.submitError, showError]);
 
   useEffect(() => {
-    if (session.status === "complete") {
+    if (
+      session.status === "complete" &&
+      session.stats.unansweredCount === 0
+    ) {
       clearRecentPractice(numericBankId);
       return;
     }
@@ -50,6 +53,7 @@ export function PracticePage() {
     session.bankTitle,
     session.questions.length,
     session.status,
+    session.stats.unansweredCount,
   ]);
 
   if (session.status === "complete") {

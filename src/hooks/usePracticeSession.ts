@@ -124,7 +124,16 @@ export function usePracticeSession(bankId: number) {
 
   useEffect(() => {
     if (status === "complete") {
-      clearPracticeProgress("practice", bankId);
+      const firstUnansweredIndex = findFirstUnansweredIndex(records);
+      if (firstUnansweredIndex === -1) {
+        clearPracticeProgress("practice", bankId);
+      } else {
+        savePracticeProgress("practice", bankId, questions, {
+          autoNext,
+          currentIndex: firstUnansweredIndex,
+          records,
+        });
+      }
       return;
     }
 

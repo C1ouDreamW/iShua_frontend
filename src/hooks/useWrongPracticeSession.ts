@@ -91,10 +91,16 @@ export function useWrongPracticeSession(filterBankId?: number) {
 
   useEffect(() => {
     if (status === "complete") {
-      clearPracticeProgress(
-        "wrong",
-        filterBankId ?? 0,
-      );
+      const firstUnansweredIndex = findFirstUnansweredIndex(records);
+      if (firstUnansweredIndex === -1) {
+        clearPracticeProgress("wrong", filterBankId ?? 0);
+      } else {
+        savePracticeProgress("wrong", filterBankId ?? 0, questions, {
+          autoNext,
+          currentIndex: firstUnansweredIndex,
+          records,
+        });
+      }
       return;
     }
 

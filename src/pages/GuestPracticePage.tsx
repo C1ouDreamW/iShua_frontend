@@ -155,8 +155,17 @@ export function GuestPracticePage() {
 
   useEffect(() => {
     if (completed) {
-      clearPracticeProgress("practice", numericBankId);
-      clearRecentPractice(numericBankId);
+      const firstUnansweredIndex = findFirstUnansweredIndex(answers);
+      if (firstUnansweredIndex === -1) {
+        clearPracticeProgress("practice", numericBankId);
+        clearRecentPractice(numericBankId);
+      } else {
+        savePracticeProgress("practice", numericBankId, state.questions, {
+          autoNext,
+          currentIndex: firstUnansweredIndex,
+          records: answers,
+        });
+      }
       return;
     }
 
